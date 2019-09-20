@@ -10,7 +10,19 @@ import { AdminPage } from './admin.page';
 const routes: Routes = [
   {
     path: '',
-    component: AdminPage
+    component: AdminPage,
+    children: [
+      {
+        path: 'courses',
+        loadChildren: () =>
+          import('./courses/courses.module').then(m => m.CoursesPageModule)
+      },
+      {
+        path: 'teachers',
+        loadChildren: () =>
+          import('./teachers/teachers.module').then(m => m.TeachersPageModule)
+      }
+    ]
   }
 ];
 
@@ -21,6 +33,7 @@ const routes: Routes = [
     IonicModule,
     RouterModule.forChild(routes)
   ],
+  exports: [RouterModule],
   declarations: [AdminPage]
 })
 export class AdminPageModule {}
