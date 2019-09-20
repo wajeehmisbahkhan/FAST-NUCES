@@ -38,7 +38,7 @@ export class AdminPage implements OnInit {
           icon: 'document'
         },
         {
-          title: 'Add Constraints',
+          title: 'Manage Constraints',
           url: '/admin/timetable/constraints',
           icon: 'cube'
         },
