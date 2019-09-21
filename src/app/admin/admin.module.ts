@@ -10,19 +10,7 @@ import { AdminPage } from './admin.page';
 const routes: Routes = [
   {
     path: '',
-    component: AdminPage,
-    children: [
-      {
-        path: 'courses',
-        loadChildren: () =>
-          import('./courses/courses.module').then(m => m.CoursesPageModule)
-      },
-      {
-        path: 'teachers',
-        loadChildren: () =>
-          import('./teachers/teachers.module').then(m => m.TeachersPageModule)
-      }
-    ]
+    component: AdminPage
   }
 ];
 

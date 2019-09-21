@@ -10,4 +10,170 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content> </ion-content>
+<ion-content>
+  <form #coursesForm="ngForm" (ngSubmit)="addCourse(); coursesForm.reset()">
+    <!--
+      courseCode: string; // CS205
+      department: string; // CS OR EE OR BBA
+      school: string; // CS OR EE OR MG OR MT OR SS
+      title: string; // Computer Architecture, Theory Of Automata
+      shortTitle: string; // CA, PROB, OS-LAB
+      creditHours: number; // 1, 3, 4
+      yearOffered: number; // 1, 2, 3, 4
+      semesterOffered: number; // 1, 2, 8
+      isCoreCourse: boolean; // true = is a core course
+      /*
+        Facilities
+        Need to add more like language lab and EE & BBA stuff
+      */
+      isComputerLab: boolean; // true = is a computer lab
+      isElectricalLab: boolean; // true = is an electrical lab
+      hasProjector: boolean; // true = has a working projector
+      hasAllInOne: boolean; // true = has a viper in class
+    -->
+    <ion-row class="ion-margin">
+      <ion-col size="3" size-xs="12" size-sm="6" size-md="3">
+        <ion-item>
+          <ion-label position="floating">Course Code</ion-label>
+          <ion-input
+            (focusout)="autoFillSchool()"
+            [(ngModel)]="course.courseCode"
+            name="courseCode"
+            required
+            type="text"
+          ></ion-input>
+        </ion-item>
+      </ion-col>
+      <ion-col size="3" size-xs="12" size-sm="6" size-md="3">
+        <ion-item>
+          <ion-label position="floating">Department</ion-label>
+          <ion-input
+            [(ngModel)]="course.department"
+            name="department"
+            required
+            type="text"
+          ></ion-input>
+        </ion-item>
+      </ion-col>
+      <ion-col size="3" size-xs="12" size-sm="6" size-md="3">
+        <ion-item>
+          <ion-label position="floating">School</ion-label>
+          <ion-input
+            [(ngModel)]="course.school"
+            name="school"
+            required
+            type="text"
+          ></ion-input>
+        </ion-item>
+      </ion-col>
+      <ion-col size="3" size-xs="12" size-sm="6" size-md="3">
+        <ion-item>
+          <ion-label position="floating">Title</ion-label>
+          <ion-input
+            [(ngModel)]="course.title"
+            name="title"
+            required
+            type="text"
+          ></ion-input>
+        </ion-item>
+      </ion-col>
+      <ion-col size="3" size-xs="12" size-sm="6" size-md="3">
+        <ion-item>
+          <ion-label position="floating">Short Title</ion-label>
+          <ion-input
+            [(ngModel)]="course.shortTitle"
+            name="shortTitle"
+            required
+            type="text"
+          ></ion-input>
+        </ion-item>
+      </ion-col>
+      <ion-col size="3" size-xs="12" size-sm="6" size-md="3">
+        <ion-item>
+          <ion-label position="floating">Credit Hours</ion-label>
+          <ion-input
+            [(ngModel)]="course.creditHours"
+            name="creditHours"
+            required
+            type="number"
+          ></ion-input>
+        </ion-item>
+      </ion-col>
+      <ion-col size="3" size-xs="12" size-sm="6" size-md="3">
+        <ion-item>
+          <ion-label position="floating">Year Offered</ion-label>
+          <ion-input
+            [(ngModel)]="course.yearOffered"
+            (focusout)="autoFillSemester()"
+            name="yearOffered"
+            required
+            type="text"
+          ></ion-input>
+        </ion-item>
+      </ion-col>
+      <ion-col size="3" size-xs="12" size-sm="6" size-md="3">
+        <ion-item>
+          <ion-label position="floating">Semester Offered</ion-label>
+          <ion-input
+            [(ngModel)]="course.semesterOffered"
+            name="semesterOffered"
+            required
+            type="text"
+          ></ion-input>
+        </ion-item>
+      </ion-col>
+      <ion-col size="3" size-xs="12" size-sm="6" size-md="3">
+        <ion-item>
+          <ion-label>Core Course</ion-label>
+          <ion-checkbox
+            [(ngModel)]="course.isCoreCourse"
+            name="isCoreCourse"
+          ></ion-checkbox>
+        </ion-item>
+      </ion-col>
+      <ion-col size="3" size-xs="12" size-sm="6" size-md="3">
+        <ion-item>
+          <ion-label>Computer Lab</ion-label>
+          <ion-checkbox
+            [(ngModel)]="course.isComputerLab"
+            (click)="course.isElectricalLab = false"
+            name="isComputerLab"
+          ></ion-checkbox>
+        </ion-item>
+      </ion-col>
+      <ion-col size="3" size-xs="12" size-sm="6" size-md="3">
+        <ion-item>
+          <ion-label>Electrical Lab</ion-label>
+          <ion-checkbox
+            [(ngModel)]="course.isElectricalLab"
+            (click)="course.isComputerLab = false"
+            name="isElectricalLab"
+          ></ion-checkbox>
+        </ion-item>
+      </ion-col>
+      <ion-col size="3" size-xs="12" size-sm="6" size-md="3">
+        <ion-item>
+          <ion-label>Projector</ion-label>
+          <ion-checkbox
+            [(ngModel)]="course.hasProjector"
+            name="hasProjector"
+          ></ion-checkbox>
+        </ion-item>
+      </ion-col>
+      <ion-col size="3" size-xs="12" size-sm="6" size-md="3">
+        <ion-item>
+          <ion-label>Computer</ion-label>
+          <ion-checkbox
+            [(ngModel)]="course.hasAllInOne"
+            name="hasAllInOne"
+          ></ion-checkbox>
+        </ion-item>
+      </ion-col>
+      <ion-col size="3" size-xs="12" size-sm="6" size-md="3">
+        <ion-button expand="full" [disabled]="!coursesForm.valid" type="submit"
+          >Add Course</ion-button
+        >
+      </ion-col>
+    </ion-row>
+  </form>
+</ion-content>
