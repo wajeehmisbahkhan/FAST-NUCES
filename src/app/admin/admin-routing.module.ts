@@ -14,27 +14,34 @@ const routes: Routes = [
   {
     path: 'courses',
     component: AdminPage,
-    loadChildren: './courses/courses.module#CoursesPageModule'
+    loadChildren: () =>
+      import('./courses/courses.module').then(m => m.CoursesPageModule)
   },
   {
     path: 'teachers',
     component: AdminPage,
-    loadChildren: './teachers/teachers.module#TeachersPageModule'
+    loadChildren: () =>
+      import('./teachers/teachers.module').then(m => m.TeachersPageModule)
   },
   {
     path: 'sections',
     component: AdminPage,
-    loadChildren: './sections/sections.module#SectionsPageModule'
+    loadChildren: () =>
+      import('./sections/sections.module').then(m => m.SectionsPageModule)
   },
   {
     path: 'classrooms',
     component: AdminPage,
-    loadChildren: './classrooms/classrooms.module#ClassroomsPageModule'
+    loadChildren: () =>
+      import('./classrooms/classrooms.module').then(m => m.ClassroomsPageModule)
   },
   {
     path: 'timetable',
     component: AdminPage,
-    loadChildren: './timetable/timetable-routing.module#TimetableRoutingModule'
+    loadChildren: () =>
+      import('./timetable/timetable-routing.module').then(
+        m => m.TimetableRoutingModule
+      )
   }
 ];
 

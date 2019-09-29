@@ -1,0 +1,19 @@
+<ion-grid *ngIf="data" fixed>
+  <ion-row class="header">
+    <ion-col *ngFor="let heading of headings" [size]="12 / headings.length">
+      {{ heading }}
+    </ion-col>
+  </ion-row>
+  <ion-row
+    class="body"
+    *ngFor="let element of data; trackBy: trackById"
+    (click)="presentPopover(element)"
+  >
+    <ion-col
+      *ngFor="let props of element | keyvalue"
+      [size]="12 / headings.length"
+    >
+      {{ props.key }}
+    </ion-col>
+  </ion-row>
+</ion-grid>

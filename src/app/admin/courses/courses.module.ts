@@ -6,6 +6,7 @@ import { Routes, RouterModule } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
 
 import { CoursesPage } from './courses.page';
+import { ViewTableComponent } from 'src/app/components/view-table/view-table.component';
 
 const routes: Routes = [
   {
@@ -21,6 +22,6 @@ const routes: Routes = [
     IonicModule,
     RouterModule.forChild(routes)
   ],
-  declarations: [CoursesPage]
+  declarations: [CoursesPage, ViewTableComponent]
 })
 export class CoursesPageModule {}

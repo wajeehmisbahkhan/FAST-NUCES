@@ -45,6 +45,36 @@ export class Course {
   isElectricalLab: boolean; // true = is an electrical lab
   hasProjector: boolean; // true = has a working projector
   hasAllInOne: boolean; // true = has a viper in class
+
+  constructor(
+    courseCode = '',
+    department = '',
+    school = '',
+    title = '',
+    shortTitle = '',
+    creditHours = 3,
+    yearOffered = null,
+    semesterOffered = null,
+    isCoreCourse = true,
+    isComputerLab = false,
+    isElectricalLab = false,
+    hasProjector = false,
+    hasAllInOne = false
+  ) {
+    this.courseCode = courseCode;
+    this.department = department;
+    this.school = school;
+    this.title = title;
+    this.shortTitle = shortTitle;
+    this.creditHours = creditHours;
+    this.yearOffered = yearOffered;
+    this.semesterOffered = semesterOffered;
+    this.isCoreCourse = isCoreCourse;
+    this.isComputerLab = isComputerLab;
+    this.isElectricalLab = isElectricalLab;
+    this.hasProjector = hasProjector;
+    this.hasAllInOne = hasAllInOne;
+  }
 }
 
 export class Teacher {

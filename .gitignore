@@ -32,3 +32,4 @@ npm-debug.log*
 
 environment.ts
 environment.prod.ts
+package-lock.json

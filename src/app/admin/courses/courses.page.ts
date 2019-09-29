@@ -8,12 +8,16 @@ import { Course } from '../../services/helper-classes';
 })
 export class CoursesPage implements OnInit {
   course: Course;
+  headings = [];
+  data: Array<Course> = [];
 
   constructor() {
     this.course = new Course();
     // Some default preferences
     this.course.creditHours = 3;
     this.course.isCoreCourse = true;
+    this.data.push(this.course);
+    for (let i = 0; i < 13; i++) this.headings.push('' + i);
   }
 
   ngOnInit() {}
