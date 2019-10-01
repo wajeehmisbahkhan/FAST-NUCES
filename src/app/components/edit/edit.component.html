@@ -1,3 +1,26 @@
-<p>
-  edit works!
-</p>
+<form #editForm="ngForm" (ngSubmit)="updateElement()">
+  <ion-grid>
+    <ion-row>
+      <ion-col size="12" *ngFor="let input of element | keyvalue">
+        <ion-label position="floating">{{ input.key }}</ion-label>
+        <ion-input
+          [value]="localElement[input.key]"
+          [name]="element"
+        ></ion-input>
+      </ion-col>
+      <ion-col size="6">
+        <ion-button
+          type="submit"
+          [disabled]="editForm.invalid || !editFormChanged()"
+          expand="full"
+          >Update</ion-button
+        >
+      </ion-col>
+      <ion-col size="6">
+        <ion-button expand="full" (click)="deleteElement()" color="danger"
+          >Delete</ion-button
+        >
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</form>
