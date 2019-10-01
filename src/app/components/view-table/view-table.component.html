@@ -1,7 +1,10 @@
 <ion-grid *ngIf="data" fixed>
   <ion-row class="header">
-    <ion-col *ngFor="let heading of headings" [size]="12 / headings.length">
-      {{ heading }}
+    <ion-col
+      *ngFor="let props of data[0] | keyvalue"
+      [size]="12 / headings.length"
+    >
+      {{ props.key | camelToTitleCase }}
     </ion-col>
   </ion-row>
   <ion-row
@@ -13,7 +16,23 @@
       *ngFor="let props of element | keyvalue"
       [size]="12 / headings.length"
     >
-      {{ props.key }}
+      <!-- For true false values -->
+      <div *ngIf="isBool(props.value); else showValue">
+        <div *ngIf="props.value; else showFalse">
+          <ion-icon
+            size="large"
+            color="success"
+            name="checkmark-circle"
+          ></ion-icon>
+        </div>
+        <ng-template #showFalse>
+          <ion-icon size="large" color="danger" name="close-circle"></ion-icon>
+        </ng-template>
+      </div>
+      <!-- Other values -->
+      <ng-template #showValue>
+        {{ props.value }}
+      </ng-template>
     </ion-col>
   </ion-row>
 </ion-grid>

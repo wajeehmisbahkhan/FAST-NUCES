@@ -30,4 +30,9 @@ export class ViewTableComponent implements OnInit {
   trackById(item: object, index: number) {
     return item['id'];
   }
+
+  isBool(value: any) {
+    console.log(value);
+    return typeof value === 'boolean';
+  }
 }
