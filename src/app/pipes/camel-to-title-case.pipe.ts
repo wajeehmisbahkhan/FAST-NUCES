@@ -11,7 +11,9 @@ export class CamelToTitleCasePipe implements PipeTransform {
       // Turn upper case to lower and add a space; camelCase = camel case
       if (word[i].toUpperCase() === word[i]) {
         word =
-          word.slice(0, i) + word[i].toLowerCase() + word.slice(i, word.length);
+          word.slice(0, i) +
+          word[i].toLowerCase() +
+          word.slice(i + 1, word.length);
         word = word.slice(0, i) + ' ' + word.slice(i, word.length);
         i += 1;
       }
