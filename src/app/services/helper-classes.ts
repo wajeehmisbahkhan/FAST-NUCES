@@ -1,6 +1,9 @@
+class FirebaseDocument {
+  id: string;
+}
+
 // Helpful Primitives & Combos
-export class Batch {
-  id: number; // unique & assigned auto-inc
+export class Batch extends FirebaseDocument {
   year: number; // 2017
   strength: number; // Number of Students ~700
 
@@ -9,8 +12,7 @@ export class Batch {
   department: Department; // dept which the batch belongs to
 }
 
-export class Department {
-  id: number; // unique & assigned auto-inc
+export class Department extends FirebaseDocument {
   name: string; // Computer Science OR Electrical Eng
   shortName: string; // CS OR SE OR EE
   strength: number; // Number of Students ~1000
@@ -18,8 +20,7 @@ export class Department {
   batches: Array<Batch>; // batches in that department
 }
 
-export class CourseClass {
-  id: number; // unique & assigned auto-inc
+export class CourseClass extends FirebaseDocument {
   strength: number; // sum of strengths of sections
   course: Course; // course reference
   teacher: Teacher; // teacher reference
@@ -27,7 +28,7 @@ export class CourseClass {
 }
 
 // Actual Input
-export class Course {
+export class Course extends FirebaseDocument {
   courseCode: string; // CS205
   department: string; // CS OR EE OR BBA
   school: string; // CS OR EE OR MG OR MT OR SS
@@ -61,6 +62,7 @@ export class Course {
     hasProjector = false,
     hasAllInOne = false
   ) {
+    super();
     this.courseCode = courseCode;
     this.department = department;
     this.school = school;
@@ -77,15 +79,13 @@ export class Course {
   }
 }
 
-export class Teacher {
-  id: number;
+export class Teacher extends FirebaseDocument {
   name: string;
   department: string;
   courseClasses: Array<CourseClass>;
 }
 
-export class Section {
-  id: number; // unique & assigned auto-inc
+export class Section extends FirebaseDocument {
   name: string; // A, C OR GR-1, GR-2
   strength: number; // Number of Students ~50
 
@@ -94,7 +94,7 @@ export class Section {
   batch: Batch; // the batch which the section belongs to
 }
 
-export class ClassRoom {
+export class ClassRoom extends FirebaseDocument {
   capacity: number; // 50, 100
   name: string; // CR-10, R-109
   building: string; // CS, EE
