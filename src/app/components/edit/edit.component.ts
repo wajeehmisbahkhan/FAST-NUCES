@@ -22,8 +22,7 @@ export class EditComponent implements OnInit {
   }
 
   updateElement() {
-    this.element.accountHolder = this.localElement.accountHolder;
-    this.element.particulars = this.localElement.particulars;
+    this.element = this.localElement;
     // this.db.updateAccount(this.cashAccount);
     this.poc.dismiss();
   }
@@ -40,9 +39,19 @@ export class EditComponent implements OnInit {
   }
 
   editFormChanged() {
-    return (
-      this.localElement.particulars !== this.element.particulars ||
-      this.localElement.accountHolder !== this.element.accountHolder
-    );
+    let formChanged = false;
+    const keys = Object.keys(this.localElement);
+    keys.forEach(key => {
+      // Only compare value not types
+      // tslint:disable-next-line: triple-equals
+      if (this.localElement[key] != this.element[key]) {
+        formChanged = true;
+      }
+    });
+    return formChanged;
+  }
+
+  isBool(value: any) {
+    return typeof value === 'boolean';
   }
 }
