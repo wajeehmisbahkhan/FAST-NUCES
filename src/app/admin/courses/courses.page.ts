@@ -12,7 +12,21 @@ export class CoursesPage implements OnInit {
   data: Array<Course> = [];
 
   constructor() {
-    this.course = new Course();
+    this.course = new Course(
+      'MT-201',
+      'CS',
+      'MT',
+      'Operational Research',
+      'OR',
+      3,
+      2017,
+      4,
+      false,
+      false,
+      false,
+      false,
+      false
+    );
     // Some default preferences
     this.course.creditHours = 3;
     this.course.isCoreCourse = true;
