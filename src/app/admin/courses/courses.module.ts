@@ -6,7 +6,8 @@ import { Routes, RouterModule } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
 
 import { CoursesPage } from './courses.page';
-import { ViewTableComponent } from 'src/app/components/view-table/view-table.component';
+
+import { CrudModule } from '../../components/crud.module';
 
 const routes: Routes = [
   {
@@ -20,8 +21,9 @@ const routes: Routes = [
     CommonModule,
     FormsModule,
     IonicModule,
-    RouterModule.forChild(routes)
+    RouterModule.forChild(routes),
+    CrudModule
   ],
-  declarations: [CoursesPage, ViewTableComponent]
+  declarations: [CoursesPage]
 })
 export class CoursesPageModule {}
