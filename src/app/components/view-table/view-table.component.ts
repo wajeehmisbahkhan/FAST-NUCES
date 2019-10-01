@@ -8,14 +8,11 @@ import { EditComponent } from '../edit/edit.component';
   styleUrls: ['./view-table.component.scss']
 })
 export class ViewTableComponent implements OnInit {
-  @Input() headings: Array<string>;
   @Input() data: Array<any>;
 
   constructor(private poc: PopoverController) {}
 
-  ngOnInit() {
-    console.log(this.data);
-  }
+  ngOnInit() {}
 
   async presentPopover(element: any) {
     const popover = await this.poc.create({
@@ -34,5 +31,9 @@ export class ViewTableComponent implements OnInit {
   isBool(value: any) {
     console.log(value);
     return typeof value === 'boolean';
+  }
+
+  getLengthOfObject(object: object) {
+    return Object.keys(object).length;
   }
 }
