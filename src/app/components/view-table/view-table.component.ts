@@ -29,7 +29,6 @@ export class ViewTableComponent implements OnInit {
   }
 
   isBool(value: any) {
-    console.log(value);
     return typeof value === 'boolean';
   }
 
