@@ -2,29 +2,10 @@ class FirebaseDocument {
   id: string;
 }
 
-// Helpful Primitives & Combos
-export class Batch extends FirebaseDocument {
-  year: number; // 2017
-  strength: number; // Number of Students ~700
-
-  sections: Array<Section>; // sections in the batch
-
-  department: Department; // dept which the batch belongs to
-}
-
-export class Department extends FirebaseDocument {
-  name: string; // Computer Science OR Electrical Eng
-  shortName: string; // CS OR SE OR EE
-  strength: number; // Number of Students ~1000
-
-  batches: Array<Batch>; // batches in that department
-}
-
-export class CourseClass extends FirebaseDocument {
-  strength: number; // sum of strengths of sections
+export class TCSEntry extends FirebaseDocument {
   course: Course; // course reference
   teacher: Teacher; // teacher reference
-  sections: Array<Section>; // sections included
+  section: Section; // sections included
 }
 
 // Actual Input
@@ -42,10 +23,10 @@ export class Course extends FirebaseDocument {
     Facilities
     Need to add more like language lab and EE & BBA stuff
   */
-  isComputerLab: boolean; // true = is a computer lab
-  isElectricalLab: boolean; // true = is an electrical lab
-  hasProjector: boolean; // true = has a working projector
-  hasAllInOne: boolean; // true = has a viper in class
+  needsComputerLab: boolean; // true = needs a computer lab
+  needsElectricalLab: boolean; // true = needs an electrical lab
+  needsProjector: boolean; // true = needs a working projector
+  needsComputer: boolean; // true = needs a viper in class
 
   constructor(
     courseCode = '',
@@ -57,10 +38,10 @@ export class Course extends FirebaseDocument {
     yearOffered = null,
     semesterOffered = null,
     isCoreCourse = true,
-    isComputerLab = false,
-    isElectricalLab = false,
-    hasProjector = false,
-    hasAllInOne = false
+    needsComputerLab = false,
+    needsElectricalLab = false,
+    needsProjector = false,
+    needsComputer = false
   ) {
     super();
     this.courseCode = courseCode;
@@ -72,29 +53,26 @@ export class Course extends FirebaseDocument {
     this.yearOffered = yearOffered;
     this.semesterOffered = semesterOffered;
     this.isCoreCourse = isCoreCourse;
-    this.isComputerLab = isComputerLab;
-    this.isElectricalLab = isElectricalLab;
-    this.hasProjector = hasProjector;
-    this.hasAllInOne = hasAllInOne;
+    this.needsComputerLab = needsComputerLab;
+    this.needsElectricalLab = needsElectricalLab;
+    this.needsProjector = needsProjector;
+    this.needsComputer = needsComputer;
   }
 }
 
 export class Teacher extends FirebaseDocument {
   name: string;
   department: string;
-  courseClasses: Array<CourseClass>;
 }
 
 export class Section extends FirebaseDocument {
   name: string; // A, C OR GR-1, GR-2
   strength: number; // Number of Students ~50
-
-  courseClasses: Array<CourseClass>; // course classes the section is registered in
-
-  batch: Batch; // the batch which the section belongs to
+  batch: number; // the batch which the section belongs to
+  department: string;
 }
 
-export class ClassRoom extends FirebaseDocument {
+export class Room extends FirebaseDocument {
   capacity: number; // 50, 100
   name: string; // CR-10, R-109
   building: string; // CS, EE
@@ -106,5 +84,5 @@ export class ClassRoom extends FirebaseDocument {
   isComputerLab: boolean; // true = is a computer lab
   isElectricalLab: boolean; // true = is an electrical lab
   hasProjector: boolean; // true = has a working projector
-  hasAllInOne: boolean; // true = has a viper in class
+  hasComputer: boolean; // true = has a viper in class
 }
