@@ -135,9 +135,9 @@
         <ion-item>
           <ion-label>Computer Lab</ion-label>
           <ion-checkbox
-            [(ngModel)]="course.isComputerLab"
+            [(ngModel)]="course.needsComputerLab"
             (click)="course.isElectricalLab = false"
-            name="isComputerLab"
+            name="needsComputerLab"
           ></ion-checkbox>
         </ion-item>
       </ion-col>
@@ -145,9 +145,9 @@
         <ion-item>
           <ion-label>Electrical Lab</ion-label>
           <ion-checkbox
-            [(ngModel)]="course.isElectricalLab"
+            [(ngModel)]="course.needsElectricalLab"
             (click)="course.isComputerLab = false"
-            name="isElectricalLab"
+            name="needsElectricalLab"
           ></ion-checkbox>
         </ion-item>
       </ion-col>
@@ -155,8 +155,8 @@
         <ion-item>
           <ion-label>Projector</ion-label>
           <ion-checkbox
-            [(ngModel)]="course.hasProjector"
-            name="hasProjector"
+            [(ngModel)]="course.needsProjector"
+            name="needsProjector"
           ></ion-checkbox>
         </ion-item>
       </ion-col>
@@ -164,8 +164,8 @@
         <ion-item>
           <ion-label>Computer</ion-label>
           <ion-checkbox
-            [(ngModel)]="course.hasAllInOne"
-            name="hasAllInOne"
+            [(ngModel)]="course.needsComputer"
+            name="needsComputer"
           ></ion-checkbox>
         </ion-item>
       </ion-col>
