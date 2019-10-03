@@ -60,4 +60,15 @@ export class CoursesPage implements OnInit {
         (currentDate.getFullYear() - yearOffered) * 2 + 1;
     }
   }
+
+  autoFillShortTitle() {
+    let shortTitle = this.course.title[0];
+    for (let i = 1; i < this.course.title.length; i++) {
+      if (this.course.title[i] === ' ') {
+        shortTitle += this.course.title[i + 1].toUpperCase();
+        i++;
+      }
+    }
+    this.course.shortTitle = shortTitle;
+  }
 }
