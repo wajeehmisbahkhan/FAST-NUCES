@@ -9,15 +9,20 @@ const routes: Routes = [
   },
   {
     path: 'entries',
-    loadChildren: './entries/entries.module#EntriesPageModule'
+    loadChildren: () =>
+      import('./entries/entries.module').then(m => m.EntriesPageModule)
   },
   {
     path: 'constraints',
-    loadChildren: './constraints/constraints.module#ConstraintsPageModule'
+    loadChildren: () =>
+      import('./constraints/constraints.module').then(
+        m => m.ConstraintsPageModule
+      )
   },
   {
     path: 'generate',
-    loadChildren: './generate/generate.module#GeneratePageModule'
+    loadChildren: () =>
+      import('./generate/generate.module').then(m => m.GeneratePageModule)
   }
 ];
 
