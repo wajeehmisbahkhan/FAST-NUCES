@@ -75,3 +75,13 @@
   --ion-color-light-shade: #d7d8da;
   --ion-color-light-tint: #f5f6f9;
 }
+
+/* Ion Popover Width */
+ion-popover {
+  .popover-wrapper {
+    .popover-content {
+      width: 80vw;
+      max-width: 500px;
+    }
+  }
+}
