@@ -18,6 +18,10 @@ export class DatabaseService {
     );
   }
 
+  getLiveCollection(path: string) {
+    return this.afs.collection(path).snapshotChanges();
+  }
+
   createDoc(path: string, data: object) {
     return this.afs.collection(path).add(JSON.parse(JSON.stringify(data)));
   }
