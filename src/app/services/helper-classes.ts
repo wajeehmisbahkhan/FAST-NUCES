@@ -27,37 +27,6 @@ export class Course extends FirebaseDocument {
   needsElectricalLab: boolean; // true = needs an electrical lab
   needsProjector: boolean; // true = needs a working projector
   needsComputer: boolean; // true = needs a viper in class
-
-  constructor(
-    courseCode = '',
-    department = '',
-    school = '',
-    title = '',
-    shortTitle = '',
-    creditHours = 3,
-    yearOffered = null,
-    semesterOffered = null,
-    isCoreCourse = true,
-    needsComputerLab = false,
-    needsElectricalLab = false,
-    needsProjector = false,
-    needsComputer = false
-  ) {
-    super();
-    this.courseCode = courseCode;
-    this.department = department;
-    this.school = school;
-    this.title = title;
-    this.shortTitle = shortTitle;
-    this.creditHours = creditHours;
-    this.yearOffered = yearOffered;
-    this.semesterOffered = semesterOffered;
-    this.isCoreCourse = isCoreCourse;
-    this.needsComputerLab = needsComputerLab;
-    this.needsElectricalLab = needsElectricalLab;
-    this.needsProjector = needsProjector;
-    this.needsComputer = needsComputer;
-  }
 }
 
 export class Teacher extends FirebaseDocument {
