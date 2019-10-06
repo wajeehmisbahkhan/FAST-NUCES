@@ -10,4 +10,48 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content> </ion-content>
+<ion-content>
+  <form #teachersForm="ngForm" (ngSubmit)="addTeacher(); teachersForm.reset()">
+    <ion-row class="ion-margin">
+      <ion-col size="4" size-xs="12" size-sm="6" size-md="4">
+        <ion-item>
+          <ion-label position="floating">Name</ion-label>
+          <ion-input
+            [(ngModel)]="teacher.name"
+            placeholder="Sir Shoaib Raza"
+            name="name"
+            required
+            type="text"
+          ></ion-input>
+        </ion-item>
+      </ion-col>
+      <ion-col size="2" size-xs="12" size-sm="6" size-md="2">
+        <ion-item>
+          <ion-label position="floating">Department</ion-label>
+          <ion-input
+            [(ngModel)]="teacher.department"
+            placeholder="CS"
+            name="department"
+            required
+            type="text"
+          ></ion-input>
+        </ion-item>
+      </ion-col>
+      <ion-col size="3" size-xs="12" size-sm="6" size-md="3">
+        <ion-button expand="full" [disabled]="!teachersForm.valid" type="submit"
+          >Add Teacher</ion-button
+        >
+      </ion-col>
+      <ion-col size="2" size-xs="12" size-sm="6" size-md="2">
+        <ion-button
+          expand="full"
+          [disabled]="teachersForm.pristine"
+          (click)="teachersForm.reset()"
+          color="danger"
+          >Reset</ion-button
+        >
+      </ion-col>
+    </ion-row>
+  </form>
+  <view-table type="teachers" [data]="teachers"></view-table>
+</ion-content>
