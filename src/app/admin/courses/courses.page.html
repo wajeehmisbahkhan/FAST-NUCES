@@ -32,12 +32,13 @@
       hasAllInOne: boolean; // true = has a viper in class
     -->
     <ion-row class="ion-margin">
-      <ion-col size="1" size-xs="12" size-sm="6" size-md="1">
+      <ion-col size="1.5" size-xs="12" size-sm="6" size-md="1.5">
         <ion-item>
           <ion-label position="floating">Code</ion-label>
           <ion-input
             (focusout)="autoFillSchool()"
             [(ngModel)]="course.courseCode"
+            placeholder="MT-201"
             name="courseCode"
             required
             type="text"
@@ -49,6 +50,7 @@
           <ion-label position="floating">Department</ion-label>
           <ion-input
             [(ngModel)]="course.department"
+            placeholder="CS"
             name="department"
             required
             type="text"
@@ -60,6 +62,7 @@
           <ion-label position="floating">School</ion-label>
           <ion-input
             [(ngModel)]="course.school"
+            placeholder="MT"
             name="school"
             required
             type="text"
@@ -71,6 +74,7 @@
           <ion-label position="floating">Title</ion-label>
           <ion-input
             [(ngModel)]="course.title"
+            placeholder="Operational Research"
             (focusout)="autoFillShortTitle()"
             name="title"
             required
@@ -78,11 +82,12 @@
           ></ion-input>
         </ion-item>
       </ion-col>
-      <ion-col size="1" size-xs="12" size-sm="6" size-md="1">
+      <ion-col size="1.5" size-xs="12" size-sm="6" size-md="1.5">
         <ion-item>
-          <ion-label position="floating">Short</ion-label>
+          <ion-label position="floating">Short Title</ion-label>
           <ion-input
             [(ngModel)]="course.shortTitle"
+            placeholder="OR"
             name="shortTitle"
             required
             type="text"
@@ -94,17 +99,19 @@
           <ion-label position="floating">Credits</ion-label>
           <ion-input
             [(ngModel)]="course.creditHours"
+            placeholder="3"
             name="creditHours"
             required
             type="number"
           ></ion-input>
         </ion-item>
       </ion-col>
-      <ion-col size="1" size-xs="12" size-sm="6" size-md="1">
+      <ion-col size="1.25" size-xs="12" size-sm="6" size-md="1.25">
         <ion-item>
           <ion-label position="floating">Year</ion-label>
           <ion-input
             [(ngModel)]="course.yearOffered"
+            placeholder="2017"
             (focusout)="autoFillSemester()"
             name="yearOffered"
             required
@@ -117,13 +124,14 @@
           <ion-label position="floating">Semester</ion-label>
           <ion-input
             [(ngModel)]="course.semesterOffered"
+            placeholder="4"
             name="semesterOffered"
             required
             type="text"
           ></ion-input>
         </ion-item>
       </ion-col>
-      <ion-col size="1.25" size-xs="12" size-sm="6" size-md="1.25">
+      <ion-col size="1.5" size-xs="12" size-sm="6" size-md="1.5">
         <ion-item>
           <ion-label>Core</ion-label>
           <ion-checkbox
@@ -175,7 +183,16 @@
           >Add Course</ion-button
         >
       </ion-col>
+      <ion-col size="1.5" size-xs="12" size-sm="6" size-md="1.5">
+        <ion-button
+          expand="full"
+          [disabled]="coursesForm.pristine"
+          (click)="coursesForm.reset()"
+          color="danger"
+          >Reset</ion-button
+        >
+      </ion-col>
     </ion-row>
   </form>
-  <view-table [data]="data"></view-table>
+  <view-table type="courses" [data]="courses"></view-table>
 </ion-content>
