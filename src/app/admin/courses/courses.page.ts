@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Course } from '../../services/helper-classes';
+import { ServerService } from 'src/app/services/server.service';
 
 @Component({
   selector: 'app-courses',
@@ -8,34 +9,18 @@ import { Course } from '../../services/helper-classes';
 })
 export class CoursesPage implements OnInit {
   course: Course;
-  data: Array<Course> = [];
 
-  constructor() {
-    this.course = new Course(
-      'MT-201',
-      'CS',
-      'MT',
-      'Operational Research',
-      'OR',
-      3,
-      2017,
-      4,
-      false,
-      false,
-      false,
-      false,
-      false
-    );
+  constructor(private server: ServerService) {
+    this.course = new Course();
     // Some default preferences
     this.course.creditHours = 3;
     this.course.isCoreCourse = true;
-    this.data.push(this.course);
   }
 
   ngOnInit() {}
 
   addCourse() {
-    console.log(this.course);
+    this.server.addPrimitiveObject('courses', this.course);
   }
 
   // Helper functions
@@ -62,6 +47,7 @@ export class CoursesPage implements OnInit {
   }
 
   autoFillShortTitle() {
+    this.course.title = this.course.title.trim();
     let shortTitle = this.course.title[0];
     for (let i = 1; i < this.course.title.length; i++) {
       if (this.course.title[i] === ' ') {
@@ -70,5 +56,10 @@ export class CoursesPage implements OnInit {
       }
     }
     this.course.shortTitle = shortTitle;
+  }
+
+  // Getter functions
+  get courses() {
+    return this.server.courses;
   }
 }
