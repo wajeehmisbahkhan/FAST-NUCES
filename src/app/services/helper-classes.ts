@@ -3,9 +3,9 @@ class FirebaseDocument {
 }
 
 export class TCSEntry extends FirebaseDocument {
-  course: Course; // course reference
-  teacher: Teacher; // teacher reference
-  section: Section; // sections included
+  courseId: string; // course reference
+  teacherId: string; // teacher reference
+  sectionId: string; // sections included
 }
 
 // Actual Input
