@@ -10,4 +10,105 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content> </ion-content>
+<ion-content>
+  <form #entriesForm="ngForm" (ngSubmit)="addEntry(); entriesForm.reset()">
+    <ion-row>
+      <ion-col size="3">
+        <ion-item>
+          <ion-label position="floating">Teacher</ion-label>
+          <ion-select
+            [interfaceOptions]="popoverInterfaceOptions"
+            [(ngModel)]="entry.teacherId"
+            required
+            name="teacher"
+          >
+            <ion-select-option
+              *ngFor="let teacher of teachers"
+              [value]="teacher.id"
+              >{{ teacher.name }} ({{ teacher.department }})</ion-select-option
+            >
+          </ion-select>
+        </ion-item>
+      </ion-col>
+      <ion-col size="3">
+        <ion-item>
+          <ion-label position="floating">Course</ion-label>
+          <ion-select
+            [interfaceOptions]="popoverInterfaceOptions"
+            [(ngModel)]="entry.courseId"
+            required
+            name="course"
+          >
+            <ion-select-option
+              *ngFor="let course of courses"
+              [value]="course.id"
+              >{{ course.title }} ({{ course.department }})</ion-select-option
+            >
+          </ion-select>
+        </ion-item>
+      </ion-col>
+      <ion-col size="3">
+        <ion-item>
+          <ion-label position="floating">Section</ion-label>
+          <ion-select
+            [interfaceOptions]="popoverInterfaceOptions"
+            [(ngModel)]="entry.sectionId"
+            required
+            name="section"
+          >
+            <ion-select-option
+              *ngFor="let section of sections"
+              [value]="section.id"
+              >{{ section.name }} ({{ section.department }}-{{
+                section.batch
+              }})</ion-select-option
+            >
+          </ion-select>
+        </ion-item>
+      </ion-col>
+      <ion-col size="2" size-xs="12" size-sm="6" size-md="2">
+        <ion-button expand="full" [disabled]="!entriesForm.valid" type="submit"
+          >Add Entry</ion-button
+        >
+      </ion-col>
+      <ion-col size="1" size-xs="12" size-sm="6" size-md="1">
+        <ion-button
+          expand="full"
+          [disabled]="entriesForm.pristine"
+          (click)="entriesForm.reset()"
+          color="danger"
+          >Reset</ion-button
+        >
+      </ion-col>
+    </ion-row>
+  </form>
+  <!-- View Table -->
+  <ion-grid *ngIf="entries.length > 0" fixed>
+    <ion-row class="header">
+      <ion-col size="4">
+        Teacher
+      </ion-col>
+      <ion-col size="4">
+        Course
+      </ion-col>
+      <ion-col size="4">
+        Section
+      </ion-col>
+    </ion-row>
+    <ion-row
+      class="body"
+      *ngFor="let entry of entries; trackBy: trackById"
+      (click)="presentPopover(entry)"
+    >
+      <ion-col size="4">
+        {{ getTeacherById(entry.teacherId) | teacher }}
+      </ion-col>
+      <ion-col size="4">
+        {{ getCourseById(entry.courseId) | course }}
+      </ion-col>
+      <ion-col size="4">
+        {{ getSectionById(entry.sectionId) | section }}
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-content>

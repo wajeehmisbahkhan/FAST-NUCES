@@ -6,6 +6,8 @@ import { Routes, RouterModule } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
 
 import { EntriesPage } from './entries.page';
+import { EditComponent } from './edit/edit.component';
+import { PipesModule } from 'src/app/pipes/pipes.module';
 
 const routes: Routes = [
   {
@@ -19,8 +21,10 @@ const routes: Routes = [
     CommonModule,
     FormsModule,
     IonicModule,
-    RouterModule.forChild(routes)
+    RouterModule.forChild(routes),
+    PipesModule
   ],
-  declarations: [EntriesPage]
+  declarations: [EntriesPage, EditComponent],
+  entryComponents: [EditComponent]
 })
 export class EntriesPageModule {}
