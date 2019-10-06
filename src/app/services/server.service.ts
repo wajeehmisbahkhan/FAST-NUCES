@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { DatabaseService } from './database.service';
-import { Course, Teacher, Section, Room } from './helper-classes';
+import { Course, Teacher, Section, Room, TCSEntry } from './helper-classes';
 
 @Injectable({
   providedIn: 'root'
@@ -11,11 +11,15 @@ export class ServerService {
   sections: Array<Section>;
   rooms: Array<Room>;
 
+  entries: Array<TCSEntry>;
+
   constructor(private db: DatabaseService) {
     this.courses = [];
     this.teachers = [];
     this.sections = [];
     this.rooms = [];
+    // Combo
+    this.entries = [];
   }
 
   // Called at the beginning of the program
