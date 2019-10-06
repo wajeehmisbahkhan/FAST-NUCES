@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { ServerService } from '../services/server.service';
 
 @Component({
   selector: 'app-admin',
@@ -51,7 +52,9 @@ export class AdminPage implements OnInit {
     }
   ];
 
-  constructor() {}
+  constructor(private server: ServerService) {
+    this.server.loadPrimitiveObjects();
+  }
 
   ngOnInit() {}
 }
