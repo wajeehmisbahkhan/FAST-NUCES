@@ -7,6 +7,8 @@ import { firestore } from 'firebase';
   providedIn: 'root'
 })
 export class DatabaseService {
+  primitiveCollections = ['courses', 'teachers', 'sections', 'rooms'];
+
   constructor(private afs: AngularFirestore) {}
 
   getCollection(path: string, options?: firebase.firestore.GetOptions) {
@@ -22,7 +24,15 @@ export class DatabaseService {
     return this.afs.collection(path).snapshotChanges();
   }
 
-  createDoc(path: string, data: object) {
+  createDoc(path: string, data: object, storeId = true) {
+    if (storeId) {
+      // Generate and set id
+      data['id'] = this.afs.createId();
+      return this.afs
+        .collection(path)
+        .doc(data['id'])
+        .set(JSON.parse(JSON.stringify(data)));
+    }
     return this.afs.collection(path).add(JSON.parse(JSON.stringify(data)));
   }
 
