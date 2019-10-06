@@ -1,5 +1,7 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
+import { AlertService } from 'src/app/services/alert.service';
+import { ServerService } from 'src/app/services/server.service';
 
 @Component({
   selector: 'edit',
@@ -9,11 +11,13 @@ import { PopoverController } from '@ionic/angular';
 export class EditComponent implements OnInit {
   // Coming from table component
   @Input() element: any;
+  @Input() type: string;
   // For local form usage
   localElement: any;
   constructor(
-    // private db: DatabaseService,
-    private poc: PopoverController // private as: AlertService
+    private server: ServerService,
+    private poc: PopoverController,
+    private as: AlertService
   ) {}
 
   ngOnInit() {
@@ -22,20 +26,25 @@ export class EditComponent implements OnInit {
   }
 
   updateElement() {
-    this.element = this.localElement;
-    // this.db.updateAccount(this.cashAccount);
+    // Just update on server
+    // Live listener will update local automatically
+    this.server.updatePrimitiveObject(
+      this.type,
+      this.element.id,
+      this.localElement
+    );
     this.poc.dismiss();
   }
 
   deleteElement() {
-    // this.as.confirmation(
-    //   'Are you sure you want to delete this account?',
-    //   // Confirmation handler
-    //   () => {
-    //     this.db.deleteAccount(this.cashAccount);
-    //     this.poc.dismiss();
-    //   }
-    // );
+    this.as.confirmation(
+      'Are you sure you want to delete this object?',
+      // Confirmation handler
+      () => {
+        this.server.deletePrimitiveObject(this.type, this.element.id);
+        this.poc.dismiss();
+      }
+    );
   }
 
   editFormChanged() {
