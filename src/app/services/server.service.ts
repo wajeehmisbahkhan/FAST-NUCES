@@ -10,8 +10,6 @@ export class ServerService {
   teachers: Array<Teacher>;
   sections: Array<Section>;
   rooms: Array<Room>;
-  // All of these primitives
-  collectionNames = ['courses', 'teachers', 'sections', 'classrooms'];
 
   constructor(private db: DatabaseService) {
     this.courses = [];
@@ -36,7 +34,18 @@ export class ServerService {
   }
 
   async addPrimitiveObject(name: string, object: object) {
-    const objRef = await this.db.createDoc(name, object);
-    object['id'] = objRef.id;
+    return this.db.createDoc(name, object);
+  }
+
+  async deletePrimitiveObject(name: string, id: string) {
+    return this.db.deleteDoc(`${name}/${id}`);
+  }
+
+  async updatePrimitiveObject(name: string, id: string, object: object) {
+    return this.db.updateDoc(`${name}/${id}`, object);
+  }
+
+  get collectionNames() {
+    return this.db.primitiveCollections;
   }
 }
