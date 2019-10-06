@@ -12,25 +12,6 @@
 
 <ion-content>
   <form #coursesForm="ngForm" (ngSubmit)="addCourse(); coursesForm.reset()">
-    <!--
-      courseCode: string; // CS205
-      department: string; // CS OR EE OR BBA
-      school: string; // CS OR EE OR MG OR MT OR SS
-      title: string; // Computer Architecture, Theory Of Automata
-      shortTitle: string; // CA, PROB, OS-LAB
-      creditHours: number; // 1, 3, 4
-      yearOffered: number; // 1, 2, 3, 4
-      semesterOffered: number; // 1, 2, 8
-      isCoreCourse: boolean; // true = is a core course
-      /*
-        Facilities
-        Need to add more like language lab and EE & BBA stuff
-      */
-      isComputerLab: boolean; // true = is a computer lab
-      isElectricalLab: boolean; // true = is an electrical lab
-      hasProjector: boolean; // true = has a working projector
-      hasAllInOne: boolean; // true = has a viper in class
-    -->
     <ion-row class="ion-margin">
       <ion-col size="1.5" size-xs="12" size-sm="6" size-md="1.5">
         <ion-item>
@@ -115,7 +96,7 @@
             (focusout)="autoFillSemester()"
             name="yearOffered"
             required
-            type="text"
+            type="number"
           ></ion-input>
         </ion-item>
       </ion-col>
@@ -127,7 +108,7 @@
             placeholder="4"
             name="semesterOffered"
             required
-            type="text"
+            type="number"
           ></ion-input>
         </ion-item>
       </ion-col>
