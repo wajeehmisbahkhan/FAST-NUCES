@@ -1,26 +1,28 @@
 <form #editForm="ngForm" (ngSubmit)="updateElement()">
   <ion-grid>
     <ion-row>
-      <ion-col size="12" *ngFor="let input of element | keyvalue">
-        <ion-item>
-          <ion-label position="floating">{{
-            input.key | camelToTitleCase
-          }}</ion-label>
-          <ion-input
-            *ngIf="!isBool(input.value); else showCheckBox"
-            [(ngModel)]="localElement[input.key]"
-            [name]="input.key"
-            required
-          ></ion-input>
-          <ng-template #showCheckBox>
-            <ion-checkbox
-              [name]="input.key"
+      <ng-container *ngFor="let input of element | keyvalue">
+        <ion-col size="12" *ngIf="input.key !== 'id'">
+          <ion-item>
+            <ion-label position="floating">{{
+              input.key | camelToTitleCase
+            }}</ion-label>
+            <ion-input
+              *ngIf="!isBool(input.value); else showCheckBox"
               [(ngModel)]="localElement[input.key]"
-              >{{ input.key | camelToTitleCase }}</ion-checkbox
-            >
-          </ng-template>
-        </ion-item>
-      </ion-col>
+              [name]="input.key"
+              required
+            ></ion-input>
+            <ng-template #showCheckBox>
+              <ion-checkbox
+                [name]="input.key"
+                [(ngModel)]="localElement[input.key]"
+                >{{ input.key | camelToTitleCase }}</ion-checkbox
+              >
+            </ng-template>
+          </ion-item>
+        </ion-col>
+      </ng-container>
       <ion-col size="6">
         <ion-button
           type="submit"
