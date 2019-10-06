@@ -7,7 +7,13 @@ import { firestore } from 'firebase';
   providedIn: 'root'
 })
 export class DatabaseService {
-  primitiveCollections = ['courses', 'teachers', 'sections', 'rooms'];
+  primitiveCollections = [
+    'courses',
+    'teachers',
+    'sections',
+    'rooms',
+    'entries'
+  ];
 
   constructor(private afs: AngularFirestore) {}
 
