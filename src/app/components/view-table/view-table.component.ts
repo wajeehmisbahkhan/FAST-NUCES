@@ -9,6 +9,7 @@ import { EditComponent } from '../edit/edit.component';
 })
 export class ViewTableComponent implements OnInit {
   @Input() data: Array<any>;
+  @Input() type: string;
 
   constructor(private poc: PopoverController) {}
 
@@ -18,7 +19,8 @@ export class ViewTableComponent implements OnInit {
     const popover = await this.poc.create({
       component: EditComponent,
       componentProps: {
-        element
+        element,
+        type: this.type
       }
     });
     return await popover.present();
