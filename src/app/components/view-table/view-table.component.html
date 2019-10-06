@@ -1,38 +1,46 @@
 <ion-grid *ngIf="data" fixed>
   <ion-row class="header">
-    <ion-col
-      [size]="12 / getLengthOfObject(data[0])"
-      *ngFor="let props of data[0] | keyvalue"
-    >
-      {{ props.key | camelToTitleCase }}
-    </ion-col>
+    <ng-container *ngFor="let props of data[0] | keyvalue">
+      <ion-col
+        [size]="12 / (getLengthOfObject(data[0]) - 1)"
+        *ngIf="props.key !== 'id'"
+      >
+        {{ props.key | camelToTitleCase }}
+      </ion-col>
+    </ng-container>
   </ion-row>
   <ion-row
     class="body"
     *ngFor="let element of data; trackBy: trackById"
     (click)="presentPopover(element)"
   >
-    <ion-col
-      [size]="12 / getLengthOfObject(element)"
-      *ngFor="let props of element | keyvalue"
-    >
-      <!-- For true false values -->
-      <div *ngIf="isBool(props.value); else showValue">
-        <div *ngIf="props.value; else showFalse">
-          <ion-icon
-            size="large"
-            color="success"
-            name="checkmark-circle"
-          ></ion-icon>
+    <ng-container *ngFor="let props of element | keyvalue">
+      <ion-col
+        [size]="12 / (getLengthOfObject(element) - 1)"
+        *ngIf="props.key !== 'id'"
+      >
+        <!-- For true false values -->
+        <div *ngIf="isBool(props.value); else showValue">
+          <div *ngIf="props.value; else showFalse">
+            <ion-icon
+              size="large"
+              color="success"
+              name="checkmark-circle"
+            ></ion-icon>
+          </div>
+          <ng-template #showFalse>
+            <ion-icon
+              size="large"
+              color="danger"
+              name="close-circle"
+            ></ion-icon>
+          </ng-template>
         </div>
-        <ng-template #showFalse>
-          <ion-icon size="large" color="danger" name="close-circle"></ion-icon>
+        <!-- Other values -->
+        <ng-template #showValue>
+          {{ props.value }}
         </ng-template>
-      </div>
-      <!-- Other values -->
-      <ng-template #showValue>
-        {{ props.value }}
-      </ng-template>
-    </ion-col>
+      </ion-col>
+    </ng-container>
   </ion-row>
 </ion-grid>
