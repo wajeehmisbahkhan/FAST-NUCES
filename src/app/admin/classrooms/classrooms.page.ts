@@ -11,6 +11,8 @@ export class ClassroomsPage implements OnInit {
   room: Room;
   constructor(private server: ServerService) {
     this.room = new Room();
+    // Default preferences
+    this.room.hasProjector = true;
   }
 
   ngOnInit() {}
