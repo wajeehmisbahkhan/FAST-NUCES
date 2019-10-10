@@ -15,6 +15,7 @@ export class CoursesPage implements OnInit {
     // Some default preferences
     this.course.creditHours = 3;
     this.course.isCoreCourse = true;
+    this.course.needsProjector = true;
   }
 
   ngOnInit() {}
