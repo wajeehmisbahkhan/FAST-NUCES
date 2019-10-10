@@ -1,11 +1,22 @@
 class FirebaseDocument {
   id: string;
+
+  constructor() {
+    this.id = '';
+  }
 }
 
 export class TCSEntry extends FirebaseDocument {
   courseId: string; // course reference
   teacherId: string; // teacher reference
   sectionId: string; // sections included
+
+  constructor(courseId = '', teacherId = '', sectionId = '') {
+    super();
+    this.courseId = courseId;
+    this.teacherId = teacherId;
+    this.sectionId = sectionId;
+  }
 }
 
 // Actual Input
@@ -27,11 +38,48 @@ export class Course extends FirebaseDocument {
   needsElectricalLab: boolean; // true = needs an electrical lab
   needsProjector: boolean; // true = needs a working projector
   needsComputer: boolean; // true = needs a viper in class
+
+  constructor(
+    courseCode = '',
+    department = '',
+    school = '',
+    title = '',
+    shortTitle = '',
+    creditHours = 3,
+    yearOffered = null,
+    semesterOffered = null,
+    isCoreCourse = true,
+    needsComputerLab = false,
+    needsElectricalLab = false,
+    needsProjector = false,
+    needsComputer = false
+  ) {
+    super();
+    this.courseCode = courseCode;
+    this.department = department;
+    this.school = school;
+    this.title = title;
+    this.shortTitle = shortTitle;
+    this.creditHours = creditHours;
+    this.yearOffered = yearOffered;
+    this.semesterOffered = semesterOffered;
+    this.isCoreCourse = isCoreCourse;
+    this.needsComputerLab = needsComputerLab;
+    this.needsElectricalLab = needsElectricalLab;
+    this.needsProjector = needsProjector;
+    this.needsComputer = needsComputer;
+  }
 }
 
 export class Teacher extends FirebaseDocument {
   name: string;
   department: string;
+
+  constructor(name = '', department = '') {
+    super();
+    this.name = name;
+    this.department = department;
+  }
 }
 
 export class Section extends FirebaseDocument {
@@ -39,11 +87,19 @@ export class Section extends FirebaseDocument {
   strength: number; // Number of Students ~50
   batch: number; // the batch which the section belongs to
   department: string;
+
+  constructor(name = '', strength = 50, batch = 2017, department = '') {
+    super();
+    this.name = name;
+    this.strength = strength;
+    this.batch = batch;
+    this.department = department;
+  }
 }
 
 export class Room extends FirebaseDocument {
-  capacity: number; // 50, 100
   name: string; // CR-10, R-109
+  capacity: number; // 50, 100
   building: string; // CS, EE
   floor: number; // 0, 1, 2 (in EE)
   /*
@@ -54,4 +110,19 @@ export class Room extends FirebaseDocument {
   isElectricalLab: boolean; // true = is an electrical lab
   hasProjector: boolean; // true = has a working projector
   hasComputer: boolean; // true = has a viper in class
+
+  constructor(
+    name = '',
+    isComputerLab = false,
+    isElectricalLab = false,
+    hasProjector = false,
+    hasComputer = false
+  ) {
+    super();
+    this.name = name;
+    this.isComputerLab = isComputerLab;
+    this.isElectricalLab = isElectricalLab;
+    this.hasProjector = hasProjector;
+    this.hasComputer = hasComputer;
+  }
 }
