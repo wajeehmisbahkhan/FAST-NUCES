@@ -88,7 +88,7 @@ export class Section extends FirebaseDocument {
   batch: number; // the batch which the section belongs to
   department: string;
 
-  constructor(name = '', strength = 50, batch = 2017, department = '') {
+  constructor(name = '', strength?: number, batch?: number, department = '') {
     super();
     this.name = name;
     this.strength = strength;
