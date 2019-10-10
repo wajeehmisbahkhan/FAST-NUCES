@@ -49,6 +49,24 @@ export class ServerService {
     return this.db.updateDoc(`${name}/${id}`, object);
   }
 
+  // Returns filtered entries containing object id passed in
+  getPrimitiveReferencesInEntry(
+    objectId: string,
+    entryProperty?: 'teacherId' | 'courseId' | 'sectionId'
+  ) {
+    if (entryProperty) {
+      return this.entries.filter(entry => entry[entryProperty] === objectId);
+    }
+    // Search in each property O(n^3)
+    const filteredEntries = [];
+    ['teacherId', 'courseId', 'sectionId'].forEach(idProperty => {
+      filteredEntries.push(
+        ...this.entries.filter(entry => entry[idProperty] === objectId)
+      );
+    });
+    return filteredEntries;
+  }
+
   get collectionNames() {
     return this.db.primitiveCollections;
   }

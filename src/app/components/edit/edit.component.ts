@@ -11,7 +11,7 @@ import { ServerService } from 'src/app/services/server.service';
 export class EditComponent implements OnInit {
   // Coming from table component
   @Input() element: any;
-  @Input() type: string;
+  @Input() type: string; // 'courses' | 'rooms' | 'sections' | 'teachers'
   // For local form usage
   localElement: any;
   constructor(
@@ -36,15 +36,22 @@ export class EditComponent implements OnInit {
     this.poc.dismiss();
   }
 
-  deleteElement() {
-    this.as.confirmation(
-      'Are you sure you want to delete this object?',
-      // Confirmation handler
-      () => {
-        this.server.deletePrimitiveObject(this.type, this.element.id);
-        this.poc.dismiss();
-      }
+  async deleteElement() {
+    // Check if element is being referenced in entries
+    const references = this.server.getPrimitiveReferencesInEntry(
+      this.element.id
     );
+    if (references.length === 0)
+      this.as.confirmation(
+        'Are you sure you want to delete this object?',
+        // Confirmation handler
+        () => {
+          this.server.deletePrimitiveObject(this.type, this.element.id);
+          this.poc.dismiss();
+        }
+      );
+    else
+      this.as.notice('Can not delete object as it is referenced in entries.');
   }
 
   editFormChanged() {
