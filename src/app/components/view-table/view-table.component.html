@@ -1,6 +1,6 @@
 <ion-grid *ngIf="data" fixed>
   <ion-row class="header">
-    <ng-container *ngFor="let props of data[0] | keyvalue">
+    <ng-container *ngFor="let props of data[0] | keyvalue: keyNameOrder">
       <ion-col
         [size]="12 / (getLengthOfObject(data[0]) - 1)"
         *ngIf="props.key !== 'id'"
@@ -11,10 +11,10 @@
   </ion-row>
   <ion-row
     class="body"
-    *ngFor="let element of data; trackBy: trackById"
+    *ngFor="let element of filterBy('name'); trackBy: trackById"
     (click)="presentPopover(element)"
   >
-    <ng-container *ngFor="let props of element | keyvalue">
+    <ng-container *ngFor="let props of element | keyvalue: keyNameOrder">
       <ion-col
         [size]="12 / (getLengthOfObject(element) - 1)"
         *ngIf="props.key !== 'id'"
