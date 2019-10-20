@@ -42,14 +42,12 @@ export class ViewTableComponent implements OnInit {
     return this.data;
   }
 
-  keyNameOrder(
-    a: KeyValue<string, string>,
-    b: KeyValue<string, string>
-  ): number {
+  keyNameOrder(a: KeyValue<string, string>): number {
     // Prefer name
     const key = a.key.toLowerCase();
     return key === 'name' || key === 'title' ? -1 : 0;
   }
+
   isBool(value: any) {
     return typeof value === 'boolean';
   }
