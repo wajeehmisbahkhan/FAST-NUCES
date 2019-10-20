@@ -74,11 +74,29 @@ export class Course extends FirebaseDocument {
 export class Teacher extends FirebaseDocument {
   name: string;
   department: string;
+  isSenior: boolean;
+  needsComputer: boolean;
+  building: string;
+  floor: number;
+  preferredSlots: Array<boolean>;
 
-  constructor(name = '', department = '') {
+  constructor(
+    name = '',
+    department = '',
+    isSenior = false,
+    needsComputer = false,
+    building = '',
+    floor = 0,
+    preferredSlots = []
+  ) {
     super();
     this.name = name;
     this.department = department;
+    this.isSenior = isSenior;
+    this.needsComputer = needsComputer;
+    this.building = building;
+    this.floor = floor;
+    this.preferredSlots = preferredSlots;
   }
 }
 
@@ -115,7 +133,7 @@ export class Room extends FirebaseDocument {
     name = '',
     isComputerLab = false,
     isElectricalLab = false,
-    hasProjector = false,
+    hasProjector = true,
     hasComputer = false
   ) {
     super();
