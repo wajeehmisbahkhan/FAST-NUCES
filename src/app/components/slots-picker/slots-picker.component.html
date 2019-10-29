@@ -1,0 +1,37 @@
+<ion-grid *ngIf="rooms; else noRooms" fixed>
+  <ion-row>
+    <ion-col class="ion-text-center" size="4">
+      <ion-button (click)="selectAll()">Select All</ion-button>
+    </ion-col>
+    <ion-col class="ion-text-center" size="4">
+      <ion-button color="danger" (click)="deselectAll()"
+        >Deselect All</ion-button
+      >
+    </ion-col>
+    <ion-col class="ion-text-center" size="4">
+      <ion-button color="success" (click)="setSlots()">Okay</ion-button>
+    </ion-col>
+  </ion-row>
+  <!-- Actual Table -->
+  <ion-row>
+    <ion-col size="2">
+      <!--Empty-->
+    </ion-col>
+    <ion-col size="2"><ion-text (click)="selectCol(0)">M</ion-text></ion-col>
+    <ion-col size="2"><ion-text (click)="selectCol(1)">T</ion-text></ion-col>
+    <ion-col size="2"><ion-text (click)="selectCol(2)">W</ion-text></ion-col>
+    <ion-col size="2"><ion-text (click)="selectCol(3)">T</ion-text></ion-col>
+    <ion-col size="2"><ion-text (click)="selectCol(4)">F</ion-text></ion-col>
+  </ion-row>
+  <ion-row *ngFor="let room of rooms; let i = index">
+    <ion-col size="2"
+      ><ion-text (click)="selectRow(i)">{{ room.name }}</ion-text></ion-col
+    >
+    <ion-col size="2" *ngFor="let day of [0, 1, 2, 3, 4]">
+      <ion-checkbox [(ngModel)]="localSlots[5 * i + day]"></ion-checkbox>
+    </ion-col>
+  </ion-row>
+</ion-grid>
+<ng-template #noRooms>
+  <ion-text>Loading rooms... hopefully.</ion-text>
+</ng-template>
