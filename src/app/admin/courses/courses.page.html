@@ -91,7 +91,7 @@
         <ion-item>
           <ion-label position="floating">Year</ion-label>
           <ion-input
-            [(ngModel)]="course.yearOffered"
+            [(ngModel)]="course.batch"
             placeholder="2017"
             (focusout)="autoFillSemester()"
             name="yearOffered"
@@ -126,7 +126,9 @@
           <ion-label>Computer Lab</ion-label>
           <ion-checkbox
             [(ngModel)]="course.needsComputerLab"
-            (click)="course.needsElectricalLab = false"
+            (click)="
+              course.needsLanguageLab = false; course.needsElectricalLab = false
+            "
             name="needsComputerLab"
           ></ion-checkbox>
         </ion-item>
@@ -136,26 +138,22 @@
           <ion-label>Electrical Lab</ion-label>
           <ion-checkbox
             [(ngModel)]="course.needsElectricalLab"
-            (click)="course.needsComputerLab = false"
+            (click)="
+              course.needsLanguageLab = false; course.needsComputerLab = false
+            "
             name="needsElectricalLab"
           ></ion-checkbox>
         </ion-item>
       </ion-col>
-      <ion-col size="1.5" size-xs="12" size-sm="6" size-md="1.5">
+      <ion-col size="2" size-xs="12" size-sm="6" size-md="2">
         <ion-item>
-          <ion-label>Projector</ion-label>
+          <ion-label>Language Lab</ion-label>
           <ion-checkbox
-            [(ngModel)]="course.needsProjector"
-            name="needsProjector"
-          ></ion-checkbox>
-        </ion-item>
-      </ion-col>
-      <ion-col size="1.5" size-xs="12" size-sm="6" size-md="1.5">
-        <ion-item>
-          <ion-label>Computer</ion-label>
-          <ion-checkbox
-            [(ngModel)]="course.needsComputer"
-            name="needsComputer"
+            [(ngModel)]="course.needsLanguageLab"
+            (click)="
+              course.needsComputerLab = false; course.needsElectricalLab = false
+            "
+            name="needsLanguageLab"
           ></ion-checkbox>
         </ion-item>
       </ion-col>

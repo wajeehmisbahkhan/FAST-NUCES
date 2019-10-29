@@ -15,7 +15,6 @@ export class CoursesPage implements OnInit {
     // Some default preferences
     this.course.creditHours = 3;
     this.course.isCoreCourse = true;
-    this.course.needsProjector = true;
   }
 
   ngOnInit() {}
@@ -31,7 +30,7 @@ export class CoursesPage implements OnInit {
 
   autoFillSemester() {
     const currentDate = new Date();
-    let yearOffered = Number(this.course.yearOffered);
+    let yearOffered = Number(this.course.batch);
     if (Math.floor(yearOffered / 100) === 0) {
       yearOffered += 2000;
     }
