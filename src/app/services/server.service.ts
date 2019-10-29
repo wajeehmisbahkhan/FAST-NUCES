@@ -1,6 +1,13 @@
 import { Injectable } from '@angular/core';
 import { DatabaseService } from './database.service';
-import { Course, Teacher, Section, Room, TCSEntry } from './helper-classes';
+import {
+  Course,
+  Teacher,
+  Section,
+  Room,
+  TCSEntry,
+  sortAlphaNum
+} from './helper-classes';
 
 @Injectable({
   providedIn: 'root'
@@ -33,6 +40,12 @@ export class ServerService {
         });
         // Assign to all the local arrays
         this[collectionName] = collection;
+        // Always sort rooms by name
+        if (collectionName === 'rooms') {
+          this.rooms = this.rooms.sort((roomA, roomB) =>
+            sortAlphaNum(roomA.name, roomB.name)
+          );
+        }
       })
     );
   }
