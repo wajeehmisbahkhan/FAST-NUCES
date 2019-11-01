@@ -29,3 +29,7 @@
   --width: 500px;
   --max-width: 80vw;
 }
+
+.popover-content {
+  max-width: fit-content !important;
+}
