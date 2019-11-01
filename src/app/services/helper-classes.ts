@@ -1,5 +1,3 @@
-import { ServerService } from './server.service';
-
 class FirebaseDocument {
   id: string;
 
@@ -7,45 +5,55 @@ class FirebaseDocument {
     this.id = '';
   }
 }
-
 export class TCSEntry extends FirebaseDocument {
   name: string; // For ease only (GR1, C, B2)
   courseId: string; // course reference
+  canClashCourseIds: Array<string>; // can clash with these courses
+  // - Such as electives (maybe), repeating courses (definitely)
+  // - Bilal will implement symmetry function to ensure the referenced courses can also clash with this one
   teacherIds: Array<string>; // teacher reference
   sectionIds: Array<string>; // sections included
 
   constructor(
     name = '',
     courseId = '',
+    canClashCourseIds: Array<string> = [],
     teacherIds: Array<string> = [],
     sectionIds: Array<string> = []
   ) {
     super();
     this.name = name;
     this.courseId = courseId;
+    this.canClashCourseIds = canClashCourseIds;
     this.teacherIds = teacherIds;
     this.sectionIds = sectionIds;
   }
 }
 
 // Actual Input
+export class Room extends FirebaseDocument {
+  static maxRoomSize = 30; // ~ 27 rooms
+
+  name: string; // CR-10, R-109
+  capacity: number; // 50, 100
+
+  constructor(name = '') {
+    super();
+    this.name = name;
+  }
+}
+
 export class Course extends FirebaseDocument {
   courseCode: string; // CS205
   department: string; // CS OR EE OR BBA
-  school: string; // CS OR EE OR MG OR MT OR SS
+  school: string; // CS OR EE OR MG OR MT OR SS - helps in detecting non-clash electives
   title: string; // Computer Architecture, Theory Of Automata
   shortTitle: string; // CA, PROB, OS-LAB
   creditHours: number; // 1, 3, 4
   batch: number; // 2017, 2018
   semesterOffered: number; // 1, 2, 8
   isCoreCourse: boolean; // true = is a core course
-  /*
-    Facilities
-    Need to add more like language lab and EE & BBA stuff
-  */
-  needsComputerLab: boolean; // true = needs a computer lab
-  needsElectricalLab: boolean; // true = needs an electrical lab
-  needsLanguageLab: boolean;
+  preferredSlots: Array<Array<Array<boolean>>>; // [Day][Room][Time]
 
   constructor(
     courseCode = '',
@@ -57,9 +65,7 @@ export class Course extends FirebaseDocument {
     batch = null,
     semesterOffered = null,
     isCoreCourse = true,
-    needsComputerLab = false,
-    needsElectricalLab = false,
-    needsLanguageLab = false
+    preferredSlots?: Array<Array<Array<boolean>>>
   ) {
     super();
     this.courseCode = courseCode;
@@ -71,44 +77,60 @@ export class Course extends FirebaseDocument {
     this.batch = batch;
     this.semesterOffered = semesterOffered;
     this.isCoreCourse = isCoreCourse;
-    this.needsComputerLab = needsComputerLab;
-    this.needsElectricalLab = needsElectricalLab;
-    this.needsLanguageLab = needsLanguageLab;
+    if (!preferredSlots) {
+      // Fill with true by default
+      const day = [];
+      for (let i = 0; i < 5; i++) {
+        // For each day
+        const room = [];
+        for (let j = 0; j < Room.maxRoomSize; j++) {
+          // For each room
+          const slot = [];
+          for (let k = 0; k < 8; k++) {
+            // For each slot
+            slot.push(true); // 8 times
+          }
+          room.push(slot); // room size times
+        }
+        day.push(room); // day times
+      }
+      preferredSlots = day;
+    }
+    this.preferredSlots = preferredSlots;
   }
 }
 
 export class Teacher extends FirebaseDocument {
   name: string;
   department: string;
-  isSenior: boolean;
-  needsComputer: boolean;
-  building: string;
-  floor: number;
-  preferredSlots: Array<boolean>;
+  preferredSlots: Array<Array<Array<boolean>>>; // [Day][Room][Time]
 
   constructor(
     name = '',
     department = '',
-    isSenior = false,
-    needsComputer = false,
-    building = '',
-    floor = 0,
-    preferredSlots?: Array<boolean>
+    preferredSlots?: Array<Array<Array<boolean>>>
   ) {
     super();
     this.name = name;
     this.department = department;
-    this.isSenior = isSenior;
-    this.needsComputer = needsComputer;
-    this.building = building;
-    this.floor = floor;
     if (!preferredSlots) {
-      const maxRoomSize = 30; // ~27
-      preferredSlots = [];
       // Fill with true by default
-      for (let i = 0; i < maxRoomSize * 5; i++) {
-        preferredSlots.push(true);
+      const day = [];
+      for (let i = 0; i < 5; i++) {
+        // For each day
+        const room = [];
+        for (let j = 0; j < Room.maxRoomSize; j++) {
+          // For each room
+          const slot = [];
+          for (let k = 0; k < 8; k++) {
+            // For each slot
+            slot.push(true); // 8 times
+          }
+          room.push(slot); // room size times
+        }
+        day.push(room); // day times
       }
+      preferredSlots = day;
     }
     this.preferredSlots = preferredSlots;
   }
@@ -126,36 +148,6 @@ export class Section extends FirebaseDocument {
     this.strength = strength;
     this.batch = batch;
     this.department = department;
-  }
-}
-
-export class Room extends FirebaseDocument {
-  name: string; // CR-10, R-109
-  capacity: number; // 50, 100
-  building: string; // CS, EE
-  floor: number; // 0, 1, 2 (in EE)
-  /*
-    Facilities
-    Need to add more like language lab and EE & BBA stuff
-  */
-  isComputerLab: boolean; // true = is a computer lab
-  isElectricalLab: boolean; // true = is an electrical lab
-  isLanguageLab: boolean; // true = has a working projector
-  hasComputer: boolean; // true = has a viper in class
-
-  constructor(
-    name = '',
-    isComputerLab = false,
-    isElectricalLab = false,
-    isLanguageLab = true,
-    hasComputer = false
-  ) {
-    super();
-    this.name = name;
-    this.isComputerLab = isComputerLab;
-    this.isElectricalLab = isElectricalLab;
-    this.isLanguageLab = isLanguageLab;
-    this.hasComputer = hasComputer;
   }
 }
 
