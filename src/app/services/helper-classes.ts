@@ -8,8 +8,7 @@ class FirebaseDocument {
 export class TCSEntry extends FirebaseDocument {
   name: string; // For ease only (GR1, C, B2)
   courseId: string; // course reference
-  canClashCourseIds: Array<string>; // can clash with these courses
-  // - Such as electives (maybe), repeating courses (definitely)
+  successorIds: Array<string>; // Repeating can clash with these courses
   // - Bilal will implement symmetry function to ensure the referenced courses can also clash with this one
   teacherIds: Array<string>; // teacher reference
   sectionIds: Array<string>; // sections included
@@ -17,14 +16,14 @@ export class TCSEntry extends FirebaseDocument {
   constructor(
     name = '',
     courseId = '',
-    canClashCourseIds: Array<string> = [],
+    successorIds: Array<string> = [],
     teacherIds: Array<string> = [],
     sectionIds: Array<string> = []
   ) {
     super();
     this.name = name;
     this.courseId = courseId;
-    this.canClashCourseIds = canClashCourseIds;
+    this.successorIds = successorIds;
     this.teacherIds = teacherIds;
     this.sectionIds = sectionIds;
   }
@@ -36,6 +35,7 @@ export class Room extends FirebaseDocument {
 
   name: string; // CR-10, R-109
   capacity: number; // 50, 100
+  availableSlots: Array<Array<boolean>>; // [Time][Day]
 
   constructor(name = '') {
     super();
@@ -53,7 +53,7 @@ export class Course extends FirebaseDocument {
   batch: number; // 2017, 2018
   semesterOffered: number; // 1, 2, 8
   isCoreCourse: boolean; // true = is a core course
-  preferredSlots: Array<Array<Array<boolean>>>; // [Day][Room][Time]
+  availableSlots: Array<Array<Array<boolean>>>; // [Day][Room][Time]
 
   constructor(
     courseCode = '',
@@ -65,7 +65,7 @@ export class Course extends FirebaseDocument {
     batch = null,
     semesterOffered = null,
     isCoreCourse = true,
-    preferredSlots?: Array<Array<Array<boolean>>>
+    availableSlots?: Array<Array<Array<boolean>>>
   ) {
     super();
     this.courseCode = courseCode;
@@ -77,7 +77,7 @@ export class Course extends FirebaseDocument {
     this.batch = batch;
     this.semesterOffered = semesterOffered;
     this.isCoreCourse = isCoreCourse;
-    if (!preferredSlots) {
+    if (!availableSlots) {
       // Fill with true by default
       const day = [];
       for (let i = 0; i < 5; i++) {
@@ -94,26 +94,26 @@ export class Course extends FirebaseDocument {
         }
         day.push(room); // day times
       }
-      preferredSlots = day;
+      availableSlots = day;
     }
-    this.preferredSlots = preferredSlots;
+    this.availableSlots = availableSlots;
   }
 }
 
 export class Teacher extends FirebaseDocument {
   name: string;
   department: string;
-  preferredSlots: Array<Array<Array<boolean>>>; // [Day][Room][Time]
+  availableSlots: Array<Array<Array<boolean>>>; // [Day][Room][Time]
 
   constructor(
     name = '',
     department = '',
-    preferredSlots?: Array<Array<Array<boolean>>>
+    availableSlots?: Array<Array<Array<boolean>>>
   ) {
     super();
     this.name = name;
     this.department = department;
-    if (!preferredSlots) {
+    if (!availableSlots) {
       // Fill with true by default
       const day = [];
       for (let i = 0; i < 5; i++) {
@@ -130,9 +130,9 @@ export class Teacher extends FirebaseDocument {
         }
         day.push(room); // day times
       }
-      preferredSlots = day;
+      availableSlots = day;
     }
-    this.preferredSlots = preferredSlots;
+    this.availableSlots = availableSlots;
   }
 }
 
