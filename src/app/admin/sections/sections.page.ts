@@ -31,6 +31,7 @@ export class SectionsPage implements OnInit {
     atomicSections.forEach(atomicSection => {
       this.server.addPrimitiveObject('sections', atomicSection);
     });
+    this.section = new Section();
   }
 
   // Convert to aggregate to store both infos
