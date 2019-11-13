@@ -15,23 +15,6 @@
     <ion-row>
       <ion-col size="3">
         <ion-item>
-          <ion-label position="floating">Teacher</ion-label>
-          <ion-select
-            [interfaceOptions]="popoverInterfaceOptions"
-            [(ngModel)]="entry.teacherId"
-            required
-            name="teacher"
-          >
-            <ion-select-option
-              *ngFor="let teacher of teachers"
-              [value]="teacher.id"
-              >{{ teacher.name }} ({{ teacher.department }})</ion-select-option
-            >
-          </ion-select>
-        </ion-item>
-      </ion-col>
-      <ion-col size="3">
-        <ion-item>
           <ion-label position="floating">Course</ion-label>
           <ion-select
             [interfaceOptions]="popoverInterfaceOptions"
@@ -49,20 +32,100 @@
       </ion-col>
       <ion-col size="3">
         <ion-item>
-          <ion-label position="floating">Section</ion-label>
+          <ion-label position="floating">Teacher(s)</ion-label>
           <ion-select
+            multiple="true"
             [interfaceOptions]="popoverInterfaceOptions"
-            [(ngModel)]="entry.sectionId"
+            [(ngModel)]="entry.teacherIds"
             required
-            name="section"
+            name="teacher"
           >
             <ion-select-option
-              *ngFor="let section of sections"
-              [value]="section.id"
-              >{{ section.name }} ({{ section.department }}-{{
-                section.batch
-              }})</ion-select-option
+              *ngFor="let teacher of teachers"
+              [value]="teacher.id"
+              >{{ teacher.name }} ({{ teacher.department }})</ion-select-option
             >
+          </ion-select>
+        </ion-item>
+      </ion-col>
+      <ion-col size="3">
+        <ion-item>
+          <ion-label>Show Atomic Sections</ion-label>
+          <ion-checkbox [(ngModel)]="atomic" name="atomic"></ion-checkbox>
+        </ion-item>
+      </ion-col>
+      <ion-col size="3">
+        <ion-item>
+          <ion-label position="floating">Section(s)</ion-label>
+          <ion-select
+            multiple="true"
+            [interfaceOptions]="popoverInterfaceOptions"
+            [(ngModel)]="entry.sectionIds"
+            required
+            name="sections"
+            (focusout)="fillSectionName()"
+          >
+            <ng-container *ngIf="atomic; else normal">
+              <ion-select-option
+                multiple="true"
+                *ngFor="let section of sections"
+                [value]="section.id"
+                >{{ section.name }} ({{
+                  section.department
+                }})</ion-select-option
+              >
+            </ng-container>
+            <!-- Default view -->
+            <ng-template #normal>
+              <ion-select-option
+                multiple="true"
+                *ngFor="let section of normalSections"
+                [value]="section.id"
+                >{{ section.name }} ({{
+                  section.department
+                }})</ion-select-option
+              >
+            </ng-template>
+          </ion-select>
+        </ion-item>
+      </ion-col>
+      <ion-col size="3">
+        <ion-item>
+          <ion-label position="floating">Section Name</ion-label>
+          <ion-input
+            [(ngModel)]="entry.name"
+            placeholder="B/2, C"
+            name="sectionName"
+            required
+            type="text"
+          ></ion-input>
+        </ion-item>
+      </ion-col>
+      <ion-col size="2">
+        <ion-item>
+          <ion-label>Repeat Course</ion-label>
+          <ion-checkbox [(ngModel)]="repeat" name="repeat"></ion-checkbox>
+        </ion-item>
+      </ion-col>
+      <ion-col size="3" *ngIf="repeat">
+        <ion-item>
+          <ion-label position="floating">Successor Course(s)</ion-label>
+          <ion-select
+            multiple="true"
+            [interfaceOptions]="popoverInterfaceOptions"
+            [(ngModel)]="entry.successorIds"
+            required
+            name="successors"
+          >
+            <ng-container *ngFor="let course of courses">
+              <!-- Avoid same course to be its own successor -->
+              <ion-select-option
+                *ngIf="course.id !== entry.courseId"
+                multiple="true"
+                [value]="course.id"
+                >{{ course.title }} ({{ course.department }})</ion-select-option
+              >
+            </ng-container>
           </ion-select>
         </ion-item>
       </ion-col>
@@ -100,14 +163,26 @@
       *ngFor="let entry of entries; trackBy: trackById"
       (click)="presentPopover(entry)"
     >
-      <ion-col size="4">
-        {{ getTeacherById(entry.teacherId) | teacher }}
+      <ion-col size="2">
+        {{ entry.name }}
       </ion-col>
       <ion-col size="4">
         {{ getCourseById(entry.courseId) | course }}
       </ion-col>
       <ion-col size="4">
-        {{ getSectionById(entry.sectionId) | section }}
+        <ng-template *ngFor="let teacherId of entry.teacherIds">
+          {{ getTeacherById(teacherId) | teacher }}<br />
+        </ng-template>
+      </ion-col>
+      <ion-col size="4">
+        <ng-template *ngFor="let sectionId of entry.sectionIds">
+          {{ getSectionById(sectionId) | section }}<br />
+        </ng-template>
+      </ion-col>
+      <ion-col size="4">
+        <ng-template *ngFor="let successorId of entry.successorIds">
+          {{ getCourseById(successorId) | course }}<br />
+        </ng-template>
       </ion-col>
     </ion-row>
   </ion-grid>
