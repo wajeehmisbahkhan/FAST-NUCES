@@ -15,14 +15,9 @@ import { EditComponent } from './edit/edit.component';
 })
 export class EntriesPage implements OnInit {
   entry: TCSEntry;
-  atomic: boolean; // For section selection
-  repeat: boolean; // For successor course selection
 
   constructor(private server: ServerService, private poc: PopoverController) {
     this.entry = new TCSEntry();
-    // Should show aggregate by default
-    this.atomic = false;
-    this.repeat = false;
   }
 
   ngOnInit() {}
@@ -77,6 +72,13 @@ export class EntriesPage implements OnInit {
   // Auto fill
   fillSectionName() {
     console.log(this.entry.sectionIds);
+  }
+
+  get repeatCourse() {
+    return (
+      this.getCourseById(this.entry.courseId) &&
+      this.getCourseById(this.entry.courseId).isRepeatCourse
+    );
   }
 
   get teachers() {

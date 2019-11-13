@@ -51,7 +51,10 @@
       <ion-col size="3">
         <ion-item>
           <ion-label>Show Atomic Sections</ion-label>
-          <ion-checkbox [(ngModel)]="atomic" name="atomic"></ion-checkbox>
+          <ion-checkbox
+            [(ngModel)]="entry.hasAtomicSections"
+            name="atomic"
+          ></ion-checkbox>
         </ion-item>
       </ion-col>
       <ion-col size="3">
@@ -65,7 +68,7 @@
             name="sections"
             (focusout)="fillSectionName()"
           >
-            <ng-container *ngIf="atomic; else normal">
+            <ng-container *ngIf="entry.hasAtomicSections; else normal">
               <ion-select-option
                 multiple="true"
                 *ngFor="let section of sections"
@@ -101,13 +104,7 @@
           ></ion-input>
         </ion-item>
       </ion-col>
-      <ion-col size="2">
-        <ion-item>
-          <ion-label>Repeat Course</ion-label>
-          <ion-checkbox [(ngModel)]="repeat" name="repeat"></ion-checkbox>
-        </ion-item>
-      </ion-col>
-      <ion-col size="3" *ngIf="repeat">
+      <ion-col size="3" *ngIf="repeatCourse">
         <ion-item>
           <ion-label position="floating">Successor Course(s)</ion-label>
           <ion-select
@@ -148,13 +145,13 @@
   <!-- View Table -->
   <ion-grid *ngIf="entries.length > 0" fixed>
     <ion-row class="header">
-      <ion-col size="4">
-        Teacher
-      </ion-col>
-      <ion-col size="4">
+      <ion-col size="3">
         Course
       </ion-col>
-      <ion-col size="4">
+      <ion-col size="3">
+        Teacher(s)
+      </ion-col>
+      <ion-col size="6">
         Section
       </ion-col>
     </ion-row>
