@@ -111,19 +111,24 @@ export class ServerService {
   // Returns filtered entries containing object id passed in
   getPrimitiveReferencesInEntry(
     objectId: string,
-    entryProperty?: 'teacherId' | 'courseId' | 'sectionId'
-  ) {
-    if (entryProperty) {
+    entryProperty?: 'teacherIds' | 'courseId' | 'sectionIds'
+  ): Array<TCSEntry> {
+    if (entryProperty === 'courseId') {
       return this.entries.filter(entry => entry[entryProperty] === objectId);
+    } else if (
+      entryProperty === 'sectionIds' ||
+      entryProperty === 'teacherIds'
+    ) {
+      return this.entries.filter(entry =>
+        entry[entryProperty].filter(entryId => entryId === objectId)
+      );
     }
     // Search in each property O(n^3)
-    const filteredEntries = [];
-    ['teacherId', 'courseId', 'sectionId'].forEach(idProperty => {
-      filteredEntries.push(
-        ...this.entries.filter(entry => entry[idProperty] === objectId)
-      );
-    });
-    return filteredEntries;
+    return [
+      ...this.getPrimitiveReferencesInEntry(objectId, 'courseId'),
+      ...this.getPrimitiveReferencesInEntry(objectId, 'sectionIds'),
+      ...this.getPrimitiveReferencesInEntry(objectId, 'teacherIds')
+    ];
   }
 
   get collectionNames() {
