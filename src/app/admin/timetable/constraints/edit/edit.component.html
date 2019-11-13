@@ -1,0 +1,48 @@
+<form #editForm="ngForm" (ngSubmit)="updateElement()">
+  <ion-grid>
+    <ion-row>
+      <ion-col size="8">
+        <ion-item>
+          <ion-label position="floating">Paired Electives</ion-label>
+          <ion-select
+            [(ngModel)]="localElement.pairedCourses"
+            required
+            name="course"
+            [interfaceOptions]="popoverInterfaceOptions"
+            [multiple]="true"
+          >
+            <ng-container *ngFor="let course of courses">
+              <ion-select-option
+                [value]="course.id"
+                *ngIf="!(showElectivesOnly && course.isCoreCourse)"
+                >{{ course.title }} ({{ course.department }})</ion-select-option
+              >
+            </ng-container>
+          </ion-select>
+        </ion-item>
+      </ion-col>
+      <ion-col size="4">
+        <ion-item>
+          <ion-label>Show Electives Only</ion-label>
+          <ion-checkbox
+            name="showElectivesOnly"
+            [(ngModel)]="showElectivesOnly"
+          ></ion-checkbox>
+        </ion-item>
+      </ion-col>
+      <ion-col size="6">
+        <ion-button
+          type="submit"
+          [disabled]="editForm.invalid || !editFormChanged()"
+          expand="full"
+          >Update</ion-button
+        >
+      </ion-col>
+      <ion-col size="6">
+        <ion-button expand="full" (click)="deleteElement()" color="danger"
+          >Delete</ion-button
+        >
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</form>

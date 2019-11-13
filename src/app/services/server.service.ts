@@ -6,7 +6,8 @@ import {
   Section,
   Room,
   TCSEntry,
-  sortAlphaNum
+  sortAlphaNum,
+  Constraint
 } from './helper-classes';
 
 @Injectable({
@@ -19,6 +20,7 @@ export class ServerService {
   rooms: Array<Room>;
 
   entries: Array<TCSEntry>;
+  constraints: Array<Constraint>;
 
   constructor(private db: DatabaseService) {
     this.courses = [];
@@ -27,6 +29,7 @@ export class ServerService {
     this.rooms = [];
     // Combo
     this.entries = [];
+    this.constraints = [];
   }
 
   // Called at the beginning of the program

@@ -12,7 +12,8 @@ export class DatabaseService {
     'teachers',
     'sections',
     'rooms',
-    'entries'
+    'entries',
+    'constraints'
   ];
 
   constructor(private afs: AngularFirestore) {}

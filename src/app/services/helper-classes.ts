@@ -32,6 +32,14 @@ export class TCSEntry extends FirebaseDocument {
   }
 }
 
+export class Constraint extends FirebaseDocument {
+  pairedCourses: Array<Course>;
+  constructor(pairedCourses: Array<Course> = []) {
+    super();
+    this.pairedCourses = pairedCourses;
+  }
+}
+
 // Actual Input
 export class Room extends FirebaseDocument {
   static maxRoomSize = 30; // ~ 27 rooms

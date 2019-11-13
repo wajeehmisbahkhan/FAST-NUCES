@@ -9,5 +9,81 @@
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
-
-<ion-content> </ion-content>
+<ion-content>
+  <form
+    #constraintForm="ngForm"
+    (ngSubmit)="addConstraint(); constraintForm.reset()"
+  >
+    <ion-row>
+      <ion-col size="5">
+        <ion-item>
+          <ion-label position="floating">Paired Electives</ion-label>
+          <ion-select
+            [(ngModel)]="constraint.pairedCourses"
+            required
+            name="course"
+            [interfaceOptions]="popoverInterfaceOptions"
+            [multiple]="true"
+          >
+            <ng-container *ngFor="let course of courses">
+              <ion-select-option
+                [value]="course.id"
+                *ngIf="!(showElectivesOnly && course.isCoreCourse)"
+                >{{ course.title }} ({{ course.department }})</ion-select-option
+              >
+            </ng-container>
+          </ion-select>
+        </ion-item>
+      </ion-col>
+      <ion-col size="3">
+        <ion-item>
+          <ion-label>Show Electives Only</ion-label>
+          <ion-checkbox
+            name="showElectivesOnly"
+            [(ngModel)]="showElectivesOnly"
+          ></ion-checkbox>
+        </ion-item>
+      </ion-col>
+      <ion-col size="2" size-xs="12" size-sm="6" size-md="2">
+        <ion-button
+          expand="full"
+          [disabled]="!constraintForm.valid"
+          type="submit"
+          >Add Course</ion-button
+        >
+      </ion-col>
+      <ion-col size="1.5" size-xs="12" size-sm="6" size-md="1.5">
+        <ion-button
+          expand="full"
+          [disabled]="constraintForm.pristine"
+          (click)="constraintForm.reset()"
+          color="danger"
+          >Reset</ion-button
+        >
+      </ion-col>
+    </ion-row>
+  </form>
+  <!-- View Table -->
+  <ion-grid *ngIf="constraints.length > 0" fixed>
+    <ion-row class="header">
+      <ion-col size="12">
+        Courses
+      </ion-col>
+    </ion-row>
+    <ion-row
+      class="body"
+      *ngFor="let constraint of constraints; trackBy: trackById"
+      (click)="presentPopover(constraint)"
+    >
+      <ion-col size="12">
+        <ng-container
+          *ngFor="let courseId of constraint.pairedCourses; let i = index"
+        >
+          <!-- Seperate by comma -->
+          <ng-container *ngIf="i > 0"> - </ng-container>
+          {{ getCourseById(courseId) | course }}
+        </ng-container>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-content>
