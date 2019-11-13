@@ -35,11 +35,26 @@ export class Room extends FirebaseDocument {
 
   name: string; // CR-10, R-109
   capacity: number; // 50, 100
-  availableSlots: Array<Array<boolean>>; // [Time][Day]
+  availableSlots: Array<Array<boolean>>; // [Day][Time]
 
-  constructor(name = '') {
+  constructor(name = '', availableSlots?: Array<Array<boolean>>) {
     super();
     this.name = name;
+    if (!availableSlots) {
+      // Fill with true by default
+      const day = [];
+      for (let i = 0; i < 5; i++) {
+        // For each day
+        const slot = [];
+        for (let j = 0; j < 8; j++) {
+          // For each slot
+          slot.push(true); // 8 times
+        }
+        day.push(slot);
+      }
+      availableSlots = day;
+    }
+    this.availableSlots = availableSlots;
   }
 }
 
