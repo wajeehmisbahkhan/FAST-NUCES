@@ -17,7 +17,6 @@
         <ion-item>
           <ion-label position="floating">Code</ion-label>
           <ion-input
-            (focusout)="autoFillSchool()"
             [(ngModel)]="course.courseCode"
             placeholder="MT-201"
             name="courseCode"
@@ -33,18 +32,6 @@
             [(ngModel)]="course.department"
             placeholder="CS"
             name="department"
-            required
-            type="text"
-          ></ion-input>
-        </ion-item>
-      </ion-col>
-      <ion-col size="1" size-xs="12" size-sm="6" size-md="1">
-        <ion-item>
-          <ion-label position="floating">School</ion-label>
-          <ion-input
-            [(ngModel)]="course.school"
-            placeholder="MT"
-            name="school"
             required
             type="text"
           ></ion-input>
@@ -93,20 +80,7 @@
           <ion-input
             [(ngModel)]="course.batch"
             placeholder="2017"
-            (focusout)="autoFillSemester()"
             name="batch"
-            required
-            type="number"
-          ></ion-input>
-        </ion-item>
-      </ion-col>
-      <ion-col size="1.5" size-xs="12" size-sm="6" size-md="1.5">
-        <ion-item>
-          <ion-label position="floating">Semester</ion-label>
-          <ion-input
-            [(ngModel)]="course.semesterOffered"
-            placeholder="4"
-            name="semesterOffered"
             required
             type="number"
           ></ion-input>
@@ -118,6 +92,15 @@
           <ion-checkbox
             [(ngModel)]="course.isCoreCourse"
             name="isCoreCourse"
+          ></ion-checkbox>
+        </ion-item>
+      </ion-col>
+      <ion-col size="1.5" size-xs="12" size-sm="6" size-md="1.5">
+        <ion-item>
+          <ion-label>Repeat</ion-label>
+          <ion-checkbox
+            [(ngModel)]="course.isRepeatCourse"
+            name="isRepeatCourse"
           ></ion-checkbox>
         </ion-item>
       </ion-col>

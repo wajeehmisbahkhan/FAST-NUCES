@@ -25,30 +25,6 @@ export class CoursesPage implements OnInit {
   }
 
   // Helper functions
-  autoFillSchool() {
-    if (this.course.courseCode.length >= 1)
-      this.course.school = this.course.courseCode.slice(0, 2);
-  }
-
-  autoFillSemester() {
-    if (!this.course.batch) return;
-    const currentDate = new Date();
-    let yearOffered = Number(this.course.batch);
-    if (Math.floor(yearOffered / 100) === 0) {
-      yearOffered += 2000;
-    }
-    // If month is January
-    if (currentDate.getMonth() === 1) {
-      // Spring
-      this.course.semesterOffered =
-        (currentDate.getFullYear() - yearOffered) * 2;
-    } else {
-      // Fall
-      this.course.semesterOffered =
-        (currentDate.getFullYear() - yearOffered) * 2 + 1;
-    }
-  }
-
   autoFillShortTitle() {
     if (!this.course.title) return;
     this.course.title = this.course.title.trim();

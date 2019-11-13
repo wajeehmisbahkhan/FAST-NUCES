@@ -12,13 +12,15 @@ export class TCSEntry extends FirebaseDocument {
   // - Bilal will implement symmetry function to ensure the referenced courses can also clash with this one
   teacherIds: Array<string>; // teacher reference
   sectionIds: Array<string>; // sections included
+  hasAtomicSections: boolean;
 
   constructor(
     name = '',
     courseId = '',
     successorIds: Array<string> = [],
     teacherIds: Array<string> = [],
-    sectionIds: Array<string> = []
+    sectionIds: Array<string> = [],
+    hasAtomicSections = false
   ) {
     super();
     this.name = name;
@@ -26,6 +28,7 @@ export class TCSEntry extends FirebaseDocument {
     this.successorIds = successorIds;
     this.teacherIds = teacherIds;
     this.sectionIds = sectionIds;
+    this.hasAtomicSections = hasAtomicSections;
   }
 }
 
@@ -61,37 +64,34 @@ export class Room extends FirebaseDocument {
 export class Course extends FirebaseDocument {
   courseCode: string; // CS205
   department: string; // CS OR EE OR BBA
-  school: string; // CS OR EE OR MG OR MT OR SS - helps in detecting non-clash electives
   title: string; // Computer Architecture, Theory Of Automata
   shortTitle: string; // CA, PROB, OS-LAB
   creditHours: number; // 1, 3, 4
   batch: number; // 2017, 2018
-  semesterOffered: number; // 1, 2, 8
   isCoreCourse: boolean; // true = is a core course
+  isRepeatCourse: boolean; // true = is a repeat course
   availableSlots: Array<Array<Array<boolean>>>; // [Day][Room][Time]
 
   constructor(
     courseCode = '',
     department = '',
-    school = '',
     title = '',
     shortTitle = '',
     creditHours = 3,
     batch = null,
-    semesterOffered = null,
     isCoreCourse = true,
+    isRepeatCourse = false,
     availableSlots?: Array<Array<Array<boolean>>>
   ) {
     super();
     this.courseCode = courseCode;
     this.department = department;
-    this.school = school;
     this.title = title;
     this.shortTitle = shortTitle;
     this.creditHours = creditHours;
     this.batch = batch;
-    this.semesterOffered = semesterOffered;
     this.isCoreCourse = isCoreCourse;
+    this.isRepeatCourse = isRepeatCourse;
     if (!availableSlots) {
       // Fill with true by default
       const day = [];
