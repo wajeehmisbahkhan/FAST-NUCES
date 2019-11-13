@@ -7,6 +7,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { ClassroomsPage } from './classrooms.page';
 import { CrudModule } from 'src/app/components/crud.module';
+import { SlotsPickerModule } from 'src/app/components/slots-picker.module';
 
 const routes: Routes = [
   {
@@ -21,7 +22,8 @@ const routes: Routes = [
     FormsModule,
     IonicModule,
     RouterModule.forChild(routes),
-    CrudModule
+    CrudModule,
+    SlotsPickerModule
   ],
   declarations: [ClassroomsPage]
 })
