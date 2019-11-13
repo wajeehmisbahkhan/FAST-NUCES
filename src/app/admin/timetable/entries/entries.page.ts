@@ -71,7 +71,20 @@ export class EntriesPage implements OnInit {
 
   // Auto fill
   fillSectionName() {
-    console.log(this.entry.sectionIds);
+    let sectionName = '';
+    if (!this.entry.hasAtomicSections) {
+      this.normalSections.forEach(section => {
+        // Show all sections which are included
+        if (this.entry.sectionIds.includes(section.id)) {
+          // Comma for multiple sections
+          if (sectionName.length > 0) {
+            sectionName += ', ';
+          }
+          sectionName += section.name;
+        }
+      });
+    }
+    this.entry.name = sectionName;
   }
 
   get repeatCourse() {
