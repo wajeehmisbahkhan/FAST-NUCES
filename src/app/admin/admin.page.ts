@@ -52,9 +52,7 @@ export class AdminPage implements OnInit {
     }
   ];
 
-  constructor(private server: ServerService) {
-    this.server.loadPrimitiveObjects();
-  }
+  constructor() {}
 
   ngOnInit() {}
 }
