@@ -13,7 +13,7 @@ const routes: Routes = [
       import('./entries/entries.module').then(m => m.EntriesPageModule)
   },
   {
-    path: 'constraints',
+    path: 'pair-elective-courses',
     loadChildren: () =>
       import('./constraints/constraints.module').then(
         m => m.ConstraintsPageModule

@@ -39,8 +39,8 @@ export class AdminPage implements OnInit {
           icon: 'document'
         },
         {
-          title: 'Manage Constraints',
-          url: '/admin/timetable/constraints',
+          title: 'Pair Elective Courses',
+          url: '/admin/timetable/pair-elective-courses',
           icon: 'cube'
         },
         {
