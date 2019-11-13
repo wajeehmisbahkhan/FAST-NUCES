@@ -167,7 +167,7 @@
         <ng-container *ngFor="let teacherId of entry.teacherIds; let i = index">
           <!-- Seperate by comma -->
           <ng-container *ngIf="i > 0">, </ng-container>
-          {{ getTeacherById(teacherId) | teacher }}<br />
+          {{ getTeacherById(teacherId) | teacher }}
         </ng-container>
       </ion-col>
       <ion-col size="2">
