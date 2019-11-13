@@ -21,14 +21,17 @@ export class CoursesPage implements OnInit {
 
   addCourse() {
     this.server.addPrimitiveObject('courses', this.course);
+    this.course = new Course();
   }
 
   // Helper functions
   autoFillSchool() {
-    this.course.school = this.course.courseCode.slice(0, 2);
+    if (this.course.courseCode.length >= 1)
+      this.course.school = this.course.courseCode.slice(0, 2);
   }
 
   autoFillSemester() {
+    if (!this.course.batch) return;
     const currentDate = new Date();
     let yearOffered = Number(this.course.batch);
     if (Math.floor(yearOffered / 100) === 0) {
@@ -47,14 +50,18 @@ export class CoursesPage implements OnInit {
   }
 
   autoFillShortTitle() {
+    if (!this.course.title) return;
     this.course.title = this.course.title.trim();
-    let shortTitle = this.course.title[0];
-    for (let i = 1; i < this.course.title.length; i++) {
-      if (this.course.title[i] === ' ') {
-        shortTitle += this.course.title[i + 1].toUpperCase();
-        i++;
+    let shortTitle = '';
+    this.course.title.split(' ').forEach(word => {
+      // For lab
+      if (word.toLowerCase() === 'lab') {
+        shortTitle += '-Lab';
+      } else {
+        // One letter
+        shortTitle += word[0].toUpperCase();
       }
-    }
+    });
     this.course.shortTitle = shortTitle;
   }
 

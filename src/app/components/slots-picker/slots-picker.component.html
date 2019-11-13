@@ -1,34 +1,82 @@
+<ion-segment (ionChange)="setTable($event)" value="0">
+  <ion-segment-button value="0">
+    <ion-label>Monday</ion-label>
+  </ion-segment-button>
+  <ion-segment-button value="1">
+    <ion-label>Tuesday</ion-label>
+  </ion-segment-button>
+  <ion-segment-button value="2">
+    <ion-label>Wednesday</ion-label>
+  </ion-segment-button>
+  <ion-segment-button value="3">
+    <ion-label>Thursday</ion-label>
+  </ion-segment-button>
+  <ion-segment-button value="4">
+    <ion-label>Friday</ion-label>
+  </ion-segment-button>
+</ion-segment>
+<ion-row>
+  <ion-col class="ion-text-center" size="2.4">
+    <ion-button (click)="selectAll()">Select All</ion-button>
+  </ion-col>
+  <ion-col class="ion-text-center" size="2.4">
+    <ion-button color="warning" (click)="toggleRooms()"
+      >Toggle Classes</ion-button
+    >
+  </ion-col>
+  <ion-col class="ion-text-center" size="2.4">
+    <ion-button color="warning" (click)="toggleRooms(true)"
+      >Toggle Labs</ion-button
+    >
+  </ion-col>
+  <ion-col class="ion-text-center" size="2.4">
+    <ion-button color="danger" (click)="deselectAll()">Deselect All</ion-button>
+  </ion-col>
+  <ion-col class="ion-text-center" size="2.4">
+    <ion-button (click)="setSlots()" expand="full">Okay</ion-button>
+  </ion-col>
+</ion-row>
 <ion-grid *ngIf="rooms; else noRooms" fixed>
-  <ion-row>
-    <ion-col class="ion-text-center" size="4">
-      <ion-button (click)="selectAll()">Select All</ion-button>
-    </ion-col>
-    <ion-col class="ion-text-center" size="4">
-      <ion-button color="danger" (click)="deselectAll()"
-        >Deselect All</ion-button
-      >
-    </ion-col>
-    <ion-col class="ion-text-center" size="4">
-      <ion-button color="success" (click)="setSlots()">Okay</ion-button>
-    </ion-col>
-  </ion-row>
   <!-- Actual Table -->
-  <ion-row>
-    <ion-col size="2">
+  <ion-row class="header">
+    <ion-col size="1.33">
       <!--Empty-->
     </ion-col>
-    <ion-col size="2"><ion-text (click)="selectCol(0)">M</ion-text></ion-col>
-    <ion-col size="2"><ion-text (click)="selectCol(1)">T</ion-text></ion-col>
-    <ion-col size="2"><ion-text (click)="selectCol(2)">W</ion-text></ion-col>
-    <ion-col size="2"><ion-text (click)="selectCol(3)">T</ion-text></ion-col>
-    <ion-col size="2"><ion-text (click)="selectCol(4)">F</ion-text></ion-col>
+    <!-- Slots -->
+    <ion-col size="1.33">
+      <ion-text (click)="toggleColumn(0)">08:00-09:00</ion-text>
+    </ion-col>
+    <ion-col size="1.33">
+      <ion-text (click)="toggleColumn(1)">09:00-10:00</ion-text>
+    </ion-col>
+    <ion-col size="1.33">
+      <ion-text (click)="toggleColumn(2)">10:00-11:00</ion-text>
+    </ion-col>
+    <ion-col size="1.33">
+      <ion-text (click)="toggleColumn(3)">11:00-12:00</ion-text>
+    </ion-col>
+    <ion-col size="1.33">
+      <ion-text (click)="toggleColumn(4)">12:00-13:00</ion-text>
+    </ion-col>
+    <ion-col size="1.33">
+      <ion-text (click)="toggleColumn(5)">13:00-14:00</ion-text>
+    </ion-col>
+    <ion-col size="1.33">
+      <ion-text (click)="toggleColumn(6)">14:00-15:00</ion-text>
+    </ion-col>
+    <ion-col size="1.33">
+      <ion-text (click)="toggleColumn(7)">15:00-16:00</ion-text>
+    </ion-col>
   </ion-row>
-  <ion-row *ngFor="let room of rooms; let i = index">
-    <ion-col size="2"
-      ><ion-text (click)="selectRow(i)">{{ room.name }}</ion-text></ion-col
+  <ion-row *ngFor="let room of rooms; let i = index; trackBy: roomTracker">
+    <ion-col size="1.33"
+      ><ion-text (click)="toggleRow(i)">{{ room.name }}</ion-text></ion-col
     >
-    <ion-col size="2" *ngFor="let day of [0, 1, 2, 3, 4]">
-      <ion-checkbox [(ngModel)]="localSlots[5 * i + day]"></ion-checkbox>
+    <ion-col
+      size="1.33"
+      *ngFor="let slot of table[i]; let j = index; trackBy: slotTracker"
+    >
+      <ion-checkbox [(ngModel)]="table[i][j]"></ion-checkbox>
     </ion-col>
   </ion-row>
 </ion-grid>

@@ -1,6 +1,9 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { PopoverController } from '@ionic/angular';
 import { SlotsPickerComponent } from '../slots-picker/slots-picker.component';
+import { PopoverController } from '@ionic/angular';
+import { ServerService } from 'src/app/services/server.service';
+import { AlertService } from 'src/app/services/alert.service';
+import { SlotsPickerRoomComponent } from '../slots-picker-room/slots-picker-room.component';
 
 @Component({
   selector: 'preferred-slots-picker',
@@ -8,52 +11,53 @@ import { SlotsPickerComponent } from '../slots-picker/slots-picker.component';
   styleUrls: ['./preferred-slots-picker.component.scss']
 })
 export class PreferredSlotsPickerComponent implements OnInit {
-  @Input() slots: Array<boolean>;
+  @Input() slots: Array<Array<Array<boolean>>> | Array<Array<boolean>>;
+  dimensions: number;
 
-  constructor(private poc: PopoverController) {}
+  constructor(
+    private as: AlertService,
+    private server: ServerService,
+    private poc: PopoverController
+  ) {}
 
-  ngOnInit() {}
-
-  async presentSlotsPicker() {
-    const popover = await this.poc.create({
-      component: SlotsPickerComponent,
-      componentProps: {
-        slots: this.slots
-      }
-    });
-    return await popover.present();
+  ngOnInit() {
+    // 3D
+    if (this.slots[0][0][0] !== undefined) {
+      this.dimensions = 3;
+    } else {
+      // 2D
+      this.dimensions = 2;
+    }
   }
 
-  get icon(): { name: string; color: string } {
-    const icon = {
-      name: '',
-      color: ''
-    };
-    let hasTrue = false,
-      hasFalse = false;
-    for (let i = 0; i < this.slots.length; i++) {
-      const slot = this.slots[i];
-      // Check for one value
-      if (slot) hasTrue = true;
-      else hasFalse = true;
-      // Return if both have been fulfilled
-      if (hasTrue && hasFalse) {
-        icon.name = 'remove-circle';
-        icon.color = 'warning';
-        break;
-      }
-      // If last loop
-      if (i === this.slots.length - 1) {
-        // Only has true
-        if (hasTrue) {
-          icon.name = 'checkmark-circle';
-          icon.color = 'success';
-        } else {
-          icon.name = 'close-circle';
-          icon.color = 'danger';
+  async presentSlotsPicker() {
+    if (this.dimensions === 3) {
+      // Days + Room + Time
+      if (this.server.rooms.length > 0) {
+        // Ensure proper room length of slots
+        for (let i = 0; i < this.slots.length; i++) {
+          this.slots[i] = this.slots[i].splice(0, this.server.rooms.length);
         }
+        // Show popover
+        const popover = await this.poc.create({
+          component: SlotsPickerComponent,
+          componentProps: {
+            slots: this.slots
+          }
+        });
+        return await popover.present();
       }
+      // Rooms not loaded yet
+      this.as.notice('Rooms not loaded yet');
+    } else {
+      // Show popover
+      const popover = await this.poc.create({
+        component: SlotsPickerRoomComponent,
+        componentProps: {
+          slots: this.slots
+        }
+      });
+      return await popover.present();
     }
-    return icon;
   }
 }

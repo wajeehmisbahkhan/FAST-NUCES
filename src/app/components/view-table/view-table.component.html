@@ -2,8 +2,8 @@
   <ion-row class="header">
     <ng-container *ngFor="let props of data[0] | keyvalue: keyNameOrder">
       <ion-col
-        [size]="12 / (getLengthOfObject(data[0]) - 1)"
-        *ngIf="props.key !== 'id'"
+        [size]="12 / calculateNumberOfColumns(data[0])"
+        *ngIf="props.key !== 'id' && !isArray(props.value)"
       >
         {{ props.key | camelToTitleCase }}
       </ion-col>
@@ -16,8 +16,8 @@
   >
     <ng-container *ngFor="let props of element | keyvalue: keyNameOrder">
       <ion-col
-        [size]="12 / (getLengthOfObject(element) - 1)"
-        *ngIf="props.key !== 'id'"
+        [size]="12 / calculateNumberOfColumns(element)"
+        *ngIf="props.key !== 'id' && !isArray(props.value)"
       >
         <!-- For true false values -->
         <div *ngIf="isBool(props.value); else showValue">
@@ -36,7 +36,7 @@
             ></ion-icon>
           </ng-template>
         </div>
-        <!-- Other values -->
+        <!-- Other values - only if not array -->
         <ng-template #showValue>
           {{ props.value }}
         </ng-template>

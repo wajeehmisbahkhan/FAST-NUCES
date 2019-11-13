@@ -2,6 +2,7 @@ import { Component, OnInit, Input } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
 import { EditComponent } from '../edit/edit.component';
 import { KeyValue } from '@angular/common';
+import { sortAlphaNum } from 'src/app/services/helper-classes';
 
 @Component({
   selector: 'view-table',
@@ -36,14 +37,12 @@ export class ViewTableComponent implements OnInit {
     if (this.data[0])
       if (prop in this.data[0])
         // Order by that property ex: name
-        return this.data.sort((a, b) =>
-          a[prop] > b[prop] ? 1 : a[prop] === b[prop] ? 0 : -1
-        );
+        return this.data.sort((a, b) => sortAlphaNum(a[prop], b[prop]));
     return this.data;
   }
 
   keyNameOrder(a: KeyValue<string, string>): number {
-    // Prefer name
+    // Prefer name or title
     const key = a.key.toLowerCase();
     return key === 'name' || key === 'title' ? -1 : 0;
   }
@@ -52,7 +51,17 @@ export class ViewTableComponent implements OnInit {
     return typeof value === 'boolean';
   }
 
-  getLengthOfObject(object: object) {
-    return Object.keys(object).length;
+  isArray(value: any) {
+    return Array.isArray(value);
+  }
+
+  calculateNumberOfColumns(object: object) {
+    let length = Object.keys(object).length;
+    Object.keys(object).forEach(key => {
+      if (key === 'id' || this.isArray(object[key])) {
+        length--;
+      }
+    });
+    return length;
   }
 }

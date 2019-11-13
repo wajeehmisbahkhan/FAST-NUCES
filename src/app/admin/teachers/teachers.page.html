@@ -37,45 +37,11 @@
           ></ion-input>
         </ion-item>
       </ion-col>
-      <ion-col size="1.5" size-xs="12" size-sm="6" size-md="1.5">
-        <ion-item>
-          <ion-label>Senior</ion-label>
-          <ion-checkbox
-            [(ngModel)]="teacher.isSenior"
-            name="isSenior"
-          ></ion-checkbox>
-        </ion-item>
-      </ion-col>
-      <ion-col size="2" size-xs="12" size-sm="6" size-md="2">
-        <ion-item>
-          <ion-label>Needs Computer</ion-label>
-          <ion-checkbox
-            [(ngModel)]="teacher.needsComputer"
-            name="needsComputer"
-          ></ion-checkbox>
-        </ion-item>
-      </ion-col>
-      <ion-col size="1" size-xs="12" size-sm="6" size-md="1">
-        <ion-item>
-          <ion-label position="floating">Building</ion-label>
-          <ion-input [(ngModel)]="teacher.building" name="building"></ion-input>
-        </ion-item>
-      </ion-col>
-      <ion-col size="1" size-xs="12" size-sm="6" size-md="1">
-        <ion-item>
-          <ion-label position="floating">Floor</ion-label>
-          <ion-input
-            type="number"
-            [(ngModel)]="teacher.floor"
-            name="floor"
-          ></ion-input>
-        </ion-item>
-      </ion-col>
       <!-- Slots picker -->
       <ion-col size="2" size-xs="12" size-sm="6" size-md="2">
         <ion-item>
           <preferred-slots-picker
-            [slots]="teacher.preferredSlots"
+            [slots]="teacher.availableSlots"
           ></preferred-slots-picker>
         </ion-item>
       </ion-col>

@@ -1,24 +1,32 @@
-<form #editForm="ngForm" (ngSubmit)="updateElement()">
+<form #editForm="ngForm" (ngSubmit)="determineUpdation()">
   <ion-grid>
     <ion-row>
       <ng-container *ngFor="let input of element | keyvalue">
         <ion-col size="12" *ngIf="input.key !== 'id'">
           <ion-item>
-            <ion-label position="floating">{{
+            <ion-label position="floating" *ngIf="!isArray(input.value)">{{
               input.key | camelToTitleCase
             }}</ion-label>
-            <ion-input
-              *ngIf="!isBool(input.value); else showCheckBox"
+            <!-- Boolean -->
+            <ion-checkbox
+              *ngIf="isBool(input.value); else showTextBox"
               [(ngModel)]="localElement[input.key]"
               [name]="input.key"
-              required
-            ></ion-input>
-            <ng-template #showCheckBox>
-              <ion-checkbox
-                [name]="input.key"
+            ></ion-checkbox>
+            <!-- Text Box or Number -->
+            <ng-template #showTextBox>
+              <ion-input
+                *ngIf="!isArray(input.value); else showAvailableSlots"
                 [(ngModel)]="localElement[input.key]"
-                >{{ input.key | camelToTitleCase }}</ion-checkbox
-              >
+                [name]="input.key"
+                required
+              ></ion-input>
+            </ng-template>
+            <!-- Array -->
+            <ng-template #showAvailableSlots>
+              <preferred-slots-picker
+                [slots]="input.value"
+              ></preferred-slots-picker>
             </ng-template>
           </ion-item>
         </ion-col>
@@ -32,7 +40,7 @@
         >
       </ion-col>
       <ion-col size="6">
-        <ion-button expand="full" (click)="deleteElement()" color="danger"
+        <ion-button expand="full" (click)="determineDeletion()" color="danger"
           >Delete</ion-button
         >
       </ion-col>
