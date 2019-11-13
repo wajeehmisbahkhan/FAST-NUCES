@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 
 import { AngularFirestore } from '@angular/fire/firestore';
-import { firestore } from 'firebase';
+import { firestore } from 'firebase/app';
 
 @Injectable({
   providedIn: 'root'
@@ -34,6 +34,12 @@ export class DatabaseService {
     if (storeId) {
       // Generate and set id
       data['id'] = this.afs.createId();
+      // Check data for any nested arrays (2D/3D)
+      Object.keys(data).forEach(key => {
+        if (Array.isArray(data[key])) {
+          data[key] = data[key].flat(Infinity);
+        }
+      });
       return this.afs
         .collection(path)
         .doc(data['id'])
@@ -60,6 +66,12 @@ export class DatabaseService {
   }
 
   updateDoc(path: string, data: object) {
+    // Check data for any nested arrays (2D/3D)
+    Object.keys(data).forEach(key => {
+      if (Array.isArray(data[key])) {
+        data[key] = data[key].flat(Infinity);
+      }
+    });
     return this.afs.doc(path).update(JSON.parse(JSON.stringify(data)));
   }
 
