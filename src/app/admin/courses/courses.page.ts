@@ -15,6 +15,7 @@ export class CoursesPage implements OnInit {
     this.course = new Course();
     // Some default preferences
     this.course.creditHours = 3;
+    this.course.duration = 3;
     this.course.isCoreCourse = true;
   }
 
@@ -59,6 +60,11 @@ export class CoursesPage implements OnInit {
   tickCore() {
     if (this.course.isRepeatCourse)
       this.course.isCoreCourse = this.course.isRepeatCourse;
+  }
+
+  autoFillDuration() {
+    if (this.course.creditHours === 1) this.course.duration = 3;
+    else this.course.duration = this.course.creditHours;
   }
 
   // Getter functions
