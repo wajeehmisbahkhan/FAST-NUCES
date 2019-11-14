@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ServerService } from 'src/app/services/server.service';
 import { Section, AggregateSection } from 'src/app/services/helper-classes';
+import { TitleCasePipe } from '@angular/common';
 
 @Component({
   selector: 'app-sections',
@@ -23,6 +24,8 @@ export class SectionsPage implements OnInit {
   ngOnInit() {}
 
   addSection() {
+    this.section.department = this.section.department.toUpperCase();
+    this.section.name = new TitleCasePipe().transform(this.section.name);
     // Convert to atomic before sending
     const atomicSections = AggregateSection.normalToAtomicSections(
       this.section
@@ -31,7 +34,8 @@ export class SectionsPage implements OnInit {
     atomicSections.forEach(atomicSection => {
       this.server.addPrimitiveObject('sections', atomicSection);
     });
-    this.section = new Section();
+    this.section.name = '';
+    this.section.strength = null;
   }
 
   // Convert to aggregate to store both infos
