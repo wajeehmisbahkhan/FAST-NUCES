@@ -11,7 +11,7 @@
 </ion-header>
 
 <ion-content>
-  <form #entriesForm="ngForm" (ngSubmit)="addEntry(); entriesForm.reset()">
+  <form #entriesForm="ngForm" (ngSubmit)="addEntry()">
     <ion-row>
       <ion-col size="3">
         <ion-item>
@@ -73,8 +73,7 @@
                 multiple="true"
                 *ngFor="let section of sections"
                 [value]="section.id"
-                >{{ section.name }} ({{
-                  section.department
+                >{{ section.name }} ({{ section.department
                 }})</ion-select-option
               >
             </ng-container>
@@ -84,8 +83,7 @@
                 multiple="true"
                 *ngFor="let section of normalSections"
                 [value]="section.id"
-                >{{ section.name }} ({{
-                  section.department
+                >{{ section.name }} ({{ section.department
                 }})</ion-select-option
               >
             </ng-template>

@@ -20,6 +20,8 @@ export class ClassroomsPage implements OnInit {
   addRoom() {
     this.server.addPrimitiveObject('rooms', this.room);
     this.room = new Room();
+    // Not available on Friday
+    this.room.availableSlots[4][5] = false;
   }
 
   get rooms() {

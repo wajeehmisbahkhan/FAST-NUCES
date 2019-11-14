@@ -28,6 +28,8 @@ export class EntriesPage implements OnInit {
     this.server.addPrimitiveObject('entries', entry);
     // Reset entry
     this.entry = new TCSEntry();
+    this.entry.teacherIds = entry.teacherIds;
+    this.entry.courseId = entry.courseId;
   }
 
   async presentPopover(element: any) {
