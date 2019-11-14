@@ -41,10 +41,19 @@ export class ViewTableComponent implements OnInit {
     return this.data;
   }
 
-  keyNameOrder(a: KeyValue<string, string>): number {
-    // Prefer name or title
+  keyNameOrder(
+    a: KeyValue<string, string>,
+    b: KeyValue<string, string>
+  ): number {
     const key = a.key.toLowerCase();
     return key === 'name' || key === 'title' ? -1 : 0;
+    // For sections department -> batch -> name
+    // if (this.type === 'sections') {
+    //   if (key === 'department')
+    //     return a.value[0].toLowerCase() > b.value[0].toLowerCase() ? 1 : a.value < b.value ? -1 : 0;
+    //   else if (key === 'batch')
+    //     return a.value > b.value ? 1 : a.value < b.value ? -1 : this.keyNameOrder({})
+    // }
   }
 
   isBool(value: any) {

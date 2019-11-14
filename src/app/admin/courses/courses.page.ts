@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Course } from '../../services/helper-classes';
 import { ServerService } from 'src/app/services/server.service';
+import { TitleCasePipe } from '@angular/common';
 
 @Component({
   selector: 'app-courses',
@@ -20,8 +21,17 @@ export class CoursesPage implements OnInit {
   ngOnInit() {}
 
   addCourse() {
+    // Casings
+    this.course.courseCode = this.course.courseCode.toUpperCase();
+    this.course.department = this.course.department.toUpperCase();
+    this.course.title = new TitleCasePipe().transform(this.course.title);
+    this.course.shortTitle = this.course.shortTitle.toUpperCase();
     this.server.addPrimitiveObject('courses', this.course);
-    this.course = new Course();
+    // Reset particular parts
+    this.course.courseCode = '';
+    this.course.title = '';
+    this.course.shortTitle = '';
+    this.course.availableSlots = new Course().availableSlots;
   }
 
   // Helper functions
@@ -39,6 +49,16 @@ export class CoursesPage implements OnInit {
       }
     });
     this.course.shortTitle = shortTitle;
+  }
+
+  tickRepeat() {
+    if (!this.course.isCoreCourse)
+      this.course.isRepeatCourse = this.course.isCoreCourse;
+  }
+
+  tickCore() {
+    if (this.course.isRepeatCourse)
+      this.course.isCoreCourse = this.course.isRepeatCourse;
   }
 
   // Getter functions
