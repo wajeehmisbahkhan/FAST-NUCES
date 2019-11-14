@@ -75,6 +75,7 @@ export class Course extends FirebaseDocument {
   title: string; // Computer Architecture, Theory Of Automata
   shortTitle: string; // CA, PROB, OS-LAB
   creditHours: number; // 1, 3, 4
+  duration: number; // Hours of class a week
   batch: number; // 2017, 2018
   isCoreCourse: boolean; // true = is a core course
   isRepeatCourse: boolean; // true = is a repeat course
