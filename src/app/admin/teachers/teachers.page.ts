@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Teacher } from 'src/app/services/helper-classes';
 import { ServerService } from 'src/app/services/server.service';
+import { TitleCasePipe } from '@angular/common';
 
 @Component({
   selector: 'app-teachers',
@@ -16,8 +17,11 @@ export class TeachersPage implements OnInit {
   ngOnInit() {}
 
   addTeacher() {
+    this.teacher.department = this.teacher.department.toUpperCase();
+    this.teacher.name = new TitleCasePipe().transform(this.teacher.name);
     this.server.addPrimitiveObject('teachers', this.teacher);
-    this.teacher = new Teacher();
+    this.teacher.name = '';
+    this.teacher.availableSlots = new Teacher().availableSlots;
   }
 
   get teachers() {
