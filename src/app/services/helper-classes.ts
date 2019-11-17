@@ -42,7 +42,7 @@ export class Constraint extends FirebaseDocument {
 
 // Actual Input
 export class Room extends FirebaseDocument {
-  static maxRoomSize = 30; // ~ 27 rooms
+  static maxRoomSize = 50; // ~ 45 rooms
 
   name: string; // CR-10, R-109
   capacity: number; // 50, 100
