@@ -4,9 +4,10 @@ import { IonicModule } from '@ionic/angular';
 
 import { ViewTableComponent } from './view-table/view-table.component';
 import { EditComponent } from './edit/edit.component';
-import { PipesModule } from '../pipes/pipes.module';
 import { FormsModule } from '@angular/forms';
 import { SlotsPickerModule } from './slots-picker.module';
+import { AdminInputFormatModule } from '../pipes/admin-input-format/admin-input-format.module';
+import { LetterCaseModule } from '../pipes/letter-case/letter-case.module';
 
 @NgModule({
   declarations: [ViewTableComponent, EditComponent],
@@ -14,7 +15,8 @@ import { SlotsPickerModule } from './slots-picker.module';
     CommonModule,
     IonicModule,
     FormsModule,
-    PipesModule,
+    AdminInputFormatModule,
+    LetterCaseModule,
     SlotsPickerModule
   ],
   exports: [ViewTableComponent, EditComponent],

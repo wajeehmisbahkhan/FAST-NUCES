@@ -7,7 +7,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { EntriesPage } from './entries.page';
 import { EditComponent } from './edit/edit.component';
-import { PipesModule } from 'src/app/pipes/pipes.module';
+import { AdminInputFormatModule } from 'src/app/pipes/admin-input-format/admin-input-format.module';
 
 const routes: Routes = [
   {
@@ -22,7 +22,7 @@ const routes: Routes = [
     FormsModule,
     IonicModule,
     RouterModule.forChild(routes),
-    PipesModule
+    AdminInputFormatModule
   ],
   declarations: [EntriesPage, EditComponent],
   entryComponents: [EditComponent]
