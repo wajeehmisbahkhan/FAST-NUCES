@@ -21,6 +21,7 @@ export class ServerService {
 
   entries: Array<TCSEntry>;
   constraints: Array<Constraint>;
+  timetables: Array<Array<Array<Array<TCSEntry>>>>;
 
   constructor(private db: DatabaseService) {
     this.courses = [];
@@ -30,6 +31,8 @@ export class ServerService {
     // Combo
     this.entries = [];
     this.constraints = [];
+    // [TimeTable][Day][Room][Slots]
+    this.timetables = [];
   }
 
   // Called at the beginning of the program
@@ -43,6 +46,8 @@ export class ServerService {
         });
         // Assign to all the local arrays
         this[collectionName] = collection;
+        // Generate timetable
+        if (collectionName === 'entries') this.generateTimeTable();
         // Always sort rooms by name
         if (collectionName === 'rooms') {
           this.rooms = this.rooms.sort((roomA, roomB) =>
@@ -74,6 +79,39 @@ export class ServerService {
         }
       })
     );
+  }
+
+  // Dummy data
+  generateTimeTable() {
+    console.log(this.entries);
+    // 3 top time tables
+    for (let i = 0; i < 3; i++) {
+      this.timetables.push([]);
+      // 5 days
+      for (let j = 0; j < 5; j++) {
+        const days = this.timetables[i];
+        days.push([]);
+        // 45 rooms
+        for (let k = 0; k < 45; k++) {
+          const rooms = days[j];
+          rooms.push([]);
+          // 8 slots
+          for (let l = 0; l < 8; l++) {
+            const slots = rooms[k];
+            // Random lecture
+            const lectureIndex = this.getRandomInteger(0, this.entries.length);
+            slots[l] = this.entries[lectureIndex];
+          }
+        }
+      }
+    }
+  }
+
+  /**
+   * Returns a random number between min (inclusive) and max (exclusive)
+   */
+  getRandomInteger(min: number, max: number) {
+    return Math.floor(Math.random() * (max - min) + min);
   }
 
   // Specific to loading primitive
