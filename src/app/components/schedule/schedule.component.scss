@@ -1,0 +1,31 @@
+ion-grid {
+  .header ion-col,
+  ion-row ion-col:first-child {
+    background-color: lightgrey;
+  }
+
+  ion-col {
+    border: solid 1px grey;
+    border-bottom-style: none;
+    border-right-style: none;
+    text-align: center;
+  }
+
+  ion-col:last-child {
+    border-right: solid 1px grey;
+  }
+
+  ion-row:last-child ion-col {
+    border-bottom: solid 1px grey;
+  }
+}
+
+.margin-center {
+  margin: auto;
+}
+
+.lecture-cell {
+  color: black;
+  font-weight: bold;
+  text-align: center;
+}

@@ -3,29 +3,29 @@
     <ion-button>Publish This Time Table</ion-button>
   </ion-col>
 </ion-row>
+<!-- Days -->
+<ion-row>
+  <ion-col size="12">
+    <ion-segment (ionChange)="setTable($event)" value="0">
+      <ion-segment-button value="0">
+        <ion-label>Monday</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="1">
+        <ion-label>Tuesday</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="2">
+        <ion-label>Wednesday</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="3">
+        <ion-label>Thursday</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="4">
+        <ion-label>Friday</ion-label>
+      </ion-segment-button>
+    </ion-segment>
+  </ion-col>
+</ion-row>
 <ion-grid fixed>
-  <!-- Days -->
-  <ion-row>
-    <ion-col size="12">
-      <ion-segment (ionChange)="setTable($event)" value="0">
-        <ion-segment-button value="0">
-          <ion-label>Monday</ion-label>
-        </ion-segment-button>
-        <ion-segment-button value="1">
-          <ion-label>Tuesday</ion-label>
-        </ion-segment-button>
-        <ion-segment-button value="2">
-          <ion-label>Wednesday</ion-label>
-        </ion-segment-button>
-        <ion-segment-button value="3">
-          <ion-label>Thursday</ion-label>
-        </ion-segment-button>
-        <ion-segment-button value="4">
-          <ion-label>Friday</ion-label>
-        </ion-segment-button>
-      </ion-segment>
-    </ion-col>
-  </ion-row>
   <!-- Every Day -->
   <ion-row class="header">
     <ion-col size="1.33">
@@ -64,25 +64,23 @@
     <ion-col
       size="1.33"
       *ngFor="let lecture of table[i]; let j = index; trackBy: itemTracker"
+      [style.backgroundColor]="getColor(table[i][j])"
+      class="lecture-cell"
     >
       <!-- Individual Cell -->
-      <ion-reorder-group>
-        <ion-reorder>
-          <ng-container *ngIf="table[i][j]">
-            <ion-item [style.backgroundColor]="getColor(table[i][j])">
-              <ion-label>
-                {{ getCourseById(table[i][j].courseId).shortTitle }} -
-              </ion-label>
-              <ion-label>
-                {{ table[i][j].name }}
-              </ion-label>
-              <ion-label>
-                {{ getTeacherById(table[i][j].teacherIds[0]).name }}
-              </ion-label>
-            </ion-item>
-          </ng-container>
-        </ion-reorder>
-      </ion-reorder-group>
+      <div *ngIf="table[i][j]" class="margin-center">
+        <ion-row>
+          <ion-label class="margin-center">
+            {{ getCourseById(table[i][j].courseId).shortTitle }} -
+            {{ table[i][j].name }}
+          </ion-label>
+        </ion-row>
+        <ion-row>
+          <ion-label class="margin-center">
+            {{ getTeacherById(table[i][j].teacherIds[0]).name }}
+          </ion-label>
+        </ion-row>
+      </div>
     </ion-col>
   </ion-row>
 </ion-grid>

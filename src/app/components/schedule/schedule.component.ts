@@ -30,16 +30,16 @@ export class ScheduleComponent implements OnInit {
     const currentYear = new Date().getFullYear();
     if (batch === currentYear) {
       // Freshies
-      return 'green';
+      return '#63FD4B';
     } else if (batch === currentYear - 1) {
       // Sophomore
-      return 'pink';
+      return '#FF60C9';
     } else if (batch === currentYear - 2) {
       // Junior
-      return 'blue';
+      return '#23B0EE';
     } else {
       // Senior
-      return 'orange';
+      return '#F5954A';
     }
   }
 
