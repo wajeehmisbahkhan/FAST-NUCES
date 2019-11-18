@@ -28,13 +28,18 @@ export class ScheduleComponent implements OnInit {
     if (!lecture || !lecture.courseId) return 'white';
     const batch = this.getCourseById(lecture.courseId).batch;
     const currentYear = new Date().getFullYear();
-    if (batch === currentYear) {
+    const currentMonth = new Date().getMonth();
+    let semester: number;
+    // If Jan-Jun - freshies will remain freshies
+    if (currentMonth < 6) semester = 1;
+    else semester = 0;
+    if (batch + semester === currentYear) {
       // Freshies
       return '#63FD4B';
-    } else if (batch === currentYear - 1) {
+    } else if (batch + semester === currentYear - 1) {
       // Sophomore
       return '#FF60C9';
-    } else if (batch === currentYear - 2) {
+    } else if (batch + semester === currentYear - 2) {
       // Junior
       return '#23B0EE';
     } else {
