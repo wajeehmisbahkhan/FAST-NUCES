@@ -28,4 +28,9 @@ ion-grid {
   color: black;
   font-weight: bold;
   text-align: center;
+  cursor: pointer;
+}
+
+.lecture-cell:hover {
+  opacity: 0.75;
 }
