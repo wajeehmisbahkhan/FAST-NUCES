@@ -52,9 +52,8 @@
                 multiple="true"
                 *ngFor="let section of sections"
                 [value]="section.id"
-                >{{ section.name }} ({{
-                  section.department
-                }})</ion-select-option
+                >{{ section.name }} ({{ section.batch }} -
+                {{section.department}})</ion-select-option
               >
             </ng-container>
             <!-- Default view -->
@@ -63,9 +62,8 @@
                 multiple="true"
                 *ngFor="let section of normalSections"
                 [value]="section.id"
-                >{{ section.name }} ({{
-                  section.department
-                }})</ion-select-option
+                >{{ section.name }} ({{ section.batch }} -
+                {{section.department}})</ion-select-option
               >
             </ng-template>
           </ion-select>
