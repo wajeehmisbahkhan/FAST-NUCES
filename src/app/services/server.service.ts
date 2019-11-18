@@ -99,7 +99,10 @@ export class ServerService {
           for (let l = 0; l < 8; l++) {
             const slots = rooms[k];
             // Random lecture
-            const lectureIndex = this.getRandomInteger(0, this.entries.length);
+            const lectureIndex = this.getRandomInteger(
+              0,
+              this.entries.length + 10 // For random nulls
+            );
             slots[l] = this.entries[lectureIndex];
           }
         }
