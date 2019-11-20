@@ -2,7 +2,7 @@ import { Component, OnInit, Input } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
 import { AlertService } from 'src/app/services/alert.service';
 import { ServerService } from 'src/app/services/server.service';
-import { Section } from 'src/app/services/helper-classes';
+import { Section, TCSEntry, Constraint } from 'src/app/services/helper-classes';
 
 @Component({
   selector: 'edit',
@@ -12,7 +12,7 @@ import { Section } from 'src/app/services/helper-classes';
 export class EditComponent implements OnInit {
   // Coming from table component
   @Input() element: any;
-  @Input() type: string; // 'courses' | 'rooms' | 'sections' | 'teachers'
+  @Input() type: 'courses' | 'rooms' | 'sections' | 'teachers';
   // For local form usage
   localElement: any;
   constructor(
@@ -65,10 +65,16 @@ export class EditComponent implements OnInit {
   // And if it can be deleted or not (referenced elsewhere)
   async determineDeletion() {
     // Element id could be simple id (room) or two combined (C1\nC2)
-    // Just pick C1 for now in case it is two
-    const id: string = this.element.id.split('\n')[0];
-    // Check if referenced
-    if (this.isReferenced(id)) {
+    const ids: Array<string> = this.element.id.split('\n');
+    // C1 in case of rooms
+    const idOne = ids[0];
+    // Undefined in case of others
+    const idTwo = ids[1];
+    // Check if any is referenced
+    if (
+      this.isReferenced(idOne) ||
+      (idTwo && this.isReferenced(idTwo, 'sectionIds'))
+    ) {
       this.as.notice('Can not delete object as it is referenced in entries.');
       return;
     }
@@ -91,11 +97,21 @@ export class EditComponent implements OnInit {
   }
 
   // Search for references
-  isReferenced(id: string) {
+  isReferenced(
+    id: string,
+    entryProperty?: 'teacherIds' | 'sectionIds' | 'courseId'
+  ) {
+    let references: Array<TCSEntry | Constraint>;
     // Check if element is being referenced in entries
-    const references = this.server.getPrimitiveReferencesInEntry(
-      this.element.id
-    );
+    if (this.type !== 'rooms')
+      references = this.server.getPrimitiveReferencesInEntry(id, entryProperty);
+    else return false; // Rooms are not referenced for now
+    // Check courses in constraints as well
+    if (references.length === 0 && this.type === 'courses')
+      references = this.server.getPrimitiveReferencesInCourses(
+        id,
+        'pairedCourses'
+      );
     return references.length > 0;
   }
 

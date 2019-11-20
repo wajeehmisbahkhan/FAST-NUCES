@@ -83,7 +83,7 @@ export class ServerService {
 
   // Dummy data
   generateTimeTable() {
-    console.log(this.entries);
+    // console.log(this.entries);
     // 3 top time tables
     for (let i = 0; i < 3; i++) {
       this.timetables.push([]);
@@ -164,7 +164,7 @@ export class ServerService {
       entryProperty === 'teacherIds'
     ) {
       return this.entries.filter(entry =>
-        entry[entryProperty].filter(entryId => entryId === objectId)
+        entry[entryProperty].includes(objectId)
       );
     }
     // Search in each property O(n^3)
@@ -173,6 +173,19 @@ export class ServerService {
       ...this.getPrimitiveReferencesInEntry(objectId, 'sectionIds'),
       ...this.getPrimitiveReferencesInEntry(objectId, 'teacherIds')
     ];
+  }
+
+  getPrimitiveReferencesInCourses(
+    objectId: string,
+    entryProperty?: 'pairedCourses'
+  ): Constraint[] {
+    if (entryProperty === 'pairedCourses') {
+      return this.constraints.filter(constraint =>
+        constraint.pairedCourses.includes(
+          this.courses.find(course => course.id === objectId)
+        )
+      );
+    }
   }
 
   get collectionNames() {
