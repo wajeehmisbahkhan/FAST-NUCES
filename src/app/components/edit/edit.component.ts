@@ -120,6 +120,14 @@ export class EditComponent implements OnInit {
     return typeof value === 'boolean';
   }
 
+  isString(value: any) {
+    return typeof value === 'string';
+  }
+
+  isNumber(value: any) {
+    return typeof value === 'number';
+  }
+
   isArray(value: any) {
     return Array.isArray(value);
   }

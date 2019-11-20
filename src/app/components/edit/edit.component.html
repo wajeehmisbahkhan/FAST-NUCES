@@ -13,12 +13,22 @@
               [(ngModel)]="localElement[input.key]"
               [name]="input.key"
             ></ion-checkbox>
-            <!-- Text Box or Number -->
+            <!-- Text Box -->
             <ng-template #showTextBox>
               <ion-input
-                *ngIf="!isArray(input.value); else showAvailableSlots"
+                *ngIf="isString(input.value); else showNumberBox"
                 [(ngModel)]="localElement[input.key]"
                 [name]="input.key"
+                required
+              ></ion-input>
+            </ng-template>
+            <!-- Number -->
+            <ng-template #showNumberBox>
+              <ion-input
+                *ngIf="isNumber(input.value); else showAvailableSlots"
+                [(ngModel)]="localElement[input.key]"
+                [name]="input.key"
+                type="number"
                 required
               ></ion-input>
             </ng-template>
