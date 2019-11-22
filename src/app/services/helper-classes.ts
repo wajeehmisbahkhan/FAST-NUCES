@@ -7,8 +7,8 @@ class FirebaseDocument {
 }
 export class TCSEntry extends FirebaseDocument {
   name: string; // For ease only (GR1, C, B2)
+  strength: number; // Strength for lecture
   courseId: string; // course reference
-  successorIds: Array<string>; // Repeating can clash with these courses
   // - Bilal will implement symmetry function to ensure the referenced courses can also clash with this one
   teacherIds: Array<string>; // teacher reference
   sectionIds: Array<string>; // sections included
@@ -16,8 +16,8 @@ export class TCSEntry extends FirebaseDocument {
 
   constructor(
     name = '',
+    strength: number,
     courseId = '',
-    successorIds: Array<string> = [],
     teacherIds: Array<string> = [],
     sectionIds: Array<string> = [],
     hasAtomicSections = false
@@ -25,7 +25,7 @@ export class TCSEntry extends FirebaseDocument {
     super();
     this.name = name;
     this.courseId = courseId;
-    this.successorIds = successorIds;
+    this.strength = strength;
     this.teacherIds = teacherIds;
     this.sectionIds = sectionIds;
     this.hasAtomicSections = hasAtomicSections;
@@ -34,6 +34,7 @@ export class TCSEntry extends FirebaseDocument {
 
 export class Constraint extends FirebaseDocument {
   pairedCourses: Array<Course>;
+  successorIds: Array<string>; // Repeating can clash with these courses
   constructor(pairedCourses: Array<Course> = []) {
     super();
     this.pairedCourses = pairedCourses;
@@ -76,9 +77,8 @@ export class Course extends FirebaseDocument {
   shortTitle: string; // CA, PROB, OS-LAB
   creditHours: number; // 1, 3, 4
   duration: number; // Hours of class a week
-  batch: number; // 2017, 2018
   isCoreCourse: boolean; // true = is a core course
-  isRepeatCourse: boolean; // true = is a repeat course
+  theoryCourseId: string; // Only filled if lab - only ICT-Lab is an exception
   availableSlots: Array<Array<Array<boolean>>>; // [Day][Room][Time]
 
   constructor(
@@ -87,9 +87,8 @@ export class Course extends FirebaseDocument {
     title = '',
     shortTitle = '',
     creditHours = 3,
-    batch = null,
     isCoreCourse = true,
-    isRepeatCourse = false,
+    theoryCourseId = '',
     availableSlots?: Array<Array<Array<boolean>>>
   ) {
     super();
@@ -98,9 +97,8 @@ export class Course extends FirebaseDocument {
     this.title = title;
     this.shortTitle = shortTitle;
     this.creditHours = creditHours;
-    this.batch = batch;
     this.isCoreCourse = isCoreCourse;
-    this.isRepeatCourse = isRepeatCourse;
+    this.theoryCourseId = theoryCourseId;
     if (!availableSlots) {
       // Fill with true by default
       const day = [];
@@ -161,15 +159,13 @@ export class Teacher extends FirebaseDocument {
 }
 
 export class Section extends FirebaseDocument {
-  name: string; // A, C OR GR-1, GR-2
-  strength: number; // Number of Students ~50
+  name: string; // A1, A2, B1, B2... number of sections
   batch: number; // the batch which the section belongs to
   department: string;
 
-  constructor(name = '', strength?: number, batch?: number, department = '') {
+  constructor(name = '', batch?: number, department = '') {
     super();
     this.name = name;
-    this.strength = strength;
     this.batch = batch;
     this.department = department;
   }
@@ -193,8 +189,6 @@ export class AggregateSection {
     this.section = JSON.parse(JSON.stringify(sectionOne)); // Could have used two as well
     // Id
     this.section.id = sectionOne.id + '\n' + sectionTwo.id; // Ids seperated using \n
-    // Strength
-    this.section.strength = sectionOne.strength + sectionTwo.strength;
     // Remove digits at end; C1 = C
     this.section.name = this.section.name.replace(/[0-9]/g, '');
   }
@@ -206,9 +200,6 @@ export class AggregateSection {
     // Append 1 and 2; C => C1, C2
     atomicSectionOne.name += '1';
     atomicSectionTwo.name += '2';
-    // Divide strength with floor and ceil
-    atomicSectionOne.strength = Math.floor(section.strength / 2);
-    atomicSectionTwo.strength = Math.ceil(section.strength / 2);
     // Return as array
     return [atomicSectionOne, atomicSectionTwo];
   }
