@@ -34,7 +34,6 @@ export class TCSEntry extends FirebaseDocument {
 
 export class Constraint extends FirebaseDocument {
   pairedCourses: Array<Course>;
-  successorIds: Array<string>; // Repeating can clash with these courses
   constructor(pairedCourses: Array<Course> = []) {
     super();
     this.pairedCourses = pairedCourses;
