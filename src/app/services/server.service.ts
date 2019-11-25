@@ -140,20 +140,48 @@ export class ServerService {
     return res;
   }
 
-  async addPrimitiveObject(name: string, object: object) {
+  async addObject(
+    name:
+      | 'courses'
+      | 'teachers'
+      | 'sections'
+      | 'rooms'
+      | 'entries'
+      | 'constraints',
+    object: object
+  ) {
     return this.db.createDoc(name, object);
   }
 
-  async deletePrimitiveObject(name: string, id: string) {
+  async deleteObject(
+    name:
+      | 'courses'
+      | 'teachers'
+      | 'sections'
+      | 'rooms'
+      | 'entries'
+      | 'constraints',
+    id: string
+  ) {
     return this.db.deleteDoc(`${name}/${id}`);
   }
 
-  async updatePrimitiveObject(name: string, id: string, object: object) {
+  async updateObject(
+    name:
+      | 'courses'
+      | 'teachers'
+      | 'sections'
+      | 'rooms'
+      | 'entries'
+      | 'constraints',
+    id: string,
+    object: object
+  ) {
     return this.db.updateDoc(`${name}/${id}`, object);
   }
 
   // Returns filtered entries containing object id passed in
-  getPrimitiveReferencesInEntry(
+  getReferencesInEntry(
     objectId: string,
     entryProperty?: 'teacherIds' | 'courseId' | 'sectionIds'
   ): Array<TCSEntry> {
@@ -169,13 +197,13 @@ export class ServerService {
     }
     // Search in each property O(n^3)
     return [
-      ...this.getPrimitiveReferencesInEntry(objectId, 'courseId'),
-      ...this.getPrimitiveReferencesInEntry(objectId, 'sectionIds'),
-      ...this.getPrimitiveReferencesInEntry(objectId, 'teacherIds')
+      ...this.getReferencesInEntry(objectId, 'courseId'),
+      ...this.getReferencesInEntry(objectId, 'sectionIds'),
+      ...this.getReferencesInEntry(objectId, 'teacherIds')
     ];
   }
 
-  getPrimitiveReferencesInCourses(
+  getReferencesInCourses(
     objectId: string,
     entryProperty?: 'pairedCourses'
   ): Constraint[] {
