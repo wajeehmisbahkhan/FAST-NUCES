@@ -16,7 +16,6 @@ export class TCSEntry extends FirebaseDocument {
 
   constructor(
     name = '',
-    strength: number,
     courseId = '',
     teacherIds: Array<string> = [],
     sectionIds: Array<string> = [],
@@ -25,7 +24,6 @@ export class TCSEntry extends FirebaseDocument {
     super();
     this.name = name;
     this.courseId = courseId;
-    this.strength = strength;
     this.teacherIds = teacherIds;
     this.sectionIds = sectionIds;
     this.hasAtomicSections = hasAtomicSections;
