@@ -25,7 +25,7 @@ export class EntriesPage implements OnInit {
   addEntry() {
     const entry: TCSEntry = JSON.parse(JSON.stringify(this.entry));
     entry.sectionIds = this.ensureNormalSectionIds(entry.sectionIds);
-    this.server.addPrimitiveObject('entries', entry);
+    this.server.addObject('entries', entry);
     // Reset entry
     this.entry = new TCSEntry();
     this.entry.teacherIds = entry.teacherIds;
@@ -87,13 +87,6 @@ export class EntriesPage implements OnInit {
       });
     }
     this.entry.name = sectionName;
-  }
-
-  get repeatCourse() {
-    return (
-      this.getCourseById(this.entry.courseId) &&
-      this.getCourseById(this.entry.courseId).isRepeatCourse
-    );
   }
 
   get teachers() {

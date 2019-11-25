@@ -53,7 +53,7 @@
                 *ngFor="let section of sections"
                 [value]="section.id"
                 >{{ section.name }} ({{ section.batch }} -
-                {{section.department}})</ion-select-option
+                {{ section.department }})</ion-select-option
               >
             </ng-container>
             <!-- Default view -->
@@ -63,7 +63,7 @@
                 *ngFor="let section of normalSections"
                 [value]="section.id"
                 >{{ section.name }} ({{ section.batch }} -
-                {{section.department}})</ion-select-option
+                {{ section.department }})</ion-select-option
               >
             </ng-template>
           </ion-select>
@@ -78,25 +78,15 @@
           ></ion-checkbox>
         </ion-item>
       </ion-col>
-      <ion-col size="12" *ngIf="repeatCourse">
+      <ion-col size="12">
         <ion-item>
-          <ion-label position="floating">Successor Course(s)</ion-label>
-          <ion-select
-            multiple="true"
-            [interfaceOptions]="popoverInterfaceOptions"
-            [(ngModel)]="localElement.successorIds"
+          <ion-label position="floating">Strength</ion-label>
+          <ion-input
+            type="number"
+            [(ngModel)]="localElement.strength"
             name="successors"
           >
-            <ng-container *ngFor="let course of courses">
-              <!-- Avoid same course to be its own successor -->
-              <ion-select-option
-                *ngIf="course.id !== localElement.courseId"
-                multiple="true"
-                [value]="course.id"
-                >{{ course.title }} ({{ course.department }})</ion-select-option
-              >
-            </ng-container>
-          </ion-select>
+          </ion-input>
         </ion-item>
       </ion-col>
       <ion-col size="6">

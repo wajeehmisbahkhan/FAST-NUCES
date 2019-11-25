@@ -32,11 +32,7 @@ export class EditComponent implements OnInit {
   updateElement() {
     // Just update on server
     // Live listener will update local automatically
-    this.server.updatePrimitiveObject(
-      'entries',
-      this.element.id,
-      this.localElement
-    );
+    this.server.updateObject('entries', this.element.id, this.localElement);
     this.poc.dismiss();
   }
 
@@ -45,7 +41,7 @@ export class EditComponent implements OnInit {
       'Are you sure you want to delete this object?',
       // Confirmation handler
       () => {
-        this.server.deletePrimitiveObject('entries', this.element.id);
+        this.server.deleteObject('entries', this.element.id);
         this.poc.dismiss();
       }
     );
@@ -78,13 +74,6 @@ export class EditComponent implements OnInit {
       // Send copy not original to avoid changeafterread error
       AggregateSection.atomicToAggregateSections(this.sections.slice(0))
     ).sort((a, b) => sortAlphaNum(a.name, b.name)); // Sorted
-  }
-
-  get repeatCourse() {
-    return (
-      this.getCourseById(this.localElement.courseId) &&
-      this.getCourseById(this.localElement.courseId).isRepeatCourse
-    );
   }
 
   get teachers() {

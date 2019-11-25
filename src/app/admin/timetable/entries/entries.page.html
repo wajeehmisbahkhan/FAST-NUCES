@@ -25,8 +25,7 @@
             <ion-select-option
               *ngFor="let course of courses"
               [value]="course.id"
-              >{{ course.title }} ({{course.batch}}-{{
-              course.department}})</ion-select-option
+              >{{ course.title }} ({{course.department}})</ion-select-option
             >
           </ion-select>
         </ion-item>
@@ -103,25 +102,15 @@
           ></ion-input>
         </ion-item>
       </ion-col>
-      <ion-col size="3" *ngIf="repeatCourse">
+      <ion-col size="3">
         <ion-item>
-          <ion-label position="floating">Successor Course(s)</ion-label>
-          <ion-select
-            multiple="true"
-            [interfaceOptions]="popoverInterfaceOptions"
-            [(ngModel)]="entry.successorIds"
+          <ion-label position="floating">Strength</ion-label>
+          <ion-input
+            type="number"
+            [(ngModel)]="entry.strength"
             name="successors"
           >
-            <ng-container *ngFor="let course of courses">
-              <!-- Avoid same course to be its own successor -->
-              <ion-select-option
-                *ngIf="course.id !== entry.courseId"
-                multiple="true"
-                [value]="course.id"
-                >{{ course.title }} ({{ course.department }})</ion-select-option
-              >
-            </ng-container>
-          </ion-select>
+          </ion-input>
         </ion-item>
       </ion-col>
       <ion-col size="2" size-xs="12" size-sm="6" size-md="2">
