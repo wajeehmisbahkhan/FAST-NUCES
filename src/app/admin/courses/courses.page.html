@@ -9,7 +9,6 @@
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
-
 <ion-content>
   <form #coursesForm="ngForm" (ngSubmit)="addCourse();">
     <ion-row class="ion-margin">
@@ -87,16 +86,25 @@
           ></ion-input>
         </ion-item>
       </ion-col>
-      <ion-col size="1.25" size-xs="12" size-sm="6" size-md="1.25">
+      <ion-col
+        size="4"
+        size-xs="12"
+        size-sm="6"
+        size-md="4"
+        *ngIf="isLabCourse(course)"
+      >
         <ion-item>
-          <ion-label position="floating">Batch</ion-label>
-          <ion-input
-            [(ngModel)]="course.batch"
-            placeholder="2017"
-            name="batch"
-            required
-            type="number"
-          ></ion-input>
+          <ion-label position="floating">Theory Course</ion-label>
+          <ion-select [(ngModel)]="course.theoryCourseId" name="theoryCourseId">
+            <ng-container *ngFor="let theory of courses">
+              <ion-select-option
+                [value]="theory.id"
+                *ngIf="!isLabCourse(theory)"
+              >
+                {{ theory.shortTitle }} ({{ theory.department }})
+              </ion-select-option>
+            </ng-container>
+          </ion-select>
         </ion-item>
       </ion-col>
       <ion-col size="1.5" size-xs="12" size-sm="6" size-md="1.5">
@@ -104,19 +112,33 @@
           <ion-label>Core</ion-label>
           <ion-checkbox
             [(ngModel)]="course.isCoreCourse"
-            (ngModelChange)="tickRepeat()"
             name="isCoreCourse"
           ></ion-checkbox>
         </ion-item>
       </ion-col>
-      <ion-col size="1.5" size-xs="12" size-sm="6" size-md="1.5">
+      <ion-col
+        size="4"
+        size-xs="12"
+        size-sm="6"
+        size-md="4"
+        *ngIf="course.isCoreCourse"
+      >
         <ion-item>
-          <ion-label>Repeat</ion-label>
-          <ion-checkbox
-            [(ngModel)]="course.isRepeatCourse"
-            (ngModelChange)="tickCore()"
-            name="isRepeatCourse"
-          ></ion-checkbox>
+          <ion-label>Prerequisite Course(s)</ion-label>
+          <ion-select
+            [(ngModel)]="course.prerequisiteIds"
+            name="prerequisiteIds"
+            multiple="true"
+          >
+            <ng-container *ngFor="let prerequisite of courses">
+              <ion-select-option
+                *ngIf="prerequisite.isCoreCourse"
+                [value]="prerequisite.id"
+                >{{ prerequisite.shortTitle }} ({{ prerequisite.department
+                }})</ion-select-option
+              >
+            </ng-container>
+          </ion-select>
         </ion-item>
       </ion-col>
       <!-- Slots picker -->
@@ -143,5 +165,5 @@
       </ion-col>
     </ion-row>
   </form>
-  <view-table type="courses" [data]="courses"></view-table>
+  <view-table type="courses" [courses]="courses"></view-table>
 </ion-content>

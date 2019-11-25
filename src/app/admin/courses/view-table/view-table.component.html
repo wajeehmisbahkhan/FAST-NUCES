@@ -1,0 +1,55 @@
+<ng-container *ngIf="courses">
+  <ion-grid *ngFor="let department of getCourseDepartments()" fixed>
+    <ion-row>
+      <ion-col size="12">{{ department }}</ion-col>
+    </ion-row>
+    <ion-row class="header">
+      <ion-col size="2">Course Code</ion-col>
+      <ion-col size="2">Short Title</ion-col>
+      <ion-col size="2">Title</ion-col>
+      <ion-col size="2">Credit Hours - Duration</ion-col>
+      <ion-col size="2">Core Course</ion-col>
+      <ion-col size="2">Prerequisite(s)</ion-col>
+    </ion-row>
+    <ion-row
+      class="body"
+      *ngFor="let course of courses; trackBy: trackById"
+      (click)="presentPopover(course)"
+    >
+      <ion-col size="2">{{ course.courseCode }}</ion-col>
+      <ion-col size="2">{{ course.shortTitle }}</ion-col>
+      <ion-col size="2">{{ course.title }}</ion-col>
+      <ion-col size="2"
+        >{{ course.creditHours }} - {{ course.duration }}</ion-col
+      >
+      <ion-col size="2">
+        <ion-icon
+          *ngIf="course.isCoreCourse; else showFalse"
+          size="large"
+          color="success"
+          name="checkmark-circle"
+        ></ion-icon>
+        <ng-template #showFalse>
+          <ion-icon size="large" color="danger" name="close-circle"></ion-icon>
+        </ng-template>
+      </ion-col>
+      <ion-col size="2">
+        <ng-container
+          *ngIf="course.prerequisiteIds.length > 0; else noPrerequisites"
+        >
+          <ng-container
+            *ngFor="let prerequisiteId of course.prerequisiteIds; let i = index"
+          >
+            {{ getCourseById(prerequisiteId).shortTitle }}
+            <ng-container *ngIf="i < course.prerequisiteIds.length - 1"
+              >+</ng-container
+            >
+          </ng-container>
+        </ng-container>
+        <ng-template #noPrerequisites>
+          <ion-icon size="large" color="danger" name="close-circle"></ion-icon>
+        </ng-template>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</ng-container>

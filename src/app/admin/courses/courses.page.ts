@@ -27,7 +27,7 @@ export class CoursesPage implements OnInit {
     this.course.department = this.course.department.toUpperCase();
     this.course.title = new TitleCasePipe().transform(this.course.title);
     this.course.shortTitle = this.course.shortTitle.toUpperCase();
-    this.server.addPrimitiveObject('courses', this.course);
+    this.server.addObject('courses', this.course);
     // Reset particular parts
     this.course.courseCode = '';
     this.course.title = '';
@@ -52,19 +52,13 @@ export class CoursesPage implements OnInit {
     this.course.shortTitle = shortTitle;
   }
 
-  tickRepeat() {
-    if (!this.course.isCoreCourse)
-      this.course.isRepeatCourse = this.course.isCoreCourse;
-  }
-
-  tickCore() {
-    if (this.course.isRepeatCourse)
-      this.course.isCoreCourse = this.course.isRepeatCourse;
-  }
-
   autoFillDuration() {
     if (this.course.creditHours === 1) this.course.duration = 3;
     else this.course.duration = this.course.creditHours;
+  }
+
+  isLabCourse(course: Course) {
+    return course.shortTitle.toLowerCase().includes('lab');
   }
 
   // Getter functions

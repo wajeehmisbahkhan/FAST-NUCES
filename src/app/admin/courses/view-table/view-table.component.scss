@@ -1,0 +1,26 @@
+ion-grid {
+  width: 100vw;
+  .header ion-col {
+    background-color: lightgrey;
+  }
+
+  ion-col {
+    border: solid 1px grey;
+    border-bottom-style: none;
+    border-right-style: none;
+    text-align: center;
+  }
+
+  .body:hover {
+    cursor: pointer;
+    background-color: lightgrey;
+  }
+
+  ion-col:last-child {
+    border-right: solid 1px grey;
+  }
+
+  ion-row:last-child ion-col {
+    border-bottom: solid 1px grey;
+  }
+}

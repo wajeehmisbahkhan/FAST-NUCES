@@ -1,0 +1,138 @@
+<form #editForm="ngForm" (ngSubmit)="updateElement()">
+  <ion-grid fixed>
+    <ion-row>
+      <ion-col size="2">
+        <ion-item>
+          <ion-label position="floating">Course Code</ion-label>
+          <ion-input
+            [(ngModel)]="localCourse.courseCode"
+            name="courseCode"
+            required
+          ></ion-input>
+        </ion-item>
+      </ion-col>
+      <ion-col size="2">
+        <ion-item>
+          <ion-label position="floating">Department</ion-label>
+          <ion-input
+            [(ngModel)]="localCourse.department"
+            name="department"
+            required
+          ></ion-input>
+        </ion-item>
+      </ion-col>
+      <ion-col size="8">
+        <ion-item>
+          <ion-label position="floating">Title</ion-label>
+          <ion-input
+            [(ngModel)]="localCourse.title"
+            name="title"
+            required
+          ></ion-input>
+        </ion-item>
+      </ion-col>
+      <ion-col size="3">
+        <ion-item>
+          <ion-label position="floating">Short Title</ion-label>
+          <ion-input
+            [(ngModel)]="localCourse.shortTitle"
+            name="shortTitle"
+            required
+          ></ion-input>
+        </ion-item>
+      </ion-col>
+      <ion-col size="3">
+        <ion-item>
+          <ion-label position="floating">Credit Hours</ion-label>
+          <ion-input
+            [(ngModel)]="localCourse.creditHours"
+            name="creditHours"
+            type="number"
+            required
+          ></ion-input>
+        </ion-item>
+      </ion-col>
+      <ion-col size="3">
+        <ion-item>
+          <ion-label position="floating">Duration</ion-label>
+          <ion-input
+            [(ngModel)]="localCourse.duration"
+            name="duration"
+            type="number"
+            required
+          ></ion-input>
+        </ion-item>
+      </ion-col>
+      <ion-col size="3">
+        <ion-item>
+          <ion-label position="floating">Core Course</ion-label>
+          <ion-checkbox
+            [(ngModel)]="localCourse.isCoreCourse"
+            name="isCoreCourse"
+          ></ion-checkbox>
+        </ion-item>
+      </ion-col>
+      <ion-col size="12" *ngIf="isLabCourse(course)">
+        <ion-item>
+          <ion-label position="floating">Theory Course</ion-label>
+          <ion-select
+            [(ngModel)]="localCourse.theoryCourseId"
+            placeholder="2017"
+            name="batch"
+            type="number"
+          >
+            <ng-container *ngFor="let theory of courses">
+              <ion-select-option
+                [value]="theory.id"
+                *ngIf="!isLabCourse(theory)"
+              >
+                {{ theory.shortTitle }} ({{ theory.department }})
+              </ion-select-option>
+            </ng-container>
+          </ion-select>
+        </ion-item>
+      </ion-col>
+      <ion-col size="12" *ngIf="localCourse.isCoreCourse">
+        <ion-item>
+          <ion-label>Prerequisite Course(s)</ion-label>
+          <ion-select
+            [(ngModel)]="localCourse.prerequisiteIds"
+            name="prerequisiteIds"
+            multiple="true"
+          >
+            <ng-container *ngFor="let prerequisite of courses">
+              <ion-select-option
+                *ngIf="prerequisite.isCoreCourse"
+                [value]="prerequisite.id"
+                >{{ prerequisite.shortTitle }} ({{
+                  prerequisite.department
+                }})</ion-select-option
+              >
+            </ng-container>
+          </ion-select>
+        </ion-item>
+      </ion-col>
+      <ion-col size="12">
+        <ion-item>
+          <preferred-slots-picker
+            [slots]="localCourse.availableSlots"
+          ></preferred-slots-picker>
+        </ion-item>
+      </ion-col>
+      <ion-col size="2"></ion-col>
+      <ion-col size="4">
+        <ion-button
+          type="submit"
+          [disabled]="editForm.invalid || !editFormChanged()"
+          expand="full"
+          >Update</ion-button
+        >
+      </ion-col>
+      <ion-col size="4">
+        <ion-button expand="full" (click)="determineDeletion()" color="danger"
+          >Delete</ion-button
+        >
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</form>

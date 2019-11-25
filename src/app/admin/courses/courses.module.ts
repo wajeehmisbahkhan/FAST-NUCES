@@ -7,8 +7,9 @@ import { IonicModule } from '@ionic/angular';
 
 import { CoursesPage } from './courses.page';
 
-import { CrudModule } from '../../components/crud.module';
 import { SlotsPickerModule } from 'src/app/components/slots-picker.module';
+import { ViewTableComponent } from './view-table/view-table.component';
+import { EditComponent } from './edit/edit.component';
 
 const routes: Routes = [
   {
@@ -23,9 +24,9 @@ const routes: Routes = [
     FormsModule,
     IonicModule,
     RouterModule.forChild(routes),
-    CrudModule,
     SlotsPickerModule
   ],
-  declarations: [CoursesPage]
+  declarations: [CoursesPage, ViewTableComponent, EditComponent],
+  entryComponents: [EditComponent]
 })
 export class CoursesPageModule {}
