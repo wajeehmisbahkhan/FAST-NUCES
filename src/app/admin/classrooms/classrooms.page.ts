@@ -18,7 +18,7 @@ export class ClassroomsPage implements OnInit {
   ngOnInit() {}
 
   addRoom() {
-    this.server.addPrimitiveObject('rooms', this.room);
+    this.server.addObject('rooms', this.room);
     this.room = new Room();
     // Not available on Friday
     this.room.availableSlots[4][5] = false;

@@ -32,10 +32,9 @@ export class SectionsPage implements OnInit {
     );
     // Push both atoms
     atomicSections.forEach(atomicSection => {
-      this.server.addPrimitiveObject('sections', atomicSection);
+      this.server.addObject('sections', atomicSection);
     });
     this.section.name = '';
-    this.section.strength = null;
   }
 
   // Convert to aggregate to store both infos

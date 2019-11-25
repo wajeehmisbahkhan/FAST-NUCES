@@ -39,11 +39,6 @@ export class EditComponent implements OnInit {
         );
         // Id should be according to index
         atomicSection.id = ids[index];
-        // Strength should be divided equally
-        atomicSection.strength =
-          index === 0
-            ? Math.floor(atomicSection.strength / 2)
-            : Math.ceil(atomicSection.strength / 2);
         // Name should have digits (C => C1)
         atomicSection.name += index + 1;
         this.updateElement(id, atomicSection);
@@ -57,7 +52,7 @@ export class EditComponent implements OnInit {
   updateElement(id: string, updatedElement: any) {
     // Just update on server
     // Live listener will update local automatically
-    this.server.updatePrimitiveObject(this.type, id, updatedElement);
+    this.server.updateObject(this.type, id, updatedElement);
     this.poc.dismiss();
   }
 
@@ -104,19 +99,16 @@ export class EditComponent implements OnInit {
     let references: Array<TCSEntry | Constraint>;
     // Check if element is being referenced in entries
     if (this.type !== 'rooms')
-      references = this.server.getPrimitiveReferencesInEntry(id, entryProperty);
+      references = this.server.getReferencesInEntry(id, entryProperty);
     else return false; // Rooms are not referenced for now
     // Check courses in constraints as well
     if (references.length === 0 && this.type === 'courses')
-      references = this.server.getPrimitiveReferencesInCourses(
-        id,
-        'pairedCourses'
-      );
+      references = this.server.getReferencesInCourses(id, 'pairedCourses');
     return references.length > 0;
   }
 
   async deleteElement(id: string) {
-    this.server.deletePrimitiveObject(this.type, id);
+    this.server.deleteObject(this.type, id);
   }
 
   editFormChanged() {

@@ -19,7 +19,7 @@ export class TeachersPage implements OnInit {
   addTeacher() {
     this.teacher.department = this.teacher.department.toUpperCase();
     this.teacher.name = new TitleCasePipe().transform(this.teacher.name);
-    this.server.addPrimitiveObject('teachers', this.teacher);
+    this.server.addObject('teachers', this.teacher);
     this.teacher.name = '';
     this.teacher.availableSlots = new Teacher().availableSlots;
   }
