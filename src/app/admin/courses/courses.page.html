@@ -127,6 +127,7 @@
           <ion-label>Prerequisite Course(s)</ion-label>
           <ion-select
             [(ngModel)]="course.prerequisiteIds"
+            [interfaceOptions]="popoverInterfaceOptions"
             name="prerequisiteIds"
             multiple="true"
           >

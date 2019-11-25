@@ -91,4 +91,10 @@ export class EditComponent implements OnInit {
   get courses() {
     return this.server.courses;
   }
+
+  get popoverInterfaceOptions() {
+    return {
+      cssClass: 'popover-wider'
+    };
+  }
 }
