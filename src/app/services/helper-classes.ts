@@ -79,6 +79,7 @@ export class Course extends FirebaseDocument {
   duration: number; // Hours of class a week
   isCoreCourse: boolean; // true = is a core course
   theoryCourseId: string; // Only filled if lab - only ICT-Lab is an exception
+  prerequisiteIds: Array<string>; // Any courses that are required prior to this
   availableSlots: Array<Array<Array<boolean>>>; // [Day][Room][Time]
 
   constructor(
@@ -89,6 +90,7 @@ export class Course extends FirebaseDocument {
     creditHours = 3,
     isCoreCourse = true,
     theoryCourseId = '',
+    prerequisiteIds = [],
     availableSlots?: Array<Array<Array<boolean>>>
   ) {
     super();
@@ -99,6 +101,7 @@ export class Course extends FirebaseDocument {
     this.creditHours = creditHours;
     this.isCoreCourse = isCoreCourse;
     this.theoryCourseId = theoryCourseId;
+    this.prerequisiteIds = prerequisiteIds;
     if (!availableSlots) {
       // Fill with true by default
       const day = [];
