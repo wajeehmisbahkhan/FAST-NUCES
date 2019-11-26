@@ -36,7 +36,7 @@ export class ServerService {
   }
 
   // Called at the beginning of the program
-  async loadPrimitiveObjects() {
+  async loadObjects() {
     // Collections to load
     this.collectionNames.forEach(collectionName =>
       this.db.getLiveCollection(collectionName).subscribe(docs => {
@@ -46,6 +46,34 @@ export class ServerService {
         });
         // Assign to all the local arrays
         this[collectionName] = collection;
+
+        //
+        //
+        //
+
+        // if (collectionName === 'entries') {
+        //   this.entries.forEach(entry => {
+        //     const updatedEntry = new TCSEntry(
+        //       entry.name,
+        //       entry.courseId,
+        //       entry.teacherIds,
+        //       entry.sectionIds,
+        //       entry.hasAtomicSections
+        //     );
+        //     updatedEntry.strength = 50;
+        //     if (!updatedEntry.hasAtomicSections)
+        //       updatedEntry.hasAtomicSections = false;
+        //     updatedEntry.id = entry.id;
+        //     console.log(entry, updatedEntry);
+        //     // this.updateObject('entries', entry.id, updatedEntry);
+        //   });
+        // }
+
+        ///
+        //
+
+        ///
+
         // Generate timetable
         if (collectionName === 'entries') this.generateTimeTable();
         // Always sort rooms by name
@@ -217,6 +245,6 @@ export class ServerService {
   }
 
   get collectionNames() {
-    return this.db.primitiveCollections;
+    return this.db.collections;
   }
 }

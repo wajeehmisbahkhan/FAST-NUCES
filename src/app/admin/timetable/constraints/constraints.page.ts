@@ -21,7 +21,7 @@ export class ConstraintsPage implements OnInit {
   ngOnInit() {}
 
   addConstraint() {
-    this.server.addPrimitiveObject('constraints', this.constraint);
+    this.server.addObject('constraints', this.constraint);
   }
 
   getCourseById(id: string) {

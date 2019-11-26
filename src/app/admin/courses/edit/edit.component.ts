@@ -21,14 +21,15 @@ export class EditComponent implements OnInit {
   ) {}
 
   ngOnInit() {
+    console.log(this.course);
     // Creating a deep copy for local use
     this.localCourse = JSON.parse(JSON.stringify(this.course));
   }
 
-  updateElement(id: string, updatedElement: Course) {
+  updateElement() {
     // Just update on server
     // Live listener will update local automatically
-    this.server.updateObject('courses', id, updatedElement);
+    this.server.updateObject('courses', this.localCourse.id, this.localCourse);
     this.poc.dismiss();
   }
 
@@ -65,19 +66,6 @@ export class EditComponent implements OnInit {
 
   async deleteElement(id: string) {
     this.server.deleteObject('courses', id);
-  }
-
-  editFormChanged() {
-    let formChanged = false;
-    const keys = Object.keys(this.course);
-    keys.forEach(key => {
-      // Only compare value not types
-      // tslint:disable-next-line: triple-equals
-      if (this.localCourse[key] != this.localCourse[key]) {
-        formChanged = true;
-      }
-    });
-    return formChanged;
   }
 
   isLabCourse(course: Course) {

@@ -26,7 +26,8 @@ export class ScheduleComponent implements OnInit {
 
   getColor(lecture: TCSEntry): string {
     if (!lecture || !lecture.courseId) return 'white';
-    const batch = this.getCourseById(lecture.courseId).batch;
+    // Batch of any section
+    const batch = this.getSectionById(lecture.sectionIds[0]).batch;
     const currentYear = new Date().getFullYear();
     const currentMonth = new Date().getMonth();
     let semester: number;

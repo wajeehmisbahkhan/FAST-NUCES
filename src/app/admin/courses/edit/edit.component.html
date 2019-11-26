@@ -1,7 +1,7 @@
 <form #editForm="ngForm" (ngSubmit)="updateElement()">
   <ion-grid fixed>
     <ion-row>
-      <ion-col size="2">
+      <ion-col size="6">
         <ion-item>
           <ion-label position="floating">Course Code</ion-label>
           <ion-input
@@ -11,7 +11,7 @@
           ></ion-input>
         </ion-item>
       </ion-col>
-      <ion-col size="2">
+      <ion-col size="6">
         <ion-item>
           <ion-label position="floating">Department</ion-label>
           <ion-input
@@ -21,7 +21,7 @@
           ></ion-input>
         </ion-item>
       </ion-col>
-      <ion-col size="8">
+      <ion-col size="12">
         <ion-item>
           <ion-label position="floating">Title</ion-label>
           <ion-input
@@ -31,7 +31,7 @@
           ></ion-input>
         </ion-item>
       </ion-col>
-      <ion-col size="3">
+      <ion-col size="4">
         <ion-item>
           <ion-label position="floating">Short Title</ion-label>
           <ion-input
@@ -41,7 +41,7 @@
           ></ion-input>
         </ion-item>
       </ion-col>
-      <ion-col size="3">
+      <ion-col size="4">
         <ion-item>
           <ion-label position="floating">Credit Hours</ion-label>
           <ion-input
@@ -52,7 +52,7 @@
           ></ion-input>
         </ion-item>
       </ion-col>
-      <ion-col size="3">
+      <ion-col size="4">
         <ion-item>
           <ion-label position="floating">Duration</ion-label>
           <ion-input
@@ -63,9 +63,9 @@
           ></ion-input>
         </ion-item>
       </ion-col>
-      <ion-col size="3">
+      <ion-col size="12">
         <ion-item>
-          <ion-label position="floating">Core Course</ion-label>
+          <ion-label>Core Course</ion-label>
           <ion-checkbox
             [(ngModel)]="localCourse.isCoreCourse"
             name="isCoreCourse"
@@ -77,9 +77,7 @@
           <ion-label position="floating">Theory Course</ion-label>
           <ion-select
             [(ngModel)]="localCourse.theoryCourseId"
-            placeholder="2017"
-            name="batch"
-            type="number"
+            name="theoryCourseId"
           >
             <ng-container *ngFor="let theory of courses">
               <ion-select-option
@@ -122,10 +120,7 @@
       </ion-col>
       <ion-col size="2"></ion-col>
       <ion-col size="4">
-        <ion-button
-          type="submit"
-          [disabled]="editForm.invalid || !editFormChanged()"
-          expand="full"
+        <ion-button type="submit" [disabled]="editForm.invalid" expand="full"
           >Update</ion-button
         >
       </ion-col>

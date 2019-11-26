@@ -27,11 +27,7 @@ export class EditComponent implements OnInit {
   updateElement() {
     // Just update on server
     // Live listener will update local automatically
-    this.server.updatePrimitiveObject(
-      'entries',
-      this.element.id,
-      this.localElement
-    );
+    this.server.updateObject('entries', this.element.id, this.localElement);
     this.poc.dismiss();
   }
 
@@ -40,7 +36,7 @@ export class EditComponent implements OnInit {
       'Are you sure you want to delete this constraint?',
       // Confirmation handler
       () => {
-        this.server.deletePrimitiveObject('entries', this.element.id);
+        this.server.deleteObject('entries', this.element.id);
         this.poc.dismiss();
       }
     );

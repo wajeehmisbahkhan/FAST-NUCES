@@ -13,7 +13,10 @@
     </ion-row>
     <ion-row
       class="body"
-      *ngFor="let course of courses; trackBy: trackById"
+      *ngFor="
+        let course of getCoursesByDepartment(department);
+        trackBy: trackById
+      "
       (click)="presentPopover(course)"
     >
       <ion-col size="2">{{ course.courseCode }}</ion-col>

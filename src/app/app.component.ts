@@ -41,7 +41,7 @@ export class AppComponent {
           console.log(err);
         });
       // TODO: If logging in to admin
-      this.server.loadPrimitiveObjects();
+      this.server.loadObjects();
     });
   }
 }

@@ -7,7 +7,7 @@ import { firestore } from 'firebase/app';
   providedIn: 'root'
 })
 export class DatabaseService {
-  primitiveCollections = [
+  collections = [
     'courses',
     'teachers',
     'sections',
@@ -16,7 +16,7 @@ export class DatabaseService {
     'constraints'
   ];
 
-  constructor(private afs: AngularFirestore) {}
+  constructor(public afs: AngularFirestore) {}
 
   getCollection(path: string, options?: firebase.firestore.GetOptions) {
     return new Promise<firebase.firestore.QuerySnapshot>((resolve, reject) =>

@@ -16,12 +16,11 @@ export class ViewTableComponent implements OnInit {
 
   ngOnInit() {}
 
-  async presentPopover(element: any) {
+  async presentPopover(course: Course) {
     const popover = await this.poc.create({
       component: EditComponent,
       componentProps: {
-        element,
-        type: this.type
+        course
       }
     });
     return await popover.present();
@@ -38,6 +37,10 @@ export class ViewTableComponent implements OnInit {
         departments.push(course.department);
     });
     return departments;
+  }
+
+  getCoursesByDepartment(department: string) {
+    return this.courses.filter(course => course.department === department);
   }
 
   getCourseById(id: string) {

@@ -25,7 +25,8 @@
             <ion-select-option
               *ngFor="let course of courses"
               [value]="course.id"
-              >{{ course.title }} ({{course.department}})</ion-select-option
+              >{{ course.shortTitle }}
+              ({{course.department}})</ion-select-option
             >
           </ion-select>
         </ion-item>
@@ -132,7 +133,7 @@
   <!-- View Table -->
   <ion-grid *ngIf="entries.length > 0" fixed>
     <ion-row class="header">
-      <ion-col size="5">
+      <ion-col size="3">
         Course
       </ion-col>
       <ion-col size="5">
@@ -141,13 +142,16 @@
       <ion-col size="2">
         Section
       </ion-col>
+      <ion-col size="2">
+        Strength
+      </ion-col>
     </ion-row>
     <ion-row
       class="body"
       *ngFor="let entry of entries; trackBy: trackById"
       (click)="presentPopover(entry)"
     >
-      <ion-col size="5">
+      <ion-col size="3">
         {{ getCourseById(entry.courseId) | course }}
       </ion-col>
       <ion-col size="5">
@@ -159,6 +163,9 @@
       </ion-col>
       <ion-col size="2">
         {{ entry.name }}
+      </ion-col>
+      <ion-col size="2">
+        {{ entry.strength }}
       </ion-col>
     </ion-row>
   </ion-grid>
