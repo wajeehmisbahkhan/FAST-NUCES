@@ -30,6 +30,27 @@ export class TCSEntry extends FirebaseDocument {
   }
 }
 
+export class Lecture extends TCSEntry {
+  day: string; // 0-4
+  roomId: string;
+  slot: string; // 0-7
+
+  constructor(tcsEntry = new TCSEntry(), day = '', roomId = '', slot = '') {
+    if (tcsEntry)
+      super(
+        tcsEntry.name,
+        tcsEntry.courseId,
+        tcsEntry.teacherIds,
+        tcsEntry.sectionIds,
+        tcsEntry.hasAtomicSections
+      );
+    else super();
+    this.day = day;
+    this.roomId = roomId;
+    this.slot = slot;
+  }
+}
+
 export class Constraint extends FirebaseDocument {
   pairedCourses: Array<Course>;
   constructor(pairedCourses: Array<Course> = []) {
