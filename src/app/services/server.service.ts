@@ -37,76 +37,54 @@ export class ServerService {
 
   // Called at the beginning of the program
   async loadObjects() {
-    // Collections to load
+    // Wait for collections to load
+    const promises: Array<Promise<void>> = [];
     this.collectionNames.forEach(collectionName =>
-      this.db.getLiveCollection(collectionName).subscribe(docs => {
-        const collection: Array<any> = [];
-        docs.forEach(doc => {
-          collection.push(doc.payload.doc.data());
-        });
-        // Assign to all the local arrays
-        this[collectionName] = collection;
-
-        //
-        //
-        //
-
-        // if (collectionName === 'entries') {
-        //   this.entries.forEach(entry => {
-        //     const updatedEntry = new TCSEntry(
-        //       entry.name,
-        //       entry.courseId,
-        //       entry.teacherIds,
-        //       entry.sectionIds,
-        //       entry.hasAtomicSections
-        //     );
-        //     updatedEntry.strength = 50;
-        //     if (!updatedEntry.hasAtomicSections)
-        //       updatedEntry.hasAtomicSections = false;
-        //     updatedEntry.id = entry.id;
-        //     console.log(entry, updatedEntry);
-        //     // this.updateObject('entries', entry.id, updatedEntry);
-        //   });
-        // }
-
-        ///
-        //
-
-        ///
-
-        // Generate timetable
-        if (collectionName === 'entries') this.generateTimeTable();
-        // Always sort rooms by name
-        if (collectionName === 'rooms') {
-          this.rooms = this.rooms.sort((roomA, roomB) =>
-            sortAlphaNum(roomA.name, roomB.name)
-          );
-          // Set max size
-          Room.maxRoomSize = this.rooms.length;
-        }
-        // Convert 1d 'availableSlots' into 2d and 3d
-        const localCollection = this[collectionName] as Array<any>;
-        if (localCollection[0] && localCollection[0]['availableSlots']) {
-          // Convert room to 2d
-          if (collectionName === 'rooms') {
-            // For each room
-            // tslint:disable-next-line: prefer-for-of
-            for (let i = 0; i < localCollection.length; i++) {
-              localCollection[i]['availableSlots'] = this.convertTo2D(
-                localCollection[i]['availableSlots']
+      promises.push(
+        new Promise(resolve =>
+          this.db.getLiveCollection(collectionName).subscribe(docs => {
+            const collection: Array<any> = [];
+            docs.forEach(doc => {
+              collection.push(doc.payload.doc.data());
+            });
+            // Assign to all the local arrays
+            this[collectionName] = collection;
+            // Generate timetable
+            if (collectionName === 'entries') this.generateTimeTable();
+            // Always sort rooms by name
+            if (collectionName === 'rooms') {
+              this.rooms = this.rooms.sort((roomA, roomB) =>
+                sortAlphaNum(roomA.name, roomB.name)
               );
             }
-          } else {
-            // tslint:disable-next-line: prefer-for-of
-            for (let i = 0; i < localCollection.length; i++) {
-              localCollection[i]['availableSlots'] = this.convertTo3D(
-                localCollection[i]['availableSlots']
-              );
+            // Convert 1d 'availableSlots' into 2d and 3d
+            const localCollection = this[collectionName] as Array<any>;
+            if (localCollection[0] && localCollection[0]['availableSlots']) {
+              // Convert room to 2d
+              if (collectionName === 'rooms') {
+                // For each room
+                // tslint:disable-next-line: prefer-for-of
+                for (let i = 0; i < localCollection.length; i++) {
+                  localCollection[i]['availableSlots'] = this.convertTo2D(
+                    localCollection[i]['availableSlots']
+                  );
+                }
+              } else {
+                // tslint:disable-next-line: prefer-for-of
+                for (let i = 0; i < localCollection.length; i++) {
+                  localCollection[i]['availableSlots'] = this.convertTo3D(
+                    localCollection[i]['availableSlots']
+                  );
+                }
+              }
             }
-          }
-        }
-      })
+            // Promise resolved
+            resolve();
+          })
+        )
+      )
     );
+    return Promise.all(promises);
   }
 
   // Dummy data

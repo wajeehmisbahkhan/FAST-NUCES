@@ -22,7 +22,7 @@ export class AppComponent {
   }
 
   initializeApp() {
-    this.platform.ready().then(() => {
+    this.platform.ready().then(async () => {
       this.statusBar.styleDefault();
       this.splashScreen.hide();
       // Data persistence
@@ -41,7 +41,7 @@ export class AppComponent {
           console.log(err);
         });
       // TODO: If logging in to admin
-      this.server.loadObjects();
+      await this.server.loadObjects();
     });
   }
 }
