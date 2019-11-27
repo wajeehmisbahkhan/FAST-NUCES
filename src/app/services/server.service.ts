@@ -49,10 +49,10 @@ export class ServerService {
             });
             // Assign to all the local arrays
             this[collectionName] = collection;
-            // Generate timetable
-            if (collectionName === 'entries') this.generateTimeTable();
-            // Always sort rooms by name
             if (collectionName === 'rooms') {
+              // Generate timetable
+              // if (collectionName === 'entries') this.generateTimeTable();
+              // Always sort rooms by name
               this.rooms = this.rooms.sort((roomA, roomB) =>
                 sortAlphaNum(roomA.name, roomB.name)
               );

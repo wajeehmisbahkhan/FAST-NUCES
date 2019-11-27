@@ -98,7 +98,8 @@ export class Course extends FirebaseDocument {
   isCoreCourse: boolean; // true = is a core course
   theoryCourseId: string; // Only filled if lab - only ICT-Lab is an exception
   prerequisiteIds: Array<string>; // Any courses that are required prior to this
-  availableSlots: Array<Array<Array<boolean>>>; // [Day][Room][Time]
+  availableRooms: Array<string>; // [RoomId]
+  availableSlots: Array<Array<boolean>>; // [Day][Time]
 
   constructor(
     courseCode = '',
@@ -109,7 +110,8 @@ export class Course extends FirebaseDocument {
     isCoreCourse = true,
     theoryCourseId = '',
     prerequisiteIds = [],
-    availableSlots?: Array<Array<Array<boolean>>>
+    availableRooms = [],
+    availableSlots?: Array<Array<boolean>>
   ) {
     super();
     this.courseCode = courseCode;
@@ -120,22 +122,18 @@ export class Course extends FirebaseDocument {
     this.isCoreCourse = isCoreCourse;
     this.theoryCourseId = theoryCourseId;
     this.prerequisiteIds = prerequisiteIds;
+    this.availableRooms = availableRooms;
     if (!availableSlots) {
       // Fill with true by default
       const day = [];
       for (let i = 0; i < 5; i++) {
         // For each day
-        const room = [];
-        for (let j = 0; j < Room.maxRoomSize; j++) {
-          // For each room
-          const slot = [];
-          for (let k = 0; k < 8; k++) {
-            // For each slot
-            slot.push(true); // 8 times
-          }
-          room.push(slot); // room size times
+        const slot = [];
+        for (let j = 0; j < 8; j++) {
+          // For each slot
+          slot.push(true); // 8 times
         }
-        day.push(room); // day times
+        day.push(slot);
       }
       availableSlots = day;
     }
@@ -146,32 +144,30 @@ export class Course extends FirebaseDocument {
 export class Teacher extends FirebaseDocument {
   name: string;
   department: string;
-  availableSlots: Array<Array<Array<boolean>>>; // [Day][Room][Time]
+  availableRooms: Array<string>; // [RoomId]
+  availableSlots: Array<Array<boolean>>; // [Day][Time]
 
   constructor(
     name = '',
     department = '',
-    availableSlots?: Array<Array<Array<boolean>>>
+    availableRooms = [], // [RoomId]
+    availableSlots?: Array<Array<boolean>>
   ) {
     super();
     this.name = name;
     this.department = department;
+    this.availableRooms = availableRooms;
     if (!availableSlots) {
       // Fill with true by default
       const day = [];
       for (let i = 0; i < 5; i++) {
         // For each day
-        const room = [];
-        for (let j = 0; j < Room.maxRoomSize; j++) {
-          // For each room
-          const slot = [];
-          for (let k = 0; k < 8; k++) {
-            // For each slot
-            slot.push(true); // 8 times
-          }
-          room.push(slot); // room size times
+        const slot = [];
+        for (let j = 0; j < 8; j++) {
+          // For each slot
+          slot.push(true); // 8 times
         }
-        day.push(room); // day times
+        day.push(slot);
       }
       availableSlots = day;
     }
