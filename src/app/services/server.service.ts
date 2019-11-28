@@ -46,12 +46,20 @@ export class ServerService {
             const collection: Array<any> = [];
             docs.forEach(doc => {
               collection.push(doc.payload.doc.data());
+              // Convert 1d array into 2d array
+              const currentElement = collection[collection.length - 1];
+              if (currentElement['availableSlots']) {
+                currentElement['availableSlots'] = this.convertTo2D(
+                  currentElement['availableSlots']
+                );
+              }
             });
             // Assign to all the local arrays
             this[collectionName] = collection;
             // console.log(
             //   `"${collectionName}": ${JSON.stringify(this[collectionName])},`
             // );
+            // TODO: Shouldn't be sorted here
             if (collectionName === 'rooms') {
               // Generate timetable
               // if (collectionName === 'entries') this.generateTimeTable();
@@ -59,16 +67,6 @@ export class ServerService {
               this.rooms = this.rooms.sort((roomA, roomB) =>
                 sortAlphaNum(roomA.name, roomB.name)
               );
-            }
-            // Convert 1d 'availableSlots' into 2d and 3d
-            const localCollection = this[collectionName] as Array<any>;
-            if (localCollection[0] && localCollection[0]['availableSlots']) {
-              // tslint:disable-next-line: prefer-for-of
-              for (let i = 0; i < localCollection.length; i++) {
-                localCollection[i]['availableSlots'] = this.convertTo2D(
-                  localCollection[i]['availableSlots']
-                );
-              }
             }
             // Promise resolved
             resolve();

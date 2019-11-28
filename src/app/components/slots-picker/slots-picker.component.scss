@@ -3,6 +3,8 @@ ion-text {
 }
 
 ion-grid {
+  padding: 10px;
+
   .header ion-col,
   ion-row ion-col:first-child {
     background-color: lightgrey;
