@@ -60,22 +60,11 @@ export class ServerService {
             // Convert 1d 'availableSlots' into 2d and 3d
             const localCollection = this[collectionName] as Array<any>;
             if (localCollection[0] && localCollection[0]['availableSlots']) {
-              // Convert room to 2d
-              if (collectionName === 'rooms') {
-                // For each room
-                // tslint:disable-next-line: prefer-for-of
-                for (let i = 0; i < localCollection.length; i++) {
-                  localCollection[i]['availableSlots'] = this.convertTo2D(
-                    localCollection[i]['availableSlots']
-                  );
-                }
-              } else {
-                // tslint:disable-next-line: prefer-for-of
-                for (let i = 0; i < localCollection.length; i++) {
-                  localCollection[i]['availableSlots'] = this.convertTo3D(
-                    localCollection[i]['availableSlots']
-                  );
-                }
+              // tslint:disable-next-line: prefer-for-of
+              for (let i = 0; i < localCollection.length; i++) {
+                localCollection[i]['availableSlots'] = this.convertTo2D(
+                  localCollection[i]['availableSlots']
+                );
               }
             }
             // Promise resolved
@@ -130,20 +119,6 @@ export class ServerService {
     for (let i = 0; i < slots.length; i = i + size)
       res.push(slots.slice(i, i + size));
     return res; // [Day][Time] - 5x8
-  }
-
-  convertTo3D(slots: Array<boolean>): Array<Array<Array<boolean>>> {
-    const res = [];
-    // Break into days
-    const gap = slots.length / 5;
-    for (let i = 0; i < slots.length; i = i + gap)
-      res.push(slots.slice(i, i + gap));
-    // Should be of length 5 now
-    // For each day
-    for (let i = 0; i < res.length; i++) {
-      res[i] = this.convertTo2D(res[i]);
-    }
-    return res;
   }
 
   async addObject(

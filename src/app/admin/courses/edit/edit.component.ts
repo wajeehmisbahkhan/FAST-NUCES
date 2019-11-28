@@ -21,9 +21,9 @@ export class EditComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    console.log(this.course);
     // Creating a deep copy for local use
     this.localCourse = JSON.parse(JSON.stringify(this.course));
+    console.log(this.localCourse);
   }
 
   updateElement() {

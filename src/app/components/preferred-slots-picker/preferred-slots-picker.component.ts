@@ -23,6 +23,7 @@ export class PreferredSlotsPickerComponent implements OnInit {
   ngOnInit() {
     // 3D
     if (this.slots[0][0][0] !== undefined) {
+      console.log(this.slots);
       this.dimensions = 3;
     } else {
       // 2D
