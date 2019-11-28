@@ -49,6 +49,9 @@ export class ServerService {
             });
             // Assign to all the local arrays
             this[collectionName] = collection;
+            // console.log(
+            //   `"${collectionName}": ${JSON.stringify(this[collectionName])},`
+            // );
             if (collectionName === 'rooms') {
               // Generate timetable
               // if (collectionName === 'entries') this.generateTimeTable();
