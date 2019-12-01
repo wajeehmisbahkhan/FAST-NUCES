@@ -38,7 +38,7 @@ export class ServerService {
   // Called at the beginning of the program
   async loadObjects() {
     // Wait for collections to load
-    const promises: Array<Promise<void>> = [];
+    const promises: Array<Promise<any>> = [];
     this.collectionNames.forEach(collectionName =>
       promises.push(
         new Promise(resolve =>
@@ -59,17 +59,17 @@ export class ServerService {
             // console.log(
             //   `"${collectionName}": ${JSON.stringify(this[collectionName])},`
             // );
+            // Generate timetable
+            if (collectionName === 'entries') this.generateTimeTable();
             // TODO: Shouldn't be sorted here
             if (collectionName === 'rooms') {
-              // Generate timetable
-              // if (collectionName === 'entries') this.generateTimeTable();
               // Always sort rooms by name
               this.rooms = this.rooms.sort((roomA, roomB) =>
                 sortAlphaNum(roomA.name, roomB.name)
               );
             }
             // Promise resolved
-            resolve();
+            resolve(this[collectionName]);
           })
         )
       )

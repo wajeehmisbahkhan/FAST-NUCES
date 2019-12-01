@@ -5,6 +5,9 @@ import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
 import { ServerService } from './services/server.service';
 import { firestore } from 'firebase/app';
+import { Router } from '@angular/router';
+import { AuthenticationService } from './services/authentication.service';
+import { AlertService } from './services/alert.service';
 
 @Component({
   selector: 'app-root',
@@ -16,7 +19,10 @@ export class AppComponent {
     private platform: Platform,
     private splashScreen: SplashScreen,
     private statusBar: StatusBar,
-    private server: ServerService
+    private as: AlertService,
+    private authService: AuthenticationService,
+    private server: ServerService,
+    private router: Router
   ) {
     this.initializeApp();
   }
@@ -40,8 +46,16 @@ export class AppComponent {
           }
           console.log(err);
         });
-      // TODO: If logging in to admin
-      await this.server.loadObjects();
+      this.authService.authState.subscribe(async res => {
+        if (res) {
+          // User is logged in
+          await this.as.load('Loading data...', this.server.loadObjects());
+          this.router.navigate(['admin']);
+        } else {
+          // TODO: Redirect to login?
+          this.router.navigate(['public']);
+        }
+      });
     });
   }
 }

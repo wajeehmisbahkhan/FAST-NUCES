@@ -1,0 +1,50 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>FAST-NUCES</ion-title>
+  </ion-toolbar>
+</ion-header>
+<ion-content>
+  <form [formGroup]="loginForm" (ngSubmit)="login()">
+    <!-- Ionic 4 bug: Custom validators must be styled like this -->
+    <ion-item [class.ion-invalid]="email.hasError('emailExists')">
+      <ion-label position="floating">Email</ion-label>
+      <ion-input type="email" formControlName="email">
+        <!-- Show spinner when checking mail -->
+        <ion-spinner
+          *ngIf="email.status==='PENDING'"
+          color="primary"
+        ></ion-spinner>
+      </ion-input>
+    </ion-item>
+    <!-- Email Errors -->
+    <div class="error-message" *ngIf="validate('email')">
+      <span class="ion-margin-start">
+        {{error.email}}
+      </span>
+    </div>
+    <ion-item>
+      <ion-label position="floating">Password</ion-label>
+      <ion-input type="password" formControlName="password"></ion-input>
+    </ion-item>
+    <div class="error-message" *ngIf="validate('password') || loginFailed">
+      <span class="ion-margin-start">
+        <!-- If invalid password -->
+        <span *ngIf="this.loginFailed; else passwordError">
+          Password is invalid. <a (click)="resetPassword()">Forgot Password?</a>
+        </span>
+        <ng-template #passwordError>
+          {{error.password}}
+        </ng-template>
+      </span>
+    </div>
+    <ion-button
+      class="ion-margin-top"
+      type="submit"
+      [disabled]="!loginForm.valid"
+      expand="block"
+    >
+      Login
+      <ion-spinner *ngIf="logging" color="white"></ion-spinner>
+    </ion-button>
+  </form>
+</ion-content>

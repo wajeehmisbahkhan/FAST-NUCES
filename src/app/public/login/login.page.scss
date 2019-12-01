@@ -1,0 +1,20 @@
+div.error-message {
+  padding-top: 0.5em;
+  color: red;
+  a {
+    color: var(--ion-color-primary);
+    text-decoration-style: none;
+  }
+}
+ion-input,
+ion-button {
+  position: relative;
+  ion-spinner {
+    position: absolute;
+    right: 1em;
+  }
+}
+form {
+  margin-top: 50vh;
+  transform: translateY(-75%);
+}

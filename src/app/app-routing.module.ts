@@ -1,12 +1,18 @@
 import { NgModule } from '@angular/core';
 import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
+import { AuthGuard } from './services/auth.guard';
 
 const routes: Routes = [
   { path: '', redirectTo: 'admin', pathMatch: 'full' },
   {
+    path: 'public',
+    loadChildren: './public/login/login.module#LoginPageModule'
+  },
+  {
     path: 'admin',
     loadChildren: () =>
-      import('./admin/admin-routing.module').then(m => m.AdminRoutingModule)
+      import('./admin/admin-routing.module').then(m => m.AdminRoutingModule),
+    canActivate: [AuthGuard]
   }
 ];
 
