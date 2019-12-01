@@ -1,7 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { ServerService } from 'src/app/services/server.service';
 import { PopoverController } from '@ionic/angular';
-import { Room } from 'src/app/services/helper-classes';
 
 @Component({
   selector: 'app-slots-picker',

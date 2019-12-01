@@ -102,6 +102,7 @@ export class Course extends FirebaseDocument {
   availableSlots: Array<Array<boolean>>; // [Day][Time]
 
   constructor(
+    rooms?: Array<Room>,
     courseCode = '',
     department = '',
     title = '',
@@ -122,7 +123,9 @@ export class Course extends FirebaseDocument {
     this.isCoreCourse = isCoreCourse;
     this.theoryCourseId = theoryCourseId;
     this.prerequisiteIds = prerequisiteIds;
-    this.availableRooms = availableRooms;
+    // Fill with room id
+    if (rooms) this.availableRooms = rooms.map(room => room.id);
+    else this.availableRooms = availableRooms;
     if (!availableSlots) {
       // Fill with true by default
       const day = [];
@@ -148,12 +151,14 @@ export class Teacher extends FirebaseDocument {
   availableSlots: Array<Array<boolean>>; // [Day][Time]
 
   constructor(
+    rooms?: Array<Room>,
     name = '',
     department = '',
     availableRooms = [], // [RoomId]
     availableSlots?: Array<Array<boolean>>
   ) {
     super();
+    if (rooms) this.availableRooms = rooms.map(room => room.id);
     this.name = name;
     this.department = department;
     this.availableRooms = availableRooms;

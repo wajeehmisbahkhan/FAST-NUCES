@@ -1,0 +1,36 @@
+<ion-row>
+  <ion-col class="ion-text-center" size="4">
+    <ion-button (click)="toggleRooms()">Toggle Rooms</ion-button>
+  </ion-col>
+  <ion-col class="ion-text-center" size="4">
+    <ion-button color="danger" (click)="toggleLabs()">Toggle Labs</ion-button>
+  </ion-col>
+  <ion-col class="ion-text-center" size="4">
+    <ion-button (click)="setRooms()">Okay</ion-button>
+  </ion-col>
+</ion-row>
+<!-- Rooms -->
+<ion-card>
+  <ion-card-header>Selected</ion-card-header>
+  <ion-card-content>
+    <ion-chip
+      (click)="removeRoom(localRoomId)"
+      *ngFor="let localRoomId of sortRoomIds(localRoomIds)"
+    >
+      <ion-label>{{ getRoomById(localRoomId).name }}</ion-label>
+      <ion-icon name="close-circle"></ion-icon>
+    </ion-chip>
+  </ion-card-content>
+</ion-card>
+<ion-card>
+  <ion-card-header>Deselected</ion-card-header>
+  <ion-card-content>
+    <ion-chip
+      (click)="addRoom(leftRoomId)"
+      *ngFor="let leftRoomId of sortRoomIds(leftRoomIds)"
+    >
+      <ion-label>{{ getRoomById(leftRoomId).name }}</ion-label>
+      <ion-icon name="add-circle"></ion-icon>
+    </ion-chip>
+  </ion-card-content>
+</ion-card>
