@@ -10,6 +10,7 @@ import { CoursesPage } from './courses.page';
 import { SlotsPickerModule } from 'src/app/components/slots-picker.module';
 import { ViewTableComponent } from './view-table/view-table.component';
 import { EditComponent } from './edit/edit.component';
+import { RoomPickerModule } from 'src/app/components/room-picker.module';
 
 const routes: Routes = [
   {
@@ -24,7 +25,8 @@ const routes: Routes = [
     FormsModule,
     IonicModule,
     RouterModule.forChild(routes),
-    SlotsPickerModule
+    SlotsPickerModule,
+    RoomPickerModule
   ],
   declarations: [CoursesPage, ViewTableComponent, EditComponent],
   entryComponents: [EditComponent]

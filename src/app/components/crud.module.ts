@@ -8,6 +8,7 @@ import { FormsModule } from '@angular/forms';
 import { SlotsPickerModule } from './slots-picker.module';
 import { AdminInputFormatModule } from '../pipes/admin-input-format/admin-input-format.module';
 import { LetterCaseModule } from '../pipes/letter-case/letter-case.module';
+import { RoomPickerModule } from './room-picker.module';
 
 @NgModule({
   declarations: [ViewTableComponent, EditComponent],
@@ -17,7 +18,8 @@ import { LetterCaseModule } from '../pipes/letter-case/letter-case.module';
     FormsModule,
     AdminInputFormatModule,
     LetterCaseModule,
-    SlotsPickerModule
+    SlotsPickerModule,
+    RoomPickerModule
   ],
   exports: [ViewTableComponent, EditComponent],
   entryComponents: [EditComponent]

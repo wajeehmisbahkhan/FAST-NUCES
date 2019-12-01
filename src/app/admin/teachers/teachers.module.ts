@@ -8,6 +8,7 @@ import { IonicModule } from '@ionic/angular';
 import { TeachersPage } from './teachers.page';
 import { CrudModule } from 'src/app/components/crud.module';
 import { SlotsPickerModule } from 'src/app/components/slots-picker.module';
+import { RoomPickerModule } from 'src/app/components/room-picker.module';
 
 const routes: Routes = [
   {
@@ -23,7 +24,8 @@ const routes: Routes = [
     IonicModule,
     RouterModule.forChild(routes),
     CrudModule,
-    SlotsPickerModule
+    SlotsPickerModule,
+    RoomPickerModule
   ],
   declarations: [TeachersPage]
 })
