@@ -1,4 +1,4 @@
-<form #editForm="ngForm" (ngSubmit)="updateElement()">
+<form #editForm="ngForm" (ngSubmit)="updateEntry()">
   <ion-grid>
     <ion-row>
       <ion-col size="8">
@@ -6,7 +6,7 @@
           <ion-label position="floating">Course</ion-label>
           <ion-select
             [interfaceOptions]="popoverInterfaceOptions"
-            [(ngModel)]="localElement.courseId"
+            [(ngModel)]="localEntry.courseId"
             required
             name="course"
           >
@@ -25,7 +25,7 @@
           <ion-label position="floating">Strength</ion-label>
           <ion-input
             type="number"
-            [(ngModel)]="localElement.strength"
+            [(ngModel)]="localEntry.strength"
             name="successors"
           >
           </ion-input>
@@ -36,7 +36,7 @@
           <ion-label position="floating">Teacher</ion-label>
           <ion-select
             [interfaceOptions]="popoverInterfaceOptions"
-            [(ngModel)]="localElement.teacherIds"
+            [(ngModel)]="localEntry.teacherIds"
             required
             name="teacher"
             multiple="true"
@@ -55,30 +55,17 @@
           <ion-select
             multiple="true"
             [interfaceOptions]="popoverInterfaceOptions"
-            [(ngModel)]="localElement.sectionIds"
+            [(ngModel)]="mixedSections"
             required
             name="sections"
             (focusout)="fillSectionName()"
           >
-            <ng-container *ngIf="localElement.hasAtomicSections; else normal">
-              <ion-select-option
-                multiple="true"
-                *ngFor="let section of sections"
-                [value]="section.id"
-                >{{ section.name }} ({{ section.batch }} -
-                {{ section.department }})</ion-select-option
-              >
-            </ng-container>
-            <!-- Default view -->
-            <ng-template #normal>
-              <ion-select-option
-                multiple="true"
-                *ngFor="let section of normalSections"
-                [value]="section.id"
-                >{{ section.name }} ({{ section.batch }} -
-                {{ section.department }})</ion-select-option
-              >
-            </ng-template>
+            <ion-select-option
+              *ngFor="let section of sections"
+              [value]="section"
+              >{{ section.name }} ({{ section.batch }} -
+              {{ section.department }})</ion-select-option
+            >
           </ion-select>
         </ion-item>
       </ion-col>
@@ -86,7 +73,7 @@
         <ion-item>
           <ion-label>Show Atomic Sections</ion-label>
           <ion-checkbox
-            [(ngModel)]="localElement.hasAtomicSections"
+            [(ngModel)]="showAtomicSections"
             name="hasAtomicSections"
           ></ion-checkbox>
         </ion-item>
@@ -100,7 +87,7 @@
         >
       </ion-col>
       <ion-col size="6">
-        <ion-button expand="full" (click)="deleteElement()" color="danger"
+        <ion-button expand="full" (click)="deleteEntry()" color="danger"
           >Delete</ion-button
         >
       </ion-col>

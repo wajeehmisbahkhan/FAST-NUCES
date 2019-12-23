@@ -53,7 +53,8 @@
         <ion-item>
           <ion-label>Show Atomic Sections</ion-label>
           <ion-checkbox
-            [(ngModel)]="entry.hasAtomicSections"
+            [(ngModel)]="showAtomicSections"
+            (click)="deselectMixedSections()"
             name="atomic"
           ></ion-checkbox>
         </ion-item>
@@ -64,30 +65,17 @@
           <ion-select
             multiple="true"
             [interfaceOptions]="popoverInterfaceOptions"
-            [(ngModel)]="entry.sectionIds"
+            [(ngModel)]="mixedSections"
             required
             name="sections"
             (focusout)="fillSectionName()"
           >
-            <ng-container *ngIf="entry.hasAtomicSections; else normal">
-              <ion-select-option
-                multiple="true"
-                *ngFor="let section of sections"
-                [value]="section.id"
-                >{{ section.name }} ({{section.batch}} - {{ section.department
-                }})</ion-select-option
-              >
-            </ng-container>
-            <!-- Default view -->
-            <ng-template #normal>
-              <ion-select-option
-                multiple="true"
-                *ngFor="let section of normalSections"
-                [value]="section.id"
-                >{{ section.name }} ({{ section.batch }} -
-                {{section.department}})</ion-select-option
-              >
-            </ng-template>
+            <ion-select-option
+              *ngFor="let section of sections"
+              [value]="section"
+              >{{ section.name }} ({{section.batch}} - {{ section.department
+              }})</ion-select-option
+            >
           </ion-select>
         </ion-item>
       </ion-col>
@@ -162,7 +150,7 @@
         </ng-container>
       </ion-col>
       <ion-col size="2">
-        {{ entry.name }}
+        {{ entry.name }} ({{generateSectionName(entry.atomicSectionIds)}})
       </ion-col>
       <ion-col size="2">
         {{ entry.strength }}

@@ -2,7 +2,8 @@ import { Component, OnInit, Input } from '@angular/core';
 import {
   TCSEntry,
   AggregateSection,
-  sortAlphaNum
+  AtomicSection,
+  Section
 } from 'src/app/services/helper-classes';
 import { ServerService } from 'src/app/services/server.service';
 import { PopoverController } from '@ionic/angular';
@@ -15,9 +16,12 @@ import { AlertService } from 'src/app/services/alert.service';
 })
 export class EditComponent implements OnInit {
   // Coming from table component
-  @Input() element: TCSEntry;
+  @Input() entry: TCSEntry;
+  showAtomicSections: boolean;
+  mixedSections: Array<AtomicSection> | Array<AggregateSection>;
+
   // For local form usage
-  localElement: TCSEntry;
+  localEntry: TCSEntry;
   constructor(
     private server: ServerService,
     private poc: PopoverController,
@@ -26,54 +30,49 @@ export class EditComponent implements OnInit {
 
   ngOnInit() {
     // Creating a deep copy for local use
-    this.localElement = JSON.parse(JSON.stringify(this.element));
+    this.localEntry = JSON.parse(JSON.stringify(this.entry));
   }
 
-  updateElement() {
+  updateEntry() {
     // Just update on server
     // Live listener will update local automatically
-    this.server.updateObject('entries', this.element.id, this.localElement);
+    this.localEntry.atomicSectionIds = Section.mixedSectionsToAtomicSections(
+      this.mixedSections
+    ).map(atomicSection => atomicSection.id);
+    this.server.updateObject('entries', this.entry.id, this.localEntry);
     this.poc.dismiss();
   }
 
-  deleteElement() {
+  deleteEntry() {
     this.as.confirmation(
-      'Are you sure you want to delete this object?',
+      'Are you sure you want to delete this lecture?',
       // Confirmation handler
       () => {
-        this.server.deleteObject('entries', this.element.id);
+        this.server.deleteObject('entries', this.entry.id);
         this.poc.dismiss();
       }
     );
   }
 
+  deselectMixedSections() {
+    this.mixedSections = [];
+  }
+
   // Auto fill
   fillSectionName() {
     let sectionName = '';
-    if (!this.localElement.hasAtomicSections) {
-      this.normalSections.forEach(section => {
-        // Show all sections which are included
-        if (this.localElement.sectionIds.includes(section.id)) {
-          // Comma for multiple sections
-          if (sectionName.length > 0) {
-            sectionName += ', ';
-          }
-          sectionName += section.name;
-        }
-      });
-    }
-    this.localElement.name = sectionName;
+    Section.atomicSectionsToMixedSections(this.mixedSections).forEach(
+      section => {
+        // Comma for multiple sections
+        if (sectionName.length > 0) sectionName += ', ';
+        sectionName += section.name;
+      }
+    );
+    this.localEntry.name = sectionName;
   }
 
   getCourseById(id: string) {
     return this.courses.find(course => course.id === id);
-  }
-
-  get normalSections() {
-    return AggregateSection.aggregateToNormalSections(
-      // Send copy not original to avoid changeafterread error
-      AggregateSection.atomicToAggregateSections(this.sections.slice(0))
-    ).sort((a, b) => sortAlphaNum(a.name, b.name)); // Sorted
   }
 
   get teachers() {
@@ -84,8 +83,19 @@ export class EditComponent implements OnInit {
     return this.server.courses;
   }
 
-  get sections() {
-    return this.server.sections;
+  get sections(): Array<AtomicSection> | Array<AggregateSection> {
+    // Return atomic or aggregate depending on user tick
+    return this.showAtomicSections
+      ? this.atomicSections
+      : this.aggregateSections;
+  }
+
+  get atomicSections() {
+    return this.server.atomicSections;
+  }
+
+  get aggregateSections() {
+    return Section.atomicSectionsToMixedSections(this.server.atomicSections);
   }
 
   get entries() {
@@ -100,11 +110,11 @@ export class EditComponent implements OnInit {
 
   editFormChanged() {
     let formChanged = false;
-    const keys = Object.keys(this.localElement);
+    const keys = Object.keys(this.localEntry);
     keys.forEach(key => {
       // Only compare value not types
       // tslint:disable-next-line: triple-equals
-      if (this.localElement[key] != this.element[key]) {
+      if (this.localEntry[key] != this.entry[key]) {
         formChanged = true;
       }
     });

@@ -19,7 +19,7 @@ export class TCSEntry extends FirebaseDocument {
   // - backend will implement symmetry function to ensure the referenced courses can also clash with this one
   teacherIds: Array<string>; // teacher reference
   atomicSectionIds: Array<string>; // sections included
-
+  // Assigned by backend
   assignedSlots: Array<AssignedSlot>; // day, slot, roomId
 
   constructor(
@@ -317,6 +317,7 @@ export class Section extends FirebaseDocument {
         atomicSections.push(...this.aggregateSectionToAtomicSections(section));
       }
     });
+    return atomicSections;
   }
 }
 

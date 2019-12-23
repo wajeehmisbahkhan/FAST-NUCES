@@ -3,7 +3,8 @@ import { ServerService } from 'src/app/services/server.service';
 import {
   TCSEntry,
   AggregateSection,
-  sortAlphaNum
+  Section,
+  AtomicSection
 } from 'src/app/services/helper-classes';
 import { PopoverController } from '@ionic/angular';
 import { EditComponent } from './edit/edit.component';
@@ -15,6 +16,8 @@ import { EditComponent } from './edit/edit.component';
 })
 export class EntriesPage implements OnInit {
   entry: TCSEntry;
+  showAtomicSections: boolean;
+  mixedSections: Array<AtomicSection> | Array<AggregateSection>;
 
   constructor(private server: ServerService, private poc: PopoverController) {
     this.entry = new TCSEntry();
@@ -24,7 +27,9 @@ export class EntriesPage implements OnInit {
 
   addEntry() {
     const entry: TCSEntry = JSON.parse(JSON.stringify(this.entry));
-    entry.sectionIds = this.ensureNormalSectionIds(entry.sectionIds);
+    entry.atomicSectionIds = Section.mixedSectionsToAtomicSections(
+      this.mixedSections
+    ).map(atomicSection => atomicSection.id);
     this.server.addObject('entries', entry);
     // Reset entry
     this.entry = new TCSEntry();
@@ -54,39 +59,34 @@ export class EntriesPage implements OnInit {
     return this.courses.find(course => course.id === id);
   }
 
-  getSectionById(id: string) {
-    return this.sections.find(section => section.id === id);
-  }
-
-  ensureNormalSectionIds(sectionIds: Array<string>) {
-    const normalSectionIds: Array<string> = [];
-    sectionIds.forEach(sectionId => {
-      if (sectionId.includes('\n')) {
-        // Convert to single array containing atomic values
-        sectionId.split('\n').forEach(id => normalSectionIds.push(id));
-      } else {
-        normalSectionIds.push(sectionId);
-      }
-    });
-    return normalSectionIds;
+  deselectMixedSections() {
+    this.mixedSections = [];
   }
 
   // Auto fill
   fillSectionName() {
+    this.entry.name = this.generateSectionName(
+      this.mixedSections,
+      this.showAtomicSections
+    );
+  }
+
+  generateSectionName(
+    atomicSections: Array<AtomicSection | AggregateSection>,
+    isAtomicSections = true
+  ) {
     let sectionName = '';
-    if (!this.entry.hasAtomicSections) {
-      this.normalSections.forEach(section => {
-        // Show all sections which are included
-        if (this.entry.sectionIds.includes(section.id)) {
-          // Comma for multiple sections
-          if (sectionName.length > 0) {
-            sectionName += ', ';
-          }
-          sectionName += section.name;
-        }
-      });
-    }
-    this.entry.name = sectionName;
+    let mixedSections: Array<AtomicSection | AggregateSection> = JSON.parse(
+      JSON.stringify(atomicSections)
+    );
+    if (isAtomicSections)
+      mixedSections = Section.atomicSectionsToMixedSections(atomicSections);
+    mixedSections.forEach(section => {
+      // Comma for multiple sections
+      if (sectionName.length > 0) sectionName += ', ';
+      sectionName += section.name;
+    });
+    return sectionName;
   }
 
   get teachers() {
@@ -97,15 +97,19 @@ export class EntriesPage implements OnInit {
     return this.server.courses;
   }
 
-  get sections() {
-    return this.server.sections;
+  get sections(): Array<AtomicSection> | Array<AggregateSection> {
+    // Return atomic or aggregate depending on user tick
+    return this.showAtomicSections
+      ? this.atomicSections
+      : this.aggregateSections;
   }
 
-  get normalSections() {
-    return AggregateSection.aggregateToNormalSections(
-      // Send copy not original to avoid changeafterread error
-      AggregateSection.atomicToAggregateSections(this.sections.slice(0))
-    ).sort((a, b) => sortAlphaNum(a.name, b.name)); // Sorted
+  get atomicSections() {
+    return this.server.atomicSections;
+  }
+
+  get aggregateSections() {
+    return Section.atomicSectionsToMixedSections(this.server.atomicSections);
   }
 
   get entries() {
