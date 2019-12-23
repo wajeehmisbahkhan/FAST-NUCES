@@ -73,6 +73,30 @@ export class ServerService {
                 sortAlphaNum(roomA.name, roomB.name)
               );
             }
+            // Atomic section updates
+            if (collectionName === 'sections') {
+              const atomicSections = [];
+              this.sections.forEach(section => {
+                // Generate for each section
+                for (let i = 0; i < section.numberOfSections; i++) {
+                  atomicSections.push(
+                    new AtomicSection(
+                      String.fromCharCode('A'.charCodeAt(0) + i) + 1, // letter
+                      section.batch,
+                      section.department
+                    )
+                  );
+                  atomicSections.push(
+                    new AtomicSection(
+                      String.fromCharCode('A'.charCodeAt(0) + i) + 2, // letter
+                      section.batch,
+                      section.department
+                    )
+                  );
+                }
+              });
+              this.atomicSections = atomicSections;
+            }
             // Promise resolved
             resolve(this[collectionName]);
           })
