@@ -56,7 +56,7 @@ export class EditComponent implements OnInit {
     references = this.server.getReferencesInEntry(id, 'courseId');
     // Check courses in constraints as well
     if (references.length === 0)
-      references = this.server.getReferencesInCourses(id, 'pairedCourses');
+      references = this.server.getReferencesInConstraints(id, 'pairedCourses');
     return references.length > 0;
   }
 
