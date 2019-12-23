@@ -6,9 +6,10 @@ import { Routes, RouterModule } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
 
 import { SectionsPage } from './sections.page';
-import { CrudModule } from 'src/app/components/crud.module';
 import { EditComponent } from './edit/edit.component';
 import { ViewTableComponent } from './view-table/view-table.component';
+import { SlotsPickerModule } from 'src/app/components/slots-picker.module';
+import { RoomPickerModule } from 'src/app/components/room-picker.module';
 
 const routes: Routes = [
   {
@@ -22,7 +23,9 @@ const routes: Routes = [
     CommonModule,
     FormsModule,
     IonicModule,
-    RouterModule.forChild(routes)
+    RouterModule.forChild(routes),
+    SlotsPickerModule,
+    RoomPickerModule
   ],
   declarations: [SectionsPage, ViewTableComponent, EditComponent],
   entryComponents: [EditComponent]
