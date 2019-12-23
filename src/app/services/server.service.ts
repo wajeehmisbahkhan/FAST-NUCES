@@ -7,7 +7,8 @@ import {
   Room,
   TCSEntry,
   sortAlphaNum,
-  Constraint
+  Constraint,
+  AtomicSection
 } from './helper-classes';
 
 @Injectable({
@@ -16,7 +17,10 @@ import {
 export class ServerService {
   courses: Array<Course>;
   teachers: Array<Teacher>;
+  // From database
   sections: Array<Section>;
+  // For backend
+  atomicSections: Array<AtomicSection>;
   rooms: Array<Room>;
 
   entries: Array<TCSEntry>;
@@ -27,6 +31,7 @@ export class ServerService {
     this.courses = [];
     this.teachers = [];
     this.sections = [];
+    this.atomicSections = [];
     this.rooms = [];
     // Combo
     this.entries = [];
@@ -68,6 +73,13 @@ export class ServerService {
                 sortAlphaNum(roomA.name, roomB.name)
               );
             }
+            // Atomic Section Generation
+            if (collectionName === 'sections')
+              this.sections.forEach(section =>
+                this.atomicSections.push(
+                  ...Section.normalSectionToAtomicSections(section)
+                )
+              );
             // Promise resolved
             resolve(this[collectionName]);
           })
@@ -165,12 +177,12 @@ export class ServerService {
   // Returns filtered entries containing object id passed in
   getReferencesInEntry(
     objectId: string,
-    entryProperty?: 'teacherIds' | 'courseId' | 'sectionIds'
+    entryProperty?: 'teacherIds' | 'courseId' | 'atomicSectionIds'
   ): Array<TCSEntry> {
     if (entryProperty === 'courseId') {
-      return this.entries.filter(entry => entry[entryProperty] === objectId);
+      return this.entries.filter(entry => entry.courseId === objectId);
     } else if (
-      entryProperty === 'sectionIds' ||
+      entryProperty === 'atomicSectionIds' ||
       entryProperty === 'teacherIds'
     ) {
       return this.entries.filter(entry =>
@@ -180,7 +192,7 @@ export class ServerService {
     // Search in each property O(n^3)
     return [
       ...this.getReferencesInEntry(objectId, 'courseId'),
-      ...this.getReferencesInEntry(objectId, 'sectionIds'),
+      ...this.getReferencesInEntry(objectId, 'atomicSectionIds'),
       ...this.getReferencesInEntry(objectId, 'teacherIds')
     ];
   }

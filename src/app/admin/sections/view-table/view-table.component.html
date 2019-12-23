@@ -1,0 +1,22 @@
+<ng-container *ngIf="sections">
+  <ion-grid *ngFor="let department of getSectionDepartments()" fixed>
+    <ion-row>
+      <ion-col size="12">{{ department }}</ion-col>
+    </ion-row>
+    <ion-row class="header">
+      <ion-col size="6">Batch</ion-col>
+      <ion-col size="6">Number of Sections</ion-col>
+    </ion-row>
+    <ion-row
+      class="body"
+      *ngFor="
+        let section of getSectionsByDepartment(department);
+        trackBy: trackById
+      "
+      (click)="presentPopover(section)"
+    >
+      <ion-col size="6">{{ section.batch }}</ion-col>
+      <ion-col size="6">{{ section.numberOfSections }}</ion-col>
+    </ion-row>
+  </ion-grid>
+</ng-container>

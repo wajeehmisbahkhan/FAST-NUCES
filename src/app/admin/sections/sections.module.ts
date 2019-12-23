@@ -7,6 +7,8 @@ import { IonicModule } from '@ionic/angular';
 
 import { SectionsPage } from './sections.page';
 import { CrudModule } from 'src/app/components/crud.module';
+import { EditComponent } from './edit/edit.component';
+import { ViewTableComponent } from './view-table/view-table.component';
 
 const routes: Routes = [
   {
@@ -20,9 +22,9 @@ const routes: Routes = [
     CommonModule,
     FormsModule,
     IonicModule,
-    RouterModule.forChild(routes),
-    CrudModule
+    RouterModule.forChild(routes)
   ],
-  declarations: [SectionsPage]
+  declarations: [SectionsPage, ViewTableComponent],
+  entryComponents: [EditComponent]
 })
 export class SectionsPageModule {}
