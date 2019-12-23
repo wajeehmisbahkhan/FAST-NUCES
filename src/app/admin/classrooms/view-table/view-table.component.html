@@ -1,0 +1,16 @@
+<ng-container *ngIf="rooms">
+  <ion-grid fixed>
+    <ion-row class="header">
+      <ion-col size="6">Name</ion-col>
+      <ion-col size="6">Capacity</ion-col>
+    </ion-row>
+    <ion-row
+      class="body"
+      *ngFor="let room of rooms; trackBy: trackById"
+      (click)="presentPopover(room)"
+    >
+      <ion-col size="6">{{ room.name }}</ion-col>
+      <ion-col size="6">{{ room.capacity }}</ion-col>
+    </ion-row>
+  </ion-grid>
+</ng-container>
