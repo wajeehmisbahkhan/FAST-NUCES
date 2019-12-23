@@ -197,7 +197,7 @@ export class ServerService {
     ];
   }
 
-  getReferencesInCourses(
+  getReferencesInConstraints(
     objectId: string,
     entryProperty?: 'pairedCourses'
   ): Constraint[] {
