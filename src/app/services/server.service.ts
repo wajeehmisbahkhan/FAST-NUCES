@@ -73,13 +73,6 @@ export class ServerService {
                 sortAlphaNum(roomA.name, roomB.name)
               );
             }
-            // Atomic Section Generation
-            if (collectionName === 'sections')
-              this.sections.forEach(section =>
-                this.atomicSections.push(
-                  ...Section.normalSectionToAtomicSections(section)
-                )
-              );
             // Promise resolved
             resolve(this[collectionName]);
           })
