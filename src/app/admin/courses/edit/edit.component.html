@@ -118,6 +118,13 @@
           ></preferred-slots-picker>
         </ion-item>
       </ion-col>
+      <ion-col size="12">
+        <ion-item>
+          <preferred-room-picker
+            [roomIds]="localCourse.availableRooms"
+          ></preferred-room-picker>
+        </ion-item>
+      </ion-col>
       <ion-col size="2"></ion-col>
       <ion-col size="4">
         <ion-button type="submit" [disabled]="editForm.invalid" expand="full"

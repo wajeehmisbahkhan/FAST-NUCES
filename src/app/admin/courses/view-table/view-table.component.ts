@@ -10,7 +10,6 @@ import { Course } from 'src/app/services/helper-classes';
 })
 export class ViewTableComponent implements OnInit {
   @Input() courses: Array<Course>;
-  @Input() type: string;
 
   constructor(private poc: PopoverController) {}
 

@@ -32,12 +32,22 @@
                 required
               ></ion-input>
             </ng-template>
-            <!-- Array -->
-            <ng-template #showAvailableSlots>
-              <preferred-slots-picker
-                [slots]="input.value"
-              ></preferred-slots-picker>
-            </ng-template>
+            <!-- Arrays -->
+            <ng-container *ngIf="isArray(input.value)">
+              <ng-template
+                *ngIf="isTwoDimensional(input.value); else showAvailableRooms"
+                #showAvailableSlots
+              >
+                <preferred-slots-picker
+                  [slots]="input.value"
+                ></preferred-slots-picker>
+              </ng-template>
+              <ng-template #showAvailableRooms>
+                <preferred-room-picker
+                  [roomIds]="input.value"
+                ></preferred-room-picker>
+              </ng-template>
+            </ng-container>
           </ion-item>
         </ion-col>
       </ng-container>

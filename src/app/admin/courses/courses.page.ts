@@ -11,15 +11,15 @@ import { TitleCasePipe } from '@angular/common';
 export class CoursesPage implements OnInit {
   course: Course;
 
-  constructor(private server: ServerService) {
-    this.course = new Course();
+  constructor(private server: ServerService) {}
+
+  ngOnInit() {
+    this.course = new Course(this.rooms);
     // Some default preferences
     this.course.creditHours = 3;
     this.course.duration = 3;
     this.course.isCoreCourse = true;
   }
-
-  ngOnInit() {}
 
   addCourse() {
     // Casings
@@ -66,9 +66,7 @@ export class CoursesPage implements OnInit {
     return this.server.courses;
   }
 
-  get popoverInterfaceOptions() {
-    return {
-      cssClass: 'popover-wider'
-    };
+  get rooms() {
+    return this.server.rooms;
   }
 }

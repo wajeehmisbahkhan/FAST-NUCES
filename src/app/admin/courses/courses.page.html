@@ -142,7 +142,7 @@
         </ion-item>
       </ion-col>
       <!-- Slots picker -->
-      <ion-col size="2" size-xs="12" size-sm="6" size-md="2">
+      <ion-col size="1.5" size-xs="12" size-sm="6" size-md="1.5">
         <ion-item>
           <preferred-slots-picker
             [slots]="course.availableSlots"
@@ -150,11 +150,18 @@
         </ion-item>
       </ion-col>
       <ion-col size="2" size-xs="12" size-sm="6" size-md="2">
+        <ion-item *ngIf="rooms">
+          <preferred-room-picker
+            [roomIds]="course.availableRooms"
+          ></preferred-room-picker>
+        </ion-item>
+      </ion-col>
+      <ion-col size="1.5" size-xs="12" size-sm="6" size-md="1.5">
         <ion-button expand="full" [disabled]="!coursesForm.valid" type="submit"
           >Add Course</ion-button
         >
       </ion-col>
-      <ion-col size="1.5" size-xs="12" size-sm="6" size-md="1.5">
+      <ion-col size="1" size-xs="12" size-sm="6" size-md="1">
         <ion-button
           expand="full"
           [disabled]="coursesForm.pristine"
@@ -165,5 +172,5 @@
       </ion-col>
     </ion-row>
   </form>
-  <view-table type="courses" [courses]="courses"></view-table>
+  <view-table [courses]="courses"></view-table>
 </ion-content>

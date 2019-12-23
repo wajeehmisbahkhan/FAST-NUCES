@@ -23,7 +23,6 @@ export class EditComponent implements OnInit {
   ngOnInit() {
     // Creating a deep copy for local use
     this.localCourse = JSON.parse(JSON.stringify(this.course));
-    console.log(this.localCourse);
   }
 
   updateElement() {
@@ -35,7 +34,7 @@ export class EditComponent implements OnInit {
 
   // Checks if element can be deleted or not (referenced elsewhere)
   async determineDeletion() {
-    if (this.isReferenced(this.course.id, 'courseId')) {
+    if (this.isReferenced(this.course.id)) {
       this.as.notice('Can not delete object as it is referenced in entries.');
       return;
     }
@@ -51,13 +50,10 @@ export class EditComponent implements OnInit {
   }
 
   // Search for references
-  isReferenced(
-    id: string,
-    entryProperty?: 'teacherIds' | 'sectionIds' | 'courseId'
-  ) {
+  isReferenced(id: string) {
     let references: Array<TCSEntry | Constraint>;
     // Check if element is being referenced in entries
-    references = this.server.getReferencesInEntry(id, entryProperty);
+    references = this.server.getReferencesInEntry(id, 'courseId');
     // Check courses in constraints as well
     if (references.length === 0)
       references = this.server.getReferencesInCourses(id, 'pairedCourses');
@@ -78,6 +74,10 @@ export class EditComponent implements OnInit {
 
   get courses() {
     return this.server.courses;
+  }
+
+  get rooms() {
+    return this.server.rooms;
   }
 
   get popoverInterfaceOptions() {

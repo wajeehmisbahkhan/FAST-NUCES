@@ -139,4 +139,8 @@ export class EditComponent implements OnInit {
   isArray(value: any) {
     return Array.isArray(value);
   }
+
+  isTwoDimensional(value: any) {
+    return this.isArray(value[0]);
+  }
 }
