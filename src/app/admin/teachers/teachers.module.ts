@@ -9,6 +9,8 @@ import { TeachersPage } from './teachers.page';
 import { CrudModule } from 'src/app/components/crud.module';
 import { SlotsPickerModule } from 'src/app/components/slots-picker.module';
 import { RoomPickerModule } from 'src/app/components/room-picker.module';
+import { ViewTableComponent } from './view-table/view-table.component';
+import { EditComponent } from './edit/edit.component';
 
 const routes: Routes = [
   {
@@ -23,10 +25,10 @@ const routes: Routes = [
     FormsModule,
     IonicModule,
     RouterModule.forChild(routes),
-    CrudModule,
     SlotsPickerModule,
     RoomPickerModule
   ],
-  declarations: [TeachersPage]
+  declarations: [TeachersPage, ViewTableComponent, EditComponent],
+  entryComponents: [EditComponent]
 })
 export class TeachersPageModule {}

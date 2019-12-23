@@ -10,21 +10,26 @@ import { TitleCasePipe } from '@angular/common';
 })
 export class TeachersPage implements OnInit {
   teacher: Teacher;
-  constructor(private server: ServerService) {
-    this.teacher = new Teacher();
-  }
+  constructor(private server: ServerService) {}
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.teacher = new Teacher(this.rooms);
+  }
 
   addTeacher() {
     this.teacher.department = this.teacher.department.toUpperCase();
     this.teacher.name = new TitleCasePipe().transform(this.teacher.name);
     this.server.addObject('teachers', this.teacher);
     this.teacher.name = '';
-    this.teacher.availableSlots = new Teacher().availableSlots;
+    this.teacher.availableSlots = new Teacher(this.rooms).availableSlots;
+    this.teacher.availableRooms = new Teacher(this.rooms).availableRooms;
   }
 
   get teachers() {
     return this.server.teachers;
+  }
+
+  get rooms() {
+    return this.server.rooms;
   }
 }
