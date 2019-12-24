@@ -44,7 +44,7 @@ export class LoginPage implements OnInit {
   }
 
   validate(field: string) {
-    this.authService.validate(this.loginForm, field, this.error);
+    return this.authService.validate(this.loginForm, field, this.error);
   }
 
   login() {
