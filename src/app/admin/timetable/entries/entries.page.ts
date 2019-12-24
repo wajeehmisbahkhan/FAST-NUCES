@@ -18,9 +18,20 @@ export class EntriesPage implements OnInit {
   entry: TCSEntry;
   showAtomicSections: boolean;
   mixedSections: Array<AtomicSection> | Array<AggregateSection>;
+  // Cache
+  atomicSections: Array<AtomicSection>;
+  aggregateSections: Array<AggregateSection>;
 
   constructor(private server: ServerService, private poc: PopoverController) {
     this.entry = new TCSEntry();
+    this.mixedSections = [];
+    this.showAtomicSections = false;
+
+    // For caching purposes
+    this.atomicSections = this.server.atomicSections;
+    this.aggregateSections = Section.atomicSectionsToMixedSections(
+      this.server.atomicSections
+    );
   }
 
   ngOnInit() {}
@@ -37,11 +48,11 @@ export class EntriesPage implements OnInit {
     this.entry.courseId = entry.courseId;
   }
 
-  async presentPopover(element: any) {
+  async presentPopover(entry: any) {
     const popover = await this.poc.create({
       component: EditComponent,
       componentProps: {
-        element
+        entry
       }
     });
     return await popover.present();
@@ -65,10 +76,11 @@ export class EntriesPage implements OnInit {
 
   // Auto fill
   fillSectionName() {
-    this.entry.name = this.generateSectionName(
-      this.mixedSections,
-      this.showAtomicSections
-    );
+    if (this.mixedSections.length > 0)
+      this.entry.name = this.generateSectionName(
+        this.mixedSections,
+        this.showAtomicSections
+      );
   }
 
   generateSectionName(
@@ -102,14 +114,6 @@ export class EntriesPage implements OnInit {
     return this.showAtomicSections
       ? this.atomicSections
       : this.aggregateSections;
-  }
-
-  get atomicSections() {
-    return this.server.atomicSections;
-  }
-
-  get aggregateSections() {
-    return Section.atomicSectionsToMixedSections(this.server.atomicSections);
   }
 
   get entries() {

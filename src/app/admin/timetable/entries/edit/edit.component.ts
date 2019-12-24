@@ -19,6 +19,9 @@ export class EditComponent implements OnInit {
   @Input() entry: TCSEntry;
   showAtomicSections: boolean;
   mixedSections: Array<AtomicSection> | Array<AggregateSection>;
+  // Cache
+  atomicSections: Array<AtomicSection>;
+  aggregateSections: Array<AggregateSection>;
 
   // For local form usage
   localEntry: TCSEntry;
@@ -26,11 +29,24 @@ export class EditComponent implements OnInit {
     private server: ServerService,
     private poc: PopoverController,
     private as: AlertService
-  ) {}
+  ) {
+    // For caching purposes
+    this.atomicSections = this.server.atomicSections;
+    this.aggregateSections = Section.atomicSectionsToMixedSections(
+      this.server.atomicSections
+    );
+  }
 
   ngOnInit() {
     // Creating a deep copy for local use
     this.localEntry = JSON.parse(JSON.stringify(this.entry));
+    // TODO: Check if sections are aggregate then set show atomic sections
+    this.showAtomicSections = true;
+    // Set mixed sections according to default sections
+    this.mixedSections = [];
+    this.localEntry.atomicSectionIds.forEach(atomicSectionId =>
+      this.mixedSections.push(this.getAtomicSectionById(atomicSectionId))
+    );
   }
 
   updateEntry() {
@@ -75,6 +91,14 @@ export class EditComponent implements OnInit {
     return this.courses.find(course => course.id === id);
   }
 
+  getAtomicSectionById(id: string) {
+    return this.atomicSections.find(atomicSection => atomicSection.id === id);
+  }
+
+  trackById(item: object, index: number) {
+    return item['id'];
+  }
+
   get teachers() {
     return this.server.teachers;
   }
@@ -88,14 +112,6 @@ export class EditComponent implements OnInit {
     return this.showAtomicSections
       ? this.atomicSections
       : this.aggregateSections;
-  }
-
-  get atomicSections() {
-    return this.server.atomicSections;
-  }
-
-  get aggregateSections() {
-    return Section.atomicSectionsToMixedSections(this.server.atomicSections);
   }
 
   get entries() {

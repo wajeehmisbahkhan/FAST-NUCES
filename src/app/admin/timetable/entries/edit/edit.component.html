@@ -61,7 +61,7 @@
             (focusout)="fillSectionName()"
           >
             <ion-select-option
-              *ngFor="let section of sections"
+              *ngFor="let section of sections; trackBy: trackById"
               [value]="section"
               >{{ section.name }} ({{ section.batch }} -
               {{ section.department }})</ion-select-option

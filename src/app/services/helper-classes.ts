@@ -298,7 +298,6 @@ export class Section extends FirebaseDocument {
           )
         );
     });
-    console.log(mixedSections);
     return mixedSections;
   }
 
