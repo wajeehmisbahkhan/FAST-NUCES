@@ -72,7 +72,9 @@
         </ion-row>
         <ion-row>
           <ion-label class="margin-center">
-            {{ getTeacherById(table[i][j].teacherIds[0]).name }}
+            <span *ngFor="let teacherId of table[i][j].teacherIds">
+              {{ getTeacherById(teacherId).name }}
+            </span>
           </ion-label>
         </ion-row>
       </div>

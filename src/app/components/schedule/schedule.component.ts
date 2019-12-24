@@ -1,5 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { TCSEntry, Room } from 'src/app/services/helper-classes';
+import { TCSEntry, Room, Lecture } from 'src/app/services/helper-classes';
 import { ServerService } from 'src/app/services/server.service';
 
 @Component({
@@ -9,19 +9,35 @@ import { ServerService } from 'src/app/services/server.service';
 })
 export class ScheduleComponent implements OnInit {
   // [Day][Room][Slots]
-  @Input() timetable: Array<Array<Array<TCSEntry>>>;
-  // Room & Day
+  @Input() timetable: Array<Lecture>;
+  // Room & Slot
   table: Array<Array<TCSEntry>>;
 
   constructor(private server: ServerService) {}
 
   ngOnInit() {
     // For monday
-    this.table = this.timetable[0];
+    this.table = this.generateTableUsingDay(0);
   }
 
   setTable(event: any) {
-    this.table = this.timetable[event.detail.value];
+    this.table = this.generateTableUsingDay(Number(event.detail.value));
+  }
+
+  generateTableUsingDay(day: number) {
+    const table: Array<Array<TCSEntry>> = [];
+    // Each room
+    this.rooms.forEach(room => table.push([]));
+    this.timetable.forEach(lecture =>
+      lecture.assignedSlots.forEach(assignedSlot => {
+        const roomIndex = this.rooms.findIndex(
+          room => room.id === assignedSlot.roomId
+        );
+        if (assignedSlot.day === day)
+          table[roomIndex][assignedSlot.time] = lecture;
+      })
+    );
+    return table;
   }
 
   getColor(lecture: TCSEntry): string {

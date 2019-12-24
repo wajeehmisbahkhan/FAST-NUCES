@@ -6,7 +6,7 @@ class FirebaseDocument {
   }
 }
 
-class AssignedSlot {
+export class AssignedSlot {
   day: number;
   roomId: string;
   time: number;
