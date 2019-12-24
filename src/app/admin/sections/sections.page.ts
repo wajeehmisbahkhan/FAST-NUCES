@@ -16,9 +16,9 @@ export class SectionsPage implements OnInit {
 
   ngOnInit() {}
 
-  addSection(section: Section) {
-    section.department = section.department.toUpperCase();
-    this.server.addObject('sections', section);
+  addSection() {
+    this.section.department = this.section.department.toUpperCase();
+    this.server.addObject('sections', this.section);
   }
 
   // Convert to normal to show
