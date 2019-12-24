@@ -19,8 +19,6 @@ export class TCSEntry extends FirebaseDocument {
   // - backend will implement symmetry function to ensure the referenced courses can also clash with this one
   teacherIds: Array<string>; // teacher reference
   atomicSectionIds: Array<string>; // sections included
-  // Assigned by backend
-  assignedSlots: Array<AssignedSlot>; // day, slot, roomId
 
   constructor(
     name = '',
@@ -33,6 +31,15 @@ export class TCSEntry extends FirebaseDocument {
     this.courseId = courseId;
     this.teacherIds = teacherIds;
     this.atomicSectionIds = atomicSectionIds;
+  }
+}
+
+export class Lecture extends TCSEntry {
+  // Assigned by backend
+  assignedSlots: Array<AssignedSlot>; // day, slot, roomId
+  constructor() {
+    super();
+    this.assignedSlots = [];
   }
 }
 
