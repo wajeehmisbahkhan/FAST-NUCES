@@ -27,7 +27,7 @@ export class ScheduleComponent implements OnInit {
   getColor(lecture: TCSEntry): string {
     if (!lecture || !lecture.courseId) return 'white';
     // Batch of any section
-    const batch = this.getSectionById(lecture.sectionIds[0]).batch;
+    const batch = this.getAtomicSectionById(lecture.atomicSectionIds[0]).batch;
     const currentYear = new Date().getFullYear();
     const currentMonth = new Date().getMonth();
     let semester: number;
@@ -62,8 +62,8 @@ export class ScheduleComponent implements OnInit {
     return this.courses.find(course => course.id === id);
   }
 
-  getSectionById(id: string) {
-    return this.sections.find(section => section.id === id);
+  getAtomicSectionById(id: string) {
+    return this.atomicSections.find(section => section.id === id);
   }
 
   get courses() {
@@ -78,8 +78,8 @@ export class ScheduleComponent implements OnInit {
     return this.server.teachers;
   }
 
-  get sections() {
-    return this.server.sections;
+  get atomicSections() {
+    return this.server.atomicSections;
   }
 
   get entries() {
