@@ -8,7 +8,7 @@ import { ServerService } from 'src/app/services/server.service';
   styleUrls: ['./schedule.component.scss']
 })
 export class ScheduleComponent implements OnInit {
-  // [Day][Room][Slots]
+  // [Day+RoomId+Slots]
   @Input() timetable: Array<Lecture>;
   // Room & Slot
   table: Array<Array<TCSEntry>>;
@@ -96,9 +96,5 @@ export class ScheduleComponent implements OnInit {
 
   get atomicSections() {
     return this.server.atomicSections;
-  }
-
-  get entries() {
-    return this.server.entries;
   }
 }

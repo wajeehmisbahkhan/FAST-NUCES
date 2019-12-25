@@ -29,7 +29,7 @@ export class ServerService {
   constraints: Array<Constraint>;
 
   // From backend
-  timetables: Array<Array<Lecture>>;
+  timetable: Array<Lecture>;
 
   constructor(private db: DatabaseService) {
     this.courses = [];
@@ -41,7 +41,7 @@ export class ServerService {
     this.entries = [];
     this.constraints = [];
     // [TimeTable][Lecture]
-    this.timetables = [];
+    this.timetable = [];
   }
 
   // Called at the beginning of the program
@@ -109,39 +109,34 @@ export class ServerService {
 
   // Dummy data
   generateTimeTable() {
-    // 3 top time tables
-    for (let i = 0; i < 3; i++) {
-      this.timetables.push([]);
-      let day = 0,
-        roomIndex = 0,
-        time = 0;
-      // Create lectures for each entry's credit hour / duration
-      this.entries.forEach(entry => {
-        // Get course by id
-        const duration = this.courses.find(
-          course => course.id === entry.courseId
-        ).duration;
-        const lecture = JSON.parse(JSON.stringify(entry)) as Lecture;
-        lecture['assignedSlots'] = [];
-        for (let j = 0; j < duration; j++) {
-          lecture.assignedSlots[j] = new AssignedSlot();
-          lecture.assignedSlots[j].day = day;
-          lecture.assignedSlots[j].roomId = this.rooms[roomIndex].id;
-          lecture.assignedSlots[j].time = time++;
-          // Next room
-          if (time === 8) {
-            time = 0;
-            roomIndex++;
-            // Next day
-            if (roomIndex === this.rooms.length) {
-              roomIndex = 0;
-              day++;
-            }
+    let day = 0,
+      roomIndex = 0,
+      time = 0;
+    // Create lectures for each entry's credit hour / duration
+    this.entries.forEach(entry => {
+      // Get course by id
+      const duration = this.courses.find(course => course.id === entry.courseId)
+        .duration;
+      const lecture = JSON.parse(JSON.stringify(entry)) as Lecture;
+      lecture['assignedSlots'] = [];
+      for (let j = 0; j < duration; j++) {
+        lecture.assignedSlots[j] = new AssignedSlot();
+        lecture.assignedSlots[j].day = day;
+        lecture.assignedSlots[j].roomId = this.rooms[roomIndex].id;
+        lecture.assignedSlots[j].time = time++;
+        // Next room
+        if (time === 8) {
+          time = 0;
+          roomIndex++;
+          // Next day
+          if (roomIndex === this.rooms.length) {
+            roomIndex = 0;
+            day++;
           }
         }
-        this.timetables[i].push(lecture);
-      });
-    }
+      }
+      this.timetable.push(lecture);
+    });
   }
 
   /**
