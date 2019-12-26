@@ -6,7 +6,6 @@ import { Routes, RouterModule } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
 
 import { GeneratePage } from './generate.page';
-import { ScheduleComponent } from 'src/app/components/schedule/schedule.component';
 import { TimetableModule } from 'src/app/components/timetable.module';
 
 const routes: Routes = [

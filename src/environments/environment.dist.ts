@@ -13,5 +13,15 @@ export const environment = {
     storageBucket: '<your-storage-bucket>',
     messagingSenderId: '<your-messaging-sender-id>',
     appId: '<your-app-id>'
+  },
+  googleSheetsConfig: {
+    apiKey: '<your-key>',
+    clientId: '<your-client-id>',
+    // Array of API discovery doc URLs for APIs used by the quickstart
+    discoveryDocs: ['https://sheets.googleapis.com/$discovery/rest?version=v4'],
+    // Authorization scopes required by the API; multiple scopes can be
+    // included, separated by spaces.
+    // See, edit, create, and delete your spreadsheets in Google Drive
+    scope: 'https://www.googleapis.com/auth/spreadsheets'
   }
 };

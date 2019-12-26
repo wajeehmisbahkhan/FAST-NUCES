@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Course } from '../../services/helper-classes';
 import { ServerService } from 'src/app/services/server.service';
 import { TitleCasePipe } from '@angular/common';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-courses',
@@ -11,9 +12,10 @@ import { TitleCasePipe } from '@angular/common';
 export class CoursesPage implements OnInit {
   course: Course;
 
-  constructor(private server: ServerService) {}
+  constructor(private server: ServerService, private router: Router) {}
 
   ngOnInit() {
+    this.router.navigate(['/', 'admin', 'timetable', 'generate']);
     this.course = new Course(this.rooms);
     // Some default preferences
     this.course.creditHours = 3;

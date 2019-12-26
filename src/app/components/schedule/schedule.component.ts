@@ -1,6 +1,8 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { TCSEntry, Room, Lecture } from 'src/app/services/helper-classes';
 import { ServerService } from 'src/app/services/server.service';
+import { PopoverController } from '@ionic/angular';
+import { PublishComponent } from '../publish/publish.component';
 
 @Component({
   selector: 'schedule',
@@ -13,7 +15,7 @@ export class ScheduleComponent implements OnInit {
   // Room & Slot
   table: Array<Array<TCSEntry>>;
 
-  constructor(private server: ServerService) {}
+  constructor(private server: ServerService, private poc: PopoverController) {}
 
   ngOnInit() {
     // For monday
@@ -38,6 +40,16 @@ export class ScheduleComponent implements OnInit {
       })
     );
     return table;
+  }
+
+  async publishSchedule() {
+    const popover = await this.poc.create({
+      component: PublishComponent,
+      componentProps: {
+        timetable: this.timetable
+      }
+    });
+    return await popover.present();
   }
 
   getColor(lecture: TCSEntry): string {

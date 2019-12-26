@@ -1,0 +1,7 @@
+<ng-container *ngIf="!authorized; else publish">
+  Waiting for Google Sheets Authentication
+</ng-container>
+<ng-template #publish>
+  <ion-button>Create New</ion-button>
+  <ion-button>Update Existing</ion-button>
+</ng-template>
