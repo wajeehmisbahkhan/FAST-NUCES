@@ -6,7 +6,7 @@
       <ion-col size="3">
         <ion-item>
           <ion-label position="floating">Day</ion-label>
-          <ion-select [(ngModel)]="cellPosition.day" name="day">
+          <ion-select [(ngModel)]="selectedCellPosition.day" name="day">
             <ion-select-option [value]="0">Monday</ion-select-option>
             <ion-select-option [value]="1">Tuesday</ion-select-option>
             <ion-select-option [value]="2">Wednesday</ion-select-option>
@@ -18,8 +18,11 @@
       <ion-col size="3">
         <ion-item>
           <ion-label position="floating">Room</ion-label>
-          <ion-select [(ngModel)]="cellPosition.roomId" name="room">
-            <ion-select-option *ngFor="let room of rooms" [value]="room.id">
+          <ion-select [(ngModel)]="selectedCellPosition.roomIndex" name="room">
+            <ion-select-option
+              *ngFor="let room of rooms; let i = index"
+              [value]="i"
+            >
               {{ room.name }}
             </ion-select-option>
           </ion-select>
@@ -28,7 +31,7 @@
       <ion-col size="3">
         <ion-item>
           <ion-label position="floating">Slot</ion-label>
-          <ion-select [(ngModel)]="cellPosition.slot" name="slot">
+          <ion-select [(ngModel)]="selectedCellPosition.slot" name="slot">
             <ion-select-option [value]="0">08:00-09:00</ion-select-option>
             <ion-select-option [value]="1">09:00-10:00</ion-select-option>
             <ion-select-option [value]="2">10:00-11:00</ion-select-option>
@@ -49,13 +52,13 @@
         class="lecture-cell"
       >
         <div *ngIf="cell" class="margin-center">
-          <ion-row>
+          <ion-row *ngIf="cell.courseId && cell.name">
             <ion-label class="margin-center">
               {{ getCourseById(cell.courseId).shortTitle }} -
               {{ cell.name }}
             </ion-label>
           </ion-row>
-          <ion-row>
+          <ion-row *ngIf="cell.teacherIds">
             <ion-label class="margin-center">
               <span *ngFor="let teacherId of cell.teacherIds">
                 {{ getTeacherById(teacherId).name }}
@@ -73,13 +76,13 @@
         class="lecture-cell"
       >
         <div *ngIf="selectedCell" class="margin-center">
-          <ion-row>
+          <ion-row *ngIf="selectedCell.courseId && selectedCell.name">
             <ion-label class="margin-center">
               {{ getCourseById(selectedCell.courseId).shortTitle }} -
               {{ selectedCell.name }}
             </ion-label>
           </ion-row>
-          <ion-row>
+          <ion-row *ngIf="selectedCell.teacherIds">
             <ion-label class="margin-center">
               <span *ngFor="let teacherId of selectedCell.teacherIds">
                 {{ getTeacherById(teacherId).name }}

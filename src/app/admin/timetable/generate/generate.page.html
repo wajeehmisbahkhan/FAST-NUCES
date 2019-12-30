@@ -13,6 +13,6 @@
   <ion-card *ngFor="let timetable of timetables; let i = index">
     <ion-card-header>{{departments[i]}} Timetable</ion-card-header>
     <ion-card-content>
-      <schedule [timetable]="timetable"></schedule>
+      <schedule [lectures]="timetable"></schedule>
     </ion-card-content> </ion-card
 ></ion-content>

@@ -1,7 +1,7 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { ServerService } from 'src/app/services/server.service';
 import { PopoverController } from '@ionic/angular';
-import { Lecture } from 'src/app/services/helper-classes';
+import { Lecture, TCSEntry, Room } from 'src/app/services/helper-classes';
 
 @Component({
   selector: 'app-swapper',
@@ -10,31 +10,39 @@ import { Lecture } from 'src/app/services/helper-classes';
 })
 export class SwapperComponent implements OnInit {
   // Inputs
-  @Input() cell: Lecture;
+  @Input() cell: TCSEntry; // Could be an empty cell (new TCSEntry)
   @Input() cellPosition: {
     day: number;
-    roomId: string;
+    roomIndex: number;
     slot: number;
   };
-  @Input() timetable: Array<Lecture>;
+  @Input() timetable: Array<Array<Array<TCSEntry>>>;
+  @Input() rooms: Array<Room>;
 
-  // The new cell
-  selectedCell: Lecture;
+  // Local form usage
+  selectedCellPosition: {
+    day: number;
+    roomIndex: number;
+    slot: number;
+  };
 
   constructor(private server: ServerService, private poc: PopoverController) {}
 
   ngOnInit() {
-    this.selectedCell = JSON.parse(JSON.stringify(this.cell));
+    // Deep copy
+    this.selectedCellPosition = JSON.parse(JSON.stringify(this.cellPosition));
   }
 
   swapCells() {
-    // Get cell indexes
-    const cellIndex = this.getCellIndexById(this.cell.id);
-    const selectedCellIndex = this.getCellIndexById(this.selectedCell.id);
     // Swap
-    const tempCell = this.timetable[cellIndex];
-    this.timetable[cellIndex] = this.timetable[selectedCellIndex];
-    this.timetable[selectedCellIndex] = tempCell;
+    const tempCell = this.getCellByCellPosition(this.cellPosition);
+    const { day, roomIndex, slot } = this.cellPosition;
+    this.timetable[day][roomIndex][slot] = this.getCellByCellPosition(
+      this.selectedCellPosition
+    );
+    this.timetable[this.selectedCellPosition.day][
+      this.selectedCellPosition.roomIndex
+    ][this.selectedCellPosition.slot] = tempCell;
     this.poc.dismiss();
   }
 
@@ -42,13 +50,18 @@ export class SwapperComponent implements OnInit {
     this.poc.dismiss();
   }
 
-  getCellByCellPosition(day: number, roomId: string, slot: number) {}
-
-  getCellIndexById(lectureId: string) {
-    return this.timetable.findIndex(lecture => lecture.id === lectureId);
+  // If not found, return empty lecture
+  getCellByCellPosition(cellPosition: {
+    day: number;
+    roomIndex: number;
+    slot: number;
+  }) {
+    return this.timetable[cellPosition.day][cellPosition.roomIndex][
+      cellPosition.slot
+    ];
   }
 
-  getColor(lecture: Lecture): string {
+  getColor(lecture: TCSEntry): string {
     if (!lecture || !lecture.courseId) return 'white';
     // Batch of any section
     const batch = this.getAtomicSectionById(lecture.atomicSectionIds[0]).batch;
@@ -85,16 +98,17 @@ export class SwapperComponent implements OnInit {
     return this.courses.find(course => course.id === id);
   }
 
+  // The new cell
+  get selectedCell(): TCSEntry {
+    return this.getCellByCellPosition(this.selectedCellPosition);
+  }
+
   get courses() {
     return this.server.courses;
   }
 
   get teachers() {
     return this.server.teachers;
-  }
-
-  get rooms() {
-    return this.server.rooms;
   }
 
   get atomicSections() {

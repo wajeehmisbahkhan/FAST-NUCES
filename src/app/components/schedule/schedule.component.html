@@ -58,25 +58,22 @@
     >
     <ion-col
       size="1.33"
-      *ngFor="let lecture of table[i]; let j = index; trackBy: itemTracker"
-      [style.backgroundColor]="getColor(table[i][j])"
+      *ngFor="let entry of table[i]; let j = index; trackBy: itemTracker"
+      [style.backgroundColor]="getColor(entry)"
       class="lecture-cell"
+      (click)="presentSwapper(entry, day, room.id, j)"
     >
       <!-- Individual Cell -->
-      <div
-        *ngIf="table[i][j]"
-        class="margin-center"
-        (click)="presentSwapper(table[i][j], day, room.id, j)"
-      >
-        <ion-row>
+      <div class="margin-center">
+        <ion-row *ngIf="entry.courseId && entry.name">
           <ion-label class="margin-center">
-            {{ getCourseById(table[i][j].courseId).shortTitle }} -
-            {{ table[i][j].name }}
+            {{ getCourseById(entry.courseId).shortTitle }} -
+            {{ entry.name }}
           </ion-label>
         </ion-row>
-        <ion-row>
+        <ion-row *ngIf="entry.teacherIds">
           <ion-label class="margin-center">
-            <span *ngFor="let teacherId of table[i][j].teacherIds">
+            <span *ngFor="let teacherId of entry.teacherIds">
               {{ getTeacherById(teacherId).name }}
             </span>
           </ion-label>

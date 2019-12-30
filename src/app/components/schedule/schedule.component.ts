@@ -12,8 +12,9 @@ import { SwapperComponent } from '../swapper/swapper.component';
 })
 export class ScheduleComponent implements OnInit {
   // [Day+RoomId+Slots]
-  @Input() timetable: Array<Lecture>;
-  // Room & Slot
+  @Input() lectures: Array<Lecture>;
+  // [Day][RoomId][Slot]
+  timetable: Array<Array<Array<TCSEntry>>>;
   table: Array<Array<TCSEntry>>;
 
   day: number;
@@ -21,42 +22,50 @@ export class ScheduleComponent implements OnInit {
   constructor(private server: ServerService, private poc: PopoverController) {}
 
   ngOnInit() {
-    // For monday
-    this.table = this.generateTableUsingDay(0);
-
+    // Convert time table
+    this.timetable = [];
+    // TODO: Optimize
+    for (let i = 0; i < 5; i++)
+      this.timetable.push(this.generateTableUsingDay(i));
+    // Monday by default
     this.day = 0;
+    this.table = this.timetable[this.day];
   }
 
   async presentSwapper(
-    cell: Lecture,
+    cell: TCSEntry,
     day: number,
     roomId: string,
     slot: number
   ) {
+    const roomIndex = this.rooms.findIndex(room => room.id === roomId);
     const popover = await this.poc.create({
       component: SwapperComponent,
       componentProps: {
         cell,
         cellPosition: {
           day,
-          roomId,
+          roomIndex,
           slot
         },
-        timetable: this.timetable
+        timetable: this.timetable,
+        rooms: this.rooms
       }
     });
     return await popover.present();
   }
 
   setTable(event: any) {
-    this.table = this.generateTableUsingDay(Number(event.detail.value));
+    this.day = Number(event.detail.value);
+    this.table = this.timetable[this.day];
   }
 
+  // Empty cells = new Lecture
   generateTableUsingDay(day: number) {
     const table: Array<Array<TCSEntry>> = [];
     // Each room
     this.rooms.forEach(room => table.push([]));
-    this.timetable.forEach(lecture =>
+    this.lectures.forEach(lecture =>
       lecture.assignedSlots.forEach(assignedSlot => {
         const roomIndex = this.rooms.findIndex(
           room => room.id === assignedSlot.roomId
@@ -65,6 +74,13 @@ export class ScheduleComponent implements OnInit {
           table[roomIndex][assignedSlot.time] = lecture;
       })
     );
+    // Ensure a cell is generated for each slot
+    for (let i = 0; i < table.length; i++) {
+      for (let j = 0; j < 8; j++) {
+        // If undefined
+        if (!table[i][j]) table[i][j] = new TCSEntry();
+      }
+    }
     return table;
   }
 
@@ -72,7 +88,7 @@ export class ScheduleComponent implements OnInit {
     const popover = await this.poc.create({
       component: PublishComponent,
       componentProps: {
-        timetable: this.timetable
+        timetable: this.lectures
       }
     });
     return await popover.present();
