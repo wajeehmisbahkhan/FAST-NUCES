@@ -1,0 +1,107 @@
+<form #swapForm="ngForm" (ngSubmit)="swapCells()">
+  <ion-grid fixed>
+    <ion-row>
+      <!-- Choose new cell -->
+      <ion-col size="1.5"></ion-col>
+      <ion-col size="3">
+        <ion-item>
+          <ion-label position="floating">Day</ion-label>
+          <ion-select [(ngModel)]="cellPosition.day" name="day">
+            <ion-select-option [value]="0">Monday</ion-select-option>
+            <ion-select-option [value]="1">Tuesday</ion-select-option>
+            <ion-select-option [value]="2">Wednesday</ion-select-option>
+            <ion-select-option [value]="3">Thursday</ion-select-option>
+            <ion-select-option [value]="4">Friday</ion-select-option>
+          </ion-select>
+        </ion-item>
+      </ion-col>
+      <ion-col size="3">
+        <ion-item>
+          <ion-label position="floating">Room</ion-label>
+          <ion-select [(ngModel)]="cellPosition.roomId" name="room">
+            <ion-select-option *ngFor="let room of rooms" [value]="room.id">
+              {{ room.name }}
+            </ion-select-option>
+          </ion-select>
+        </ion-item>
+      </ion-col>
+      <ion-col size="3">
+        <ion-item>
+          <ion-label position="floating">Slot</ion-label>
+          <ion-select [(ngModel)]="cellPosition.slot" name="slot">
+            <ion-select-option [value]="0">08:00-09:00</ion-select-option>
+            <ion-select-option [value]="1">09:00-10:00</ion-select-option>
+            <ion-select-option [value]="2">10:00-11:00</ion-select-option>
+            <ion-select-option [value]="3">11:00-12:00</ion-select-option>
+            <ion-select-option [value]="4">12:00-13:00</ion-select-option>
+            <ion-select-option [value]="5">13:00-14:00</ion-select-option>
+            <ion-select-option [value]="6">14:00-15:00</ion-select-option>
+            <ion-select-option [value]="7">15:00-16:00</ion-select-option>
+          </ion-select>
+        </ion-item>
+      </ion-col>
+      <ion-col size="1.5"></ion-col>
+      <!-- Selected Cells -->
+      <ion-col size="1"></ion-col>
+      <ion-col
+        size="4"
+        [style.backgroundColor]="getColor(cell)"
+        class="lecture-cell"
+      >
+        <div *ngIf="cell" class="margin-center">
+          <ion-row>
+            <ion-label class="margin-center">
+              {{ getCourseById(cell.courseId).shortTitle }} -
+              {{ cell.name }}
+            </ion-label>
+          </ion-row>
+          <ion-row>
+            <ion-label class="margin-center">
+              <span *ngFor="let teacherId of cell.teacherIds">
+                {{ getTeacherById(teacherId).name }}
+              </span>
+            </ion-label>
+          </ion-row>
+        </div>
+      </ion-col>
+      <ion-col size="2" class="ion-text-center">
+        <ion-icon size="large" name="swap"></ion-icon>
+      </ion-col>
+      <ion-col
+        size="4"
+        [style.backgroundColor]="getColor(selectedCell)"
+        class="lecture-cell"
+      >
+        <div *ngIf="selectedCell" class="margin-center">
+          <ion-row>
+            <ion-label class="margin-center">
+              {{ getCourseById(selectedCell.courseId).shortTitle }} -
+              {{ selectedCell.name }}
+            </ion-label>
+          </ion-row>
+          <ion-row>
+            <ion-label class="margin-center">
+              <span *ngFor="let teacherId of selectedCell.teacherIds">
+                {{ getTeacherById(teacherId).name }}
+              </span>
+            </ion-label>
+          </ion-row>
+        </div>
+      </ion-col>
+      <ion-col size="1"></ion-col>
+      <!-- Update -->
+      <ion-col size="2"></ion-col>
+      <ion-col size="4">
+        <ion-button
+          expand="block"
+          type="submit"
+          [disabled]="cell.id === selectedCell.id"
+          >Swap</ion-button
+        >
+      </ion-col>
+      <ion-col size="4">
+        <ion-button expand="block" (click)="cancel()">Cancel</ion-button>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</form>

@@ -63,7 +63,11 @@
       class="lecture-cell"
     >
       <!-- Individual Cell -->
-      <div *ngIf="table[i][j]" class="margin-center">
+      <div
+        *ngIf="table[i][j]"
+        class="margin-center"
+        (click)="presentSwapper(table[i][j], day, room.id, j)"
+      >
         <ion-row>
           <ion-label class="margin-center">
             {{ getCourseById(table[i][j].courseId).shortTitle }} -

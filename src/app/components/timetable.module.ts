@@ -5,11 +5,12 @@ import { IonicModule } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
 import { AdminInputFormatModule } from '../pipes/admin-input-format/admin-input-format.module';
 import { PublishComponent } from './publish/publish.component';
+import { SwapperComponent } from './swapper/swapper.component';
 
 @NgModule({
-  declarations: [ScheduleComponent, PublishComponent],
-  exports: [ScheduleComponent, PublishComponent],
+  declarations: [ScheduleComponent, PublishComponent, SwapperComponent],
+  exports: [ScheduleComponent],
   imports: [CommonModule, IonicModule, FormsModule, AdminInputFormatModule],
-  entryComponents: [PublishComponent]
+  entryComponents: [PublishComponent, SwapperComponent]
 })
 export class TimetableModule {}

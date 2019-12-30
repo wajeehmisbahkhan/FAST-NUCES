@@ -3,6 +3,7 @@ import { TCSEntry, Room, Lecture } from 'src/app/services/helper-classes';
 import { ServerService } from 'src/app/services/server.service';
 import { PopoverController } from '@ionic/angular';
 import { PublishComponent } from '../publish/publish.component';
+import { SwapperComponent } from '../swapper/swapper.component';
 
 @Component({
   selector: 'schedule',
@@ -15,11 +16,36 @@ export class ScheduleComponent implements OnInit {
   // Room & Slot
   table: Array<Array<TCSEntry>>;
 
+  day: number;
+
   constructor(private server: ServerService, private poc: PopoverController) {}
 
   ngOnInit() {
     // For monday
     this.table = this.generateTableUsingDay(0);
+
+    this.day = 0;
+  }
+
+  async presentSwapper(
+    cell: Lecture,
+    day: number,
+    roomId: string,
+    slot: number
+  ) {
+    const popover = await this.poc.create({
+      component: SwapperComponent,
+      componentProps: {
+        cell,
+        cellPosition: {
+          day,
+          roomId,
+          slot
+        },
+        timetable: this.timetable
+      }
+    });
+    return await popover.present();
   }
 
   setTable(event: any) {
