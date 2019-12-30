@@ -42,7 +42,7 @@ export class ScheduleComponent implements OnInit {
     return table;
   }
 
-  async publishSchedule() {
+  async presentPublisher() {
     const popover = await this.poc.create({
       component: PublishComponent,
       componentProps: {
