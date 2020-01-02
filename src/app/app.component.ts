@@ -33,7 +33,9 @@ export class AppComponent {
       this.splashScreen.hide();
       // Data persistence
       firestore()
-        .enablePersistence()
+        .enablePersistence({
+          synchronizeTabs: true
+        })
         .catch(err => {
           if (err.code === 'failed-precondition') {
             // Multiple tabs open, persistence can only be enabled
@@ -50,7 +52,7 @@ export class AppComponent {
         if (res) {
           // User is logged in
           await this.as.load('Loading data...', this.server.loadObjects());
-          this.router.navigate(['admin']);
+          this.router.navigate(['admin', 'timetable', 'generate']);
         } else {
           // TODO: Redirect to login?
           this.router.navigate(['public']);
