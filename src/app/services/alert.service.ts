@@ -86,38 +86,40 @@ export class AlertService {
     await alert.present();
   }
 
-  load(message: string, work: Promise<any>) {
-    // If taking too long (3 seconds), just resolve
-    let wait: any; // NodeJS.Timeout;
+  // Takes a message to be shown on the loading screen
+  // Second argument is the work to be done as a promise
+  async load(message: string, work: Promise<any>, time = 5000) {
+    if (time > 2147483647) time = 2147483647; // Max Delay
+    // Set timer to resolve if taking too long (5 seconds)
+    let timer: any; // NodeJS.Timeout;
     const timeout = new Promise(resolve => {
-      wait = setTimeout(() => {
+      timer = setTimeout(() => {
         console.log('Timeout');
         return resolve();
-      }, 3000);
+      }, time);
     });
 
-    // Promise to detect when done
-    return new Promise((resolve, reject) => {
-      const loading = this.lc.create({
-        message
-      });
-      loading.then(loader => {
-        loader.present().then(() => {
-          Promise.race([work, timeout])
-            .then(() => {
-              clearTimeout(wait);
-              this.lc.dismiss(null, null, loader.id);
-              loader = null;
-              return resolve();
-            })
-            .catch(err => {
-              clearTimeout(wait);
-              this.lc.dismiss(null, null, loader.id);
-              loader = null;
-              return reject(err);
-            });
-        });
-      });
+    // Pass message into loading screen
+    const loadingScreen = await this.lc.create({
+      message
     });
+    await loadingScreen.present();
+
+    try {
+      // Create a race between work and timeout
+      // If timeout happens first, it will console.log and end the loading screen
+      // However the work keeps happening in the background even after timeout
+      // TODO: Handle timeout
+      return await Promise.race([work, timeout]);
+    } catch (error) {
+      // Throw error
+      throw error;
+    } finally {
+      // In any case
+      // If work happens first
+      clearTimeout(timer);
+      // Dismiss the loading screen
+      this.lc.dismiss(null, null, loadingScreen.id);
+    }
   }
 }
