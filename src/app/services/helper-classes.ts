@@ -340,3 +340,108 @@ export function sortAlphaNum(a: string, b: string) {
   }
   return aA > bA ? 1 : -1;
 }
+
+export class Cell {
+  batch: number;
+  courseName: string;
+  sectionName: string;
+  teacherNames: Array<string>;
+
+  constructor(
+    batch?: number,
+    courseName?: string,
+    sectionName?: string,
+    teacherNames?: Array<string>
+  ) {
+    this.batch = batch;
+    this.courseName = courseName;
+    this.sectionName = sectionName;
+    this.teacherNames = teacherNames;
+  }
+}
+
+export class PublishedTimetable extends FirebaseDocument {
+  sheetId: string;
+  department: string;
+  // Day = 0 -> 4; roomIndex = 0 -> rooms.length - 1; time = 0 -> 7
+  timetable: Array<Cell>;
+  // Room names
+  roomNames: Array<string>;
+
+  helperData: {
+    semesterType: 'Fall' | 'Spring' | 'Summer';
+    year: number;
+  };
+
+  constructor(
+    sheetId: string,
+    department: string,
+    semesterType: 'Fall' | 'Spring' | 'Summer',
+    year: number,
+    roomNames: Array<string>
+  ) {
+    super();
+    this.sheetId = sheetId;
+    this.department = department;
+    this.helperData = {
+      semesterType,
+      year
+    };
+    this.roomNames = roomNames;
+    this.timetable = [];
+  }
+}
+
+export class ThreeDimensionalArray<T> {
+  width: number;
+  height: number;
+  depth: number;
+  private values: Array<T>;
+  constructor(width: number, height: number, depth: number) {
+    this.width = width;
+    this.height = height;
+    this.depth = depth;
+    this.values = [];
+    this.values.length = width * height * depth;
+  }
+
+  get(x: number, y: number, z: number): T {
+    return this.values[x * this.height * this.depth + y * this.depth + z];
+  }
+
+  set(x: number, y: number, z: number, value: T) {
+    this.values[x * this.height * this.depth + y * this.depth + z] = value;
+  }
+
+  getArray(): Array<T> {
+    const array: Array<T> = [];
+    for (let i = 0; i < this.width; i++) {
+      for (let j = 0; j < this.height; j++) {
+        for (let k = 0; k < this.depth; k++) {
+          array.push(this.get(i, j, k));
+        }
+      }
+    }
+    return array;
+  }
+
+  setArray(array: Array<T>, nullValue = null) {
+    let index = 0;
+    for (let i = 0; i < this.width; i++) {
+      for (let j = 0; j < this.height; j++) {
+        for (let k = 0; k < this.depth; k++) {
+          if (array[index]) {
+            this.set(i, j, k, array[index]);
+          } else {
+            this.set(i, j, k, nullValue);
+          }
+          index++;
+        }
+      }
+    }
+  }
+
+  get length() {
+    return this.width * this.height * this.depth;
+  }
+}

@@ -52,28 +52,53 @@
       <ion-text>15:00-16:00</ion-text>
     </ion-col>
   </ion-row>
-  <ion-row *ngFor="let room of rooms; let i = index; trackBy: itemTracker">
+  <ion-row
+    *ngFor="let room of rooms; let roomNumber = index; trackBy: itemTracker"
+  >
     <ion-col size="1.33"
       ><ion-text>{{ room.name }}</ion-text></ion-col
     >
     <ion-col
       size="1.33"
-      *ngFor="let entry of table[i]; let j = index; trackBy: itemTracker"
-      [style.backgroundColor]="getColor(entry)"
+      *ngFor="let slotNumber of slotNumbers; trackBy: itemTracker"
+      [style.backgroundColor]="
+        getColor(timetable.get(day, roomNumber, slotNumber))
+      "
       class="lecture-cell"
-      (click)="presentSwapper(entry, day, room.id, j)"
+      (click)="
+        presentSwapper(
+          timetable.get(day, roomNumber, slotNumber),
+          day,
+          room.id,
+          slotNumber
+        )
+      "
     >
       <!-- Individual Cell -->
       <div class="margin-center">
-        <ion-row *ngIf="entry.courseId && entry.name">
+        <ion-row
+          *ngIf="
+            timetable.get(day, roomNumber, slotNumber).courseId &&
+            timetable.get(day, roomNumber, slotNumber).name
+          "
+        >
           <ion-label class="margin-center">
-            {{ getCourseById(entry.courseId).shortTitle }} -
-            {{ entry.name }}
+            {{
+              getCourseById(timetable.get(day, roomNumber, slotNumber).courseId)
+                .shortTitle
+            }}
+            -
+            {{ timetable.get(day, roomNumber, slotNumber).name }}
           </ion-label>
         </ion-row>
-        <ion-row *ngIf="entry.teacherIds">
+        <ion-row *ngIf="timetable.get(day, roomNumber, slotNumber).teacherIds">
           <ion-label class="margin-center">
-            <span *ngFor="let teacherId of entry.teacherIds">
+            <span
+              *ngFor="
+                let teacherId of timetable.get(day, roomNumber, slotNumber)
+                  .teacherIds
+              "
+            >
               {{ getTeacherById(teacherId).name }}
             </span>
           </ion-label>

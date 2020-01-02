@@ -1,9 +1,15 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { TCSEntry, Room, Lecture } from 'src/app/services/helper-classes';
+import {
+  TCSEntry,
+  Room,
+  Lecture,
+  ThreeDimensionalArray
+} from 'src/app/services/helper-classes';
 import { ServerService } from 'src/app/services/server.service';
 import { PopoverController } from '@ionic/angular';
 import { PublishComponent } from '../publish/publish.component';
 import { SwapperComponent } from '../swapper/swapper.component';
+import { SheetsService } from 'src/app/services/sheets.service';
 
 @Component({
   selector: 'schedule',
@@ -13,23 +19,33 @@ import { SwapperComponent } from '../swapper/swapper.component';
 export class ScheduleComponent implements OnInit {
   // [Day+RoomId+Slots]
   @Input() lectures: Array<Lecture>;
+  @Input() department: string;
   // [Day][RoomId][Slot]
-  timetable: Array<Array<Array<TCSEntry>>>;
-  table: Array<Array<TCSEntry>>;
+  timetable: ThreeDimensionalArray<TCSEntry>;
 
   day: number;
 
-  constructor(private server: ServerService, private poc: PopoverController) {}
+  // Length collections
+  slotNumbers: Array<number>;
+
+  constructor(
+    private server: ServerService,
+    private poc: PopoverController,
+    private sheetsService: SheetsService
+  ) {
+    this.slotNumbers = Array(8)
+      .fill(null)
+      .map((x, i) => i); // [0,1,2,3,4]
+  }
 
   ngOnInit() {
     // Convert time table
-    this.timetable = [];
-    // TODO: Optimize
-    for (let i = 0; i < 5; i++)
-      this.timetable.push(this.generateTableUsingDay(i));
+    this.timetable = new ThreeDimensionalArray(5, this.rooms.length, 8);
+    this.timetable.setArray(this.lectures, new TCSEntry());
     // Monday by default
     this.day = 0;
-    this.table = this.timetable[this.day];
+
+    // this.presentPublisher();
   }
 
   async presentSwapper(
@@ -57,39 +73,27 @@ export class ScheduleComponent implements OnInit {
 
   setTable(event: any) {
     this.day = Number(event.detail.value);
-    this.table = this.timetable[this.day];
-  }
-
-  // Empty cells = new Lecture
-  generateTableUsingDay(day: number) {
-    const table: Array<Array<TCSEntry>> = [];
-    // Each room
-    this.rooms.forEach(room => table.push([]));
-    this.lectures.forEach(lecture =>
-      lecture.assignedSlots.forEach(assignedSlot => {
-        const roomIndex = this.rooms.findIndex(
-          room => room.id === assignedSlot.roomId
-        );
-        if (assignedSlot.day === day)
-          table[roomIndex][assignedSlot.time] = lecture;
-      })
-    );
-    // Ensure a cell is generated for each slot
-    for (let i = 0; i < table.length; i++) {
-      for (let j = 0; j < 8; j++) {
-        // If undefined
-        if (!table[i][j]) table[i][j] = new TCSEntry();
-      }
-    }
-    return table;
   }
 
   async presentPublisher() {
+    // Wait for google sheets to load
+    await this.sheetsService.init();
+    // Check for published timetable
+    const publishedTimetable = this.published.find(
+      timetable => timetable.department === this.department
+    );
+    // Rooms for publishing
+    const roomNames = this.rooms.map(room => room.name);
+    // Present popover
     const popover = await this.poc.create({
       component: PublishComponent,
       componentProps: {
-        timetable: this.lectures
-      }
+        timetable: this.timetable.getArray(),
+        department: this.department,
+        publishedTimetable,
+        roomNames
+      },
+      cssClass: 'popover-wider'
     });
     return await popover.present();
   }
@@ -150,5 +154,9 @@ export class ScheduleComponent implements OnInit {
 
   get atomicSections() {
     return this.server.atomicSections;
+  }
+
+  get published() {
+    return this.server.published;
   }
 }
