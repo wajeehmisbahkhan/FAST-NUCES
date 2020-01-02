@@ -1,6 +1,14 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { environment } from '../../../environments/environment';
-import { Lecture } from 'src/app/services/helper-classes';
+import {
+  PublishedTimetable,
+  Cell,
+  TCSEntry,
+  ThreeDimensionalArray
+} from 'src/app/services/helper-classes';
+import { ServerService } from 'src/app/services/server.service';
+import { AlertService } from 'src/app/services/alert.service';
+import { PopoverController } from '@ionic/angular';
+import { SheetsService } from 'src/app/services/sheets.service';
 
 @Component({
   selector: 'app-publish',
@@ -8,137 +16,219 @@ import { Lecture } from 'src/app/services/helper-classes';
   styleUrls: ['./publish.component.scss']
 })
 export class PublishComponent implements OnInit {
-  authorized: boolean;
-  @Input() timetable: Array<Lecture>;
+  // Inputs
+  @Input() timetable: Array<TCSEntry>;
+  @Input() roomNames: Array<string>;
+  @Input() department: string;
+  @Input() publishedTimetable: PublishedTimetable;
 
-  constructor() {
-    this.authorized = false;
+  // Page switcher
+  creatingNew: boolean;
+  publishedSheet: gapi.client.sheets.Spreadsheet;
+  // Form
+  semesterType: 'Spring' | 'Summer' | 'Fall';
+  year: number;
+
+  // Template schedule
+  templateSheetId = '1sq55sYHHZfuLxgjxAp8if-rwMeesjMqzR_P8ffh7rdw';
+  templateSheet: gapi.client.sheets.Spreadsheet;
+
+  // Created sheet - global for ease
+  createdSheet: gapi.client.sheets.Spreadsheet;
+
+  constructor(
+    private server: ServerService,
+    private poc: PopoverController,
+    private alertService: AlertService,
+    private sheetsService: SheetsService
+  ) {
+    // Default values
+    this.creatingNew = true;
+    const date = new Date();
+    this.year = date.getFullYear();
+    this.semesterType =
+      date.getMonth() < 5 ? 'Spring' : date.getMonth() < 7 ? 'Summer' : 'Fall';
   }
 
-  ngOnInit() {
-    // Load gapi client library
-    gapi.load('client', this.init);
-
-    // async function start() {
-    //   try {
-    //     const API_QUERY = 'android';
-    //     // 3. Make the API request.
-    //     const apiRequest = await gapi.client.discovery.apis.list();
-    //     const result = JSON.parse(apiRequest.body);
-
-    //     // 4. Log the results of the API request
-    //     const androidAPIs = result.items.filter(api => api.id.startsWith(API_QUERY));
-    //     const androidAPITitles = androidAPIs.map(api => api.title);
-    //     const uniqueAndroidAPITitles = [...new Set(androidAPITitles).values()];
-    //     document.getElementById('result').innerHTML =
-    //       `${uniqueAndroidAPITitles.length} APIs:<br>${uniqueAndroidAPITitles.join('<br/> ')}`;
-    //   } catch (e) {
-    //     console.error(e);
-    //   }
-    // }
-  }
-
-  init() {
-    gapi.client.load('sheets', 'v4', () => {
-      // now we can use gapi.client.sheets
-      // ...
-      gapi.auth.authorize(
-        {
-          client_id: environment.googleSheetsConfig.clientId,
-          scope: environment.googleSheetsConfig.scope
-        },
-        authResult => {
-          if (authResult && !authResult.error) {
-            // TODO: this.authorized = true;
-            /* handle successful authorization */
-            /*
-Applies one or more updates to the spreadsheet.
-
-Each request is validated before
-being applied. If any request is not valid then the entire request will
-fail and nothing will be applied.
-
-Some requests have replies to
-give you some information about how
-they are applied. The replies will mirror the requests.  For example,
-if you applied 4 updates and the 3rd one had a reply, then the
-response will have 2 empty replies, the actual reply, and another empty
-reply, in that order.
-
-Due to the collaborative nature of spreadsheets, it is not guaranteed that
-the spreadsheet will reflect exactly your changes after this completes,
-however it is guaranteed that the updates in the request will be
-applied together atomically. Your changes may be altered with respect to
-collaborator changes. If there are no collaborators, the spreadsheet
-should reflect your changes.
-*/
-            // await gapi.client.spreadsheets.batchUpdate({ spreadsheetId: "spreadsheetId",  });
-
-            /*
-Creates a spreadsheet, returning the newly created spreadsheet.
-*/
-            // await gapi.client.spreadsheets.create({  });
-
-            /*
-Returns the spreadsheet at the given ID.
-The caller must specify the spreadsheet ID.
-
-By default, data within grids will not be returned.
-You can include grid data one of two ways:
-
-* Specify a field mask listing your desired fields using the `fields` URL
-parameter in HTTP
-
-* Set the includeGridData
-URL parameter to true.  If a field mask is set, the `includeGridData`
-parameter is ignored
-
-For large spreadsheets, it is recommended to retrieve only the specific
-fields of the spreadsheet that you want.
-
-To retrieve only subsets of the spreadsheet, use the
-ranges URL parameter.
-Multiple ranges can be specified.  Limiting the range will
-return only the portions of the spreadsheet that intersect the requested
-ranges. Ranges are specified using A1 notation.
-*/
-            gapi.client.sheets.spreadsheets
-              .get({
-                spreadsheetId: '1sq55sYHHZfuLxgjxAp8if-rwMeesjMqzR_P8ffh7rdw'
-              })
-              .then(console.log);
-
-            /*
-Returns the spreadsheet at the given ID.
-The caller must specify the spreadsheet ID.
-
-This method differs from GetSpreadsheet in that it allows selecting
-which subsets of spreadsheet data to return by specifying a
-dataFilters parameter.
-Multiple DataFilters can be specified.  Specifying one or
-more data filters will return the portions of the spreadsheet that
-intersect ranges matched by any of the filters.
-
-By default, data within grids will not be returned.
-You can include grid data one of two ways:
-
-* Specify a field mask listing your desired fields using the `fields` URL
-parameter in HTTP
-
-* Set the includeGridData
-parameter to true.  If a field mask is set, the `includeGridData`
-parameter is ignored
-
-For large spreadsheets, it is recommended to retrieve only the specific
-fields of the spreadsheet that you want.
-*/
-            // await gapi.client.spreadsheets.getByDataFilter({ spreadsheetId: "spreadsheetId",  });
-          } else {
-            /* handle authorization error */
-            console.log(authResult.error);
-          }
-        }
+  async ngOnInit() {
+    // Load published sheet if already published
+    if (this.publishedTimetable) {
+      this.publishedSheet = await this.sheetsService.getSpreadsheet(
+        this.publishedTimetable.sheetId
       );
+    }
+    // Template sheet is public and can be accessed even without authorization
+    this.templateSheet = await this.sheetsService.getSpreadsheet(
+      this.templateSheetId
+    );
+  }
+
+  setCreation(event: any) {
+    if (event.detail.value === 'true') this.creatingNew = true;
+    else this.creatingNew = false;
+  }
+
+  async publishTimetable() {
+    // Delete old PublishedTimetable object
+    if (this.publishedTimetable) {
+      await this.server.deleteObject('published', this.publishedTimetable.id);
+    }
+    let spreadsheetId: string;
+    // Create spreadsheet
+    try {
+      spreadsheetId = (await this.alertService.load(
+        'Publishing timetable. This may take a few minutes...',
+        this.createNewTimetable(),
+        Infinity
+      )) as string;
+    } catch (error) {
+      console.log(error);
+      this.alertService.error(error);
+      return;
+    }
+    // Create PublishedTimetable object
+    // Create cells for publishing since multidimensional arrays are not allowed in firestore
+    const newTimetable = new PublishedTimetable(
+      spreadsheetId,
+      this.department,
+      this.semesterType,
+      this.year,
+      this.roomNames
+    );
+    const cells: Array<Cell> = [];
+    this.timetable.forEach(entry => {
+      // If defined
+      if (entry && entry.atomicSectionIds) {
+        const section = this.getAtomicSectionById(entry.atomicSectionIds[0]);
+        const course = this.getCourseById(entry.courseId);
+        const teacherNames: Array<string> = [];
+        entry.teacherIds.forEach(teacherId =>
+          teacherNames.push(this.getTeacherById(teacherId).name)
+        );
+        if (course && section) {
+          cells.push(
+            new Cell(section.batch, course.shortTitle, entry.name, teacherNames)
+          );
+          return;
+        }
+      }
+      // If empty cell
+      cells.push(null);
     });
+    // TODO: Uncomment
+    // newTimetable.timetable = cells;
+    // Update published timetables
+    // await this.server.addObject('published', newTimetable);
+    await this.alertService.notice(
+      `Timetable Published! Open Google Sheets and update the view access
+      to FAST-NU once you've finalized the document.`
+    );
+    await this.poc.dismiss();
+  }
+
+  async deleteTimetable() {
+    await this.alertService.confirmation(
+      'Are you sure you want to delete the current timetable?',
+      async () => {
+        await this.server.deleteObject('published', this.publishedTimetable.id);
+        this.poc.dismiss();
+      }
+    );
+  }
+
+  async updateTimetable() {}
+
+  async createNewTimetable() {
+    // Create a new spreadsheet using the template
+    this.createdSheet = {
+      properties: this.templateSheet.properties
+    };
+    // Generate custom title
+    this.createdSheet.properties.title = `${this.department}-${this.semesterType}-${this.year}`;
+    // Make it online
+    this.createdSheet = await this.sheetsService.createSpreadsheet(
+      this.createdSheet
+    );
+    // Data needed for new sheet
+    // Freshmen-Senior Year
+    const batches: Array<number> = [];
+    this.timetable.forEach(entry => {
+      if (entry && entry.atomicSectionIds) {
+        try {
+          const { batch } = this.getAtomicSectionById(
+            entry.atomicSectionIds[0]
+          );
+          if (!batches.includes(batch)) {
+            batches.push(batch);
+          }
+        } catch (error) {}
+      }
+    });
+    // Ensure in order
+    const inPlaceBatches = [];
+    let freshmenYear = new Date().getFullYear();
+    if (this.semesterType !== 'Fall') freshmenYear -= 1;
+    for (let i = freshmenYear - 3; i <= freshmenYear; i++) {
+      if (batches.includes(i)) {
+        inPlaceBatches.unshift(i);
+      } else {
+        inPlaceBatches.unshift(null);
+      }
+    }
+    // Update new sheet according to generated timetable
+    await this.sheetsService.updateTitlePage(
+      this.department,
+      this.semesterType,
+      this.year,
+      this.createdSheet,
+      this.templateSheet,
+      inPlaceBatches
+    );
+    // Batch sheets
+    // const batches = this
+    // Create sheets
+    // for(let i = 0; i < batches)
+
+    // Course pairing sheet
+
+    // Day sheets
+
+    // Make the created spreadsheet online - we only need the spreadsheetId
+
+    // Return id
+    return this.createdSheet.spreadsheetId;
+  }
+
+  isPublished() {
+    return (
+      this.publishedTimetable &&
+      this.publishedTimetable.helperData.semesterType === this.semesterType &&
+      this.publishedTimetable.helperData.year === this.year
+    );
+  }
+
+  // Getters
+  getCourseById(id: string) {
+    return this.courses.find(course => course.id === id);
+  }
+
+  getTeacherById(id: string) {
+    return this.teachers.find(teacher => teacher.id === id);
+  }
+
+  getAtomicSectionById(id: string) {
+    return this.atomicSections.find(section => section.id === id);
+  }
+
+  get courses() {
+    return this.server.courses;
+  }
+
+  get teachers() {
+    return this.server.teachers;
+  }
+
+  get atomicSections() {
+    return this.server.atomicSections;
   }
 }

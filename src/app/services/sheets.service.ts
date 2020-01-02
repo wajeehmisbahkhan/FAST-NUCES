@@ -16,8 +16,7 @@ export class SheetsService {
   async init() {
     // If already initialized
     if (this.authState.value) {
-      console.log(gapi.auth.getToken());
-      this.alertService.notice('Already authenticated');
+      console.log(gapi.auth.getToken()['status']['signed_in']);
       return;
     }
     // Load gapi client library
@@ -38,7 +37,7 @@ export class SheetsService {
         Infinity
       );
     } catch (error) {
-      this.alertService.notice(error);
+      throw error;
     }
   }
 
@@ -67,26 +66,177 @@ export class SheetsService {
     }
   }
 
-  async createSheet() {
+  async createSpreadsheet(templateSheet: gapi.client.sheets.Spreadsheet = {}) {
+    if (templateSheet && templateSheet.spreadsheetId) {
+      // Ensure unique id
+      delete templateSheet.spreadsheetId;
+    }
     const spreadSheetResponse = await this.spreadsheetApi.create({
-      resource: {}
+      resource: templateSheet
     });
     return spreadSheetResponse.result;
   }
 
-  async getSheet(sheetId: string) {
-    const spreadSheetResponse = await this.spreadsheetApi.get({
+  async getSpreadsheet(sheetId: string) {
+    const spreadsheetResponse = await this.spreadsheetApi.get({
       spreadsheetId: sheetId
     });
-    return spreadSheetResponse.result;
+    return spreadsheetResponse.result;
   }
 
-  async updateSheet(sheetId: string) {
-    const spreadSheetResponse = await this.spreadsheetApi.batchUpdate({
-      spreadsheetId: sheetId,
-      resource: {}
+  // Applies the list of requests to the provided spreadsheet
+  async updateSpreadsheet(
+    spreadsheetId: string,
+    requests: Array<gapi.client.sheets.Request>
+  ) {
+    return new Promise(async (resolve, reject) => {
+      this.spreadsheetApi
+        .batchUpdate({
+          spreadsheetId,
+          resource: {
+            requests
+          },
+          fields: '*'
+        })
+        .then(resolve, reject);
+    }).catch(console.log);
+  }
+
+  async updateSpreadsheetValues(
+    spreadsheetId: string,
+    request: gapi.client.sheets.BatchUpdateValuesRequest
+  ) {
+    return new Promise(async (resolve, reject) => {
+      this.spreadsheetApi.values
+        .batchUpdate({
+          spreadsheetId,
+          resource: request,
+          fields: '*'
+        })
+        .then(resolve, reject);
+    }).catch(console.log);
+  }
+
+  makeDeleteSheetRequest(sheetId: number) {
+    return {
+      deleteSheet: {
+        sheetId
+      }
+    };
+  }
+
+  makeValueRange(
+    range: string,
+    value: any,
+    sheetTitle?: string
+  ): gapi.client.sheets.ValueRange {
+    if (sheetTitle) {
+      range = `'${sheetTitle}'!${range}`;
+    }
+    return {
+      values: [[value]],
+      range
+    };
+  }
+
+  async copySheet(
+    copyingFromId: string,
+    toBeCopiedId: number,
+    copyToId: string
+  ) {
+    const copySheetResponse = this.spreadsheetApi.sheets.copyTo({
+      spreadsheetId: copyingFromId,
+      sheetId: toBeCopiedId,
+      resource: {
+        destinationSpreadsheetId: copyToId
+      }
     });
-    return spreadSheetResponse.result;
+    return new Promise<gapi.client.sheets.SheetProperties>(
+      (resolve, reject) => {
+        copySheetResponse.then(sheet => {
+          resolve(sheet.result);
+        }, reject);
+      }
+    );
+  }
+
+  // Specific functions for sheet manipulation
+  async updateTitlePage(
+    department: string,
+    semesterType: string,
+    year: number,
+    createdSheet: gapi.client.sheets.Spreadsheet,
+    templateSheet: gapi.client.sheets.Spreadsheet,
+    batches: Array<number>
+  ) {
+    // Title page
+    const title = `${semesterType}-${year}`;
+    const titleSheetProperties = await this.copySheet(
+      templateSheet.spreadsheetId,
+      templateSheet.sheets[0].properties.sheetId,
+      createdSheet.spreadsheetId
+    );
+    titleSheetProperties.title = title;
+    await this.updateSpreadsheet(createdSheet.spreadsheetId, [
+      // Title of front page
+      {
+        updateSheetProperties: {
+          properties: titleSheetProperties,
+          fields: '*'
+        }
+      },
+      // Delete default page
+      this.makeDeleteSheetRequest(createdSheet.sheets[0].properties.sheetId)
+    ]);
+    // Update values
+    // Issued and effective dates
+    const issuedDate = new Date();
+    const effectiveDate = new Date();
+    let weekends = 0;
+    if (effectiveDate.getDay() === 5) {
+      weekends += 2;
+    }
+    effectiveDate.setDate(issuedDate.getDate() + 1 + weekends);
+    // Update request
+    await this.updateSpreadsheetValues(createdSheet.spreadsheetId, {
+      valueInputOption: 'RAW',
+      data: [
+        this.makeValueRange(`H14:P14`, `Department of ${department}`, title),
+        this.makeValueRange(
+          `H16:P16`,
+          `TIMETABLE for ${semesterType} ${year} Semester`,
+          title
+        ),
+        this.makeValueRange(`K20`, `Batch ${batches[0]}`, title),
+        this.makeValueRange(`K21`, `Batch ${batches[1]}`, title),
+        this.makeValueRange(`K22`, `Batch ${batches[2]}`, title),
+        this.makeValueRange(`K23`, `Batch ${batches[3]}`, title),
+        this.makeValueRange(
+          `E26:I26`,
+          `${issuedDate.getDate()}/${issuedDate.getMonth() +
+            1}/${issuedDate.getFullYear()}`,
+          title
+        ),
+        this.makeValueRange(
+          `E27:I27`,
+          `${effectiveDate.getDate()}/${effectiveDate.getMonth() +
+            1}/${effectiveDate.getFullYear()}`,
+          title
+        )
+      ]
+    });
+    // Delete batch values which do not exist
+    batches.forEach((batch, index) => {
+      if (!batch) {
+        this.updateSpreadsheetValues(createdSheet.spreadsheetId, {
+          valueInputOption: 'RAW',
+          data: [
+            this.makeValueRange(`K2${index}`, '-', title),
+            this.makeValueRange(`L2${index}`, '-', title)
+          ]
+        });
+      }
+    });
   }
 
   get spreadsheetApi() {

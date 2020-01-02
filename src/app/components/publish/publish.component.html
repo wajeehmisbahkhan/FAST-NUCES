@@ -1,7 +1,91 @@
-<ng-container *ngIf="!authorized; else publish">
-  Waiting for Google Sheets Authentication
+<ion-row>
+  <ion-col size="12">
+    <ion-segment (ionChange)="setCreation($event)" value="true">
+      <ion-segment-button [value]="true">
+        <ion-label>Publish New Timetable</ion-label>
+      </ion-segment-button>
+      <ion-segment-button [value]="false">
+        <ion-label>Update Current Timetable</ion-label>
+      </ion-segment-button>
+    </ion-segment>
+  </ion-col>
+</ion-row>
+<!-- Create New -->
+<ng-container *ngIf="creatingNew; else updateCurrent">
+  <form
+    class="ion-padding"
+    #createForm="ngForm"
+    (ngSubmit)="publishTimetable()"
+  >
+    <ion-item>
+      <ion-label position="floating">Semester Type</ion-label>
+      <ion-select
+        required="true"
+        [(ngModel)]="semesterType"
+        name="semesterType"
+      >
+        <ion-select-option>Spring</ion-select-option>
+        <ion-select-option>Summer</ion-select-option>
+        <ion-select-option>Fall</ion-select-option>
+      </ion-select>
+    </ion-item>
+    <ion-item>
+      <ion-label position="floating">Year</ion-label>
+      <ion-input
+        required="true"
+        [(ngModel)]="year"
+        name="year"
+        type="number"
+      ></ion-input>
+    </ion-item>
+    <ion-item *ngIf="isPublished()" lines="none">
+      <ion-text color="danger">
+        A timetable is currently in use for the given semester.
+      </ion-text>
+    </ion-item>
+    <ion-button
+      class="ion-margin-vertical"
+      type="submit"
+      expand="full"
+      [disabled]="createForm.invalid || isPublished()"
+      >Create New Timetable</ion-button
+    >
+    <ion-button
+      class="ion-margin-vertical"
+      color="danger"
+      (click)="deleteTimetable()"
+      expand="full"
+      [disabled]="!isPublished()"
+      >Delete Current Timetable</ion-button
+    >
+  </form>
 </ng-container>
-<ng-template #publish>
-  <ion-button>Create New</ion-button>
-  <ion-button>Update Existing</ion-button>
+<!-- Update Current -->
+<ng-template #updateCurrent>
+  <form
+    class="ion-padding ion-text-center"
+    #updateForm="ngForm"
+    (ngSubmit)="updateTimetable()"
+  >
+    <ion-item *ngIf="publishedSheet; else noSheetFound">
+      <ion-label position="floating">Published Timetable</ion-label>
+      <ion-input
+        disabled="true"
+        [value]="publishedSheet.properties.title"
+        name="publishedSheetTitle"
+      ></ion-input>
+    </ion-item>
+    <ng-template #noSheetFound>
+      <ion-text
+        >No timetable currently in use for the given department.</ion-text
+      >
+    </ng-template>
+    <ion-button
+      class="ion-margin-vertical"
+      type="submit"
+      expand="full"
+      [disabled]="!publishedSheet"
+      >Update Current Timetable</ion-button
+    >
+  </form>
 </ng-template>
