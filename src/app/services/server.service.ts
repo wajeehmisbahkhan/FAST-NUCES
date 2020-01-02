@@ -10,7 +10,8 @@ import {
   Constraint,
   AtomicSection,
   Lecture,
-  AssignedSlot
+  AssignedSlot,
+  PublishedTimetable
 } from './helper-classes';
 
 @Injectable({
@@ -29,7 +30,9 @@ export class ServerService {
   constraints: Array<Constraint>;
 
   // From backend
-  timetable: Array<Lecture>;
+  generated: Array<Lecture>;
+  // Published
+  published: Array<PublishedTimetable>;
 
   constructor(private db: DatabaseService) {
     this.courses = [];
@@ -41,7 +44,8 @@ export class ServerService {
     this.entries = [];
     this.constraints = [];
     // [TimeTable][Lecture]
-    this.timetable = [];
+    this.generated = [];
+    this.published = [];
   }
 
   // Called at the beginning of the program
@@ -65,8 +69,6 @@ export class ServerService {
             });
             // Assign to all the local arrays
             this[collectionName] = collection;
-            // Generate timetable
-            if (collectionName === 'entries') this.generateTimeTable();
             // TODO: Shouldn't be sorted here
             if (collectionName === 'rooms') {
               // Always sort rooms by name
@@ -135,7 +137,7 @@ export class ServerService {
           }
         }
       }
-      this.timetable.push(lecture);
+      this.generated.push(lecture);
     });
   }
 
@@ -162,7 +164,9 @@ export class ServerService {
       | 'sections'
       | 'rooms'
       | 'entries'
-      | 'constraints',
+      | 'constraints'
+      | 'generated'
+      | 'published',
     object: object
   ) {
     return this.db.createDoc(name, object);
@@ -175,7 +179,9 @@ export class ServerService {
       | 'sections'
       | 'rooms'
       | 'entries'
-      | 'constraints',
+      | 'constraints'
+      | 'generated'
+      | 'published',
     id: string
   ) {
     return this.db.deleteDoc(`${name}/${id}`);
@@ -188,7 +194,9 @@ export class ServerService {
       | 'sections'
       | 'rooms'
       | 'entries'
-      | 'constraints',
+      | 'constraints'
+      | 'generated'
+      | 'published',
     id: string,
     object: object
   ) {
