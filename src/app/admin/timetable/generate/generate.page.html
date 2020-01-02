@@ -10,9 +10,33 @@
   </ion-toolbar>
 </ion-header>
 <ion-content>
-  <ion-card *ngFor="let timetable of timetables; let i = index">
-    <ion-card-header>{{departments[i]}} Timetable</ion-card-header>
-    <ion-card-content>
-      <schedule [lectures]="timetable"></schedule>
-    </ion-card-content> </ion-card
-></ion-content>
+  <!-- Generating -->
+  <ion-row *ngIf="generating; else timetable">
+    <ion-col class="margin-center" size="10">
+      <ion-progress-bar type="indeterminate"></ion-progress-bar>
+    </ion-col>
+    <ion-col class="ion-text-center" size="2">
+      <ion-button (click)="cancel()" color="danger">Cancel</ion-button>
+    </ion-col>
+  </ion-row>
+  <ng-template #timetable>
+    <!-- Generate -->
+    <ion-row *ngIf="timetables.length === 0">
+      <ion-col class="ion-text-center" size="12">
+        <ion-button (click)="generateTimetable()"
+          >Generate Timetable</ion-button
+        >
+      </ion-col>
+    </ion-row>
+    <!-- Generated -->
+    <ion-card *ngFor="let timetable of timetables; let i = index">
+      <ion-card-header>{{departments[i]}} Timetable</ion-card-header>
+      <ion-card-content>
+        <schedule
+          [lectures]="timetable"
+          [department]="departments[i]"
+        ></schedule>
+      </ion-card-content>
+    </ion-card>
+  </ng-template>
+</ion-content>
