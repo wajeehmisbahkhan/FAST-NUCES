@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { AlertService } from './alert.service';
+import { TCSEntry } from './helper-classes';
 
 @Injectable({
   providedIn: 'root'
@@ -161,15 +162,14 @@ export class SheetsService {
   }
 
   // Specific functions for sheet manipulation
-  async updateTitlePage(
+  async createTitleSheet(
     department: string,
     semesterType: string,
     year: number,
+    batches: Array<number>,
     createdSheet: gapi.client.sheets.Spreadsheet,
-    templateSheet: gapi.client.sheets.Spreadsheet,
-    batches: Array<number>
+    templateSheet: gapi.client.sheets.Spreadsheet
   ) {
-    // Title page
     const title = `${semesterType}-${year}`;
     const titleSheetProperties = await this.copySheet(
       templateSheet.spreadsheetId,
@@ -236,6 +236,34 @@ export class SheetsService {
           ]
         });
       }
+    });
+  }
+
+  async createBatchPages(
+    department: string,
+    semesterType: string,
+    year: number,
+    batches: Array<number>,
+    batchesEntries: Array<Array<TCSEntry>>,
+    createdSheet: gapi.client.sheets.Spreadsheet,
+    templateSheet: gapi.client.sheets.Spreadsheet
+  ) {
+    // For each batch - starting with freshing
+    batches.forEach(async (batch, index) => {
+      // Should be copied in order
+      await this.copySheet(
+        templateSheet.spreadsheetId,
+        templateSheet.sheets[1 + index].properties.sheetId,
+        createdSheet.spreadsheetId
+      );
+      // Can be filled asynchronously
+      // this.createBatchPage(
+      //   department,
+      //   semesterType,
+      //   year,
+      //   batch,
+      //   batchesEntries[index]
+      // );
     });
   }
 

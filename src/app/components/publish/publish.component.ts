@@ -2,8 +2,7 @@ import { Component, OnInit, Input } from '@angular/core';
 import {
   PublishedTimetable,
   Cell,
-  TCSEntry,
-  ThreeDimensionalArray
+  TCSEntry
 } from 'src/app/services/helper-classes';
 import { ServerService } from 'src/app/services/server.service';
 import { AlertService } from 'src/app/services/alert.service';
@@ -17,7 +16,7 @@ import { SheetsService } from 'src/app/services/sheets.service';
 })
 export class PublishComponent implements OnInit {
   // Inputs
-  @Input() timetable: Array<TCSEntry>;
+  @Input() timetable: Array<TCSEntry>; // To be uploaded
   @Input() roomNames: Array<string>;
   @Input() department: string;
   @Input() publishedTimetable: PublishedTimetable;
@@ -176,18 +175,36 @@ export class PublishComponent implements OnInit {
       }
     }
     // Update new sheet according to generated timetable
-    await this.sheetsService.updateTitlePage(
+    await this.sheetsService.createTitleSheet(
       this.department,
       this.semesterType,
       this.year,
+      inPlaceBatches,
       this.createdSheet,
-      this.templateSheet,
-      inPlaceBatches
+      this.templateSheet
     );
     // Batch sheets
-    // const batches = this
-    // Create sheets
-    // for(let i = 0; i < batches)
+    const batchesEntries: Array<Array<TCSEntry>> = [[], [], [], []];
+    this.getEntriesForDepartment(this.department).forEach(entry => {
+      const atomicSection = this.getAtomicSectionById(
+        entry.atomicSectionIds[0]
+      );
+      if (atomicSection && atomicSection.batch) {
+        const index = inPlaceBatches.findIndex(
+          batch => batch === atomicSection.batch
+        );
+        batchesEntries[index].push(entry);
+      }
+    });
+    await this.sheetsService.createBatchPages(
+      this.department,
+      this.semesterType,
+      this.year,
+      inPlaceBatches.reverse(),
+      batchesEntries.reverse(),
+      this.createdSheet,
+      this.templateSheet
+    );
 
     // Course pairing sheet
 
@@ -208,6 +225,12 @@ export class PublishComponent implements OnInit {
   }
 
   // Getters
+  getEntriesForDepartment(department: string) {
+    return this.server.entries.filter(
+      entry => this.getCourseById(entry.id).department === department
+    );
+  }
+
   getCourseById(id: string) {
     return this.courses.find(course => course.id === id);
   }
