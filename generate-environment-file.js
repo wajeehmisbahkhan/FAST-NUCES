@@ -1,7 +1,7 @@
 const fs = require('fs');
 const targetPath = './src/environments/environment.prod.ts';
 // `environment.ts` file structure
-const envConfigFile = process.env.secrets.ENVIRONMENT_PROD_CONTENT;
+const envConfigFile = process.env.ENVIRONMENT_PROD_CONTENT;
 fs.writeFile(targetPath, envConfigFile, function (err) {
    if (err) {
        throw console.error(err);
