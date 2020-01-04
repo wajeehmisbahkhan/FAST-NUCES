@@ -1,4 +1,4 @@
-const fs = require('fs');
+const fs = require('fs').promises;
 // Environment paths
 const targetPath = './src/environments/environment.ts';
 const productionTargetPath = './src/environments/environment.prod.ts';
@@ -6,7 +6,7 @@ const productionTargetPath = './src/environments/environment.prod.ts';
 const envConfigFile = process.env.ENVIRONMENT_CONTENT;
 const envProdConfigFile = process.env.ENVIRONMENT_PROD_CONTENT;
 // Write
-fs.writeFile(targetPath, envConfigFile, function(err) {
+await fs.writeFile(targetPath, envConfigFile, function(err) {
   if (err) {
     throw console.error(err);
   } else {
@@ -15,12 +15,12 @@ fs.writeFile(targetPath, envConfigFile, function(err) {
     );
   }
 });
-fs.writeFile(productionTargetPath, envProdConfigFile, function(err) {
+await fs.writeFile(productionTargetPath, envProdConfigFile, function(err) {
   if (err) {
     throw console.error(err);
   } else {
     console.log(
-      `Angular environment.prod.ts file generated correctly at ${targetPath} \n`
+      `Angular environment.prod.ts file generated correctly at ${productionTargetPath} \n`
     );
   }
 });
