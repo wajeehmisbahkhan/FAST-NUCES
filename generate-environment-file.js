@@ -15,7 +15,7 @@ fs.writeFile(targetPath, envConfigFile, function(err) {
     );
   }
 });
-fs.writeFile(targetPath, envProdConfigFile, function(err) {
+fs.writeFile(productionTargetPath, envProdConfigFile, function(err) {
   if (err) {
     throw console.error(err);
   } else {
