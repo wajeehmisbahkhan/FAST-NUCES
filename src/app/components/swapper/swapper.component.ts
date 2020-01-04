@@ -1,7 +1,12 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { ServerService } from 'src/app/services/server.service';
 import { PopoverController } from '@ionic/angular';
-import { Lecture, TCSEntry, Room } from 'src/app/services/helper-classes';
+import {
+  Lecture,
+  TCSEntry,
+  Room,
+  ThreeDimensionalArray
+} from 'src/app/services/helper-classes';
 
 @Component({
   selector: 'app-swapper',
@@ -10,13 +15,13 @@ import { Lecture, TCSEntry, Room } from 'src/app/services/helper-classes';
 })
 export class SwapperComponent implements OnInit {
   // Inputs
-  @Input() cell: TCSEntry; // Could be an empty cell (new TCSEntry)
+  @Input() cell: Lecture; // Could be an empty cell (new Lecture)
   @Input() cellPosition: {
     day: number;
     roomIndex: number;
     slot: number;
   };
-  @Input() timetable: Array<Array<Array<TCSEntry>>>;
+  @Input() viewTimetable: ThreeDimensionalArray<Lecture>;
   @Input() rooms: Array<Room>;
 
   // Local form usage
@@ -37,12 +42,21 @@ export class SwapperComponent implements OnInit {
     // Swap
     const tempCell = this.getCellByCellPosition(this.cellPosition);
     const { day, roomIndex, slot } = this.cellPosition;
-    this.timetable[day][roomIndex][slot] = this.getCellByCellPosition(
-      this.selectedCellPosition
+    this.viewTimetable.set(
+      day,
+      roomIndex,
+      slot,
+      this.getCellByCellPosition(this.selectedCellPosition)
     );
-    this.timetable[this.selectedCellPosition.day][
-      this.selectedCellPosition.roomIndex
-    ][this.selectedCellPosition.slot] = tempCell;
+    this.viewTimetable.set(
+      this.selectedCellPosition.day,
+      this.selectedCellPosition.roomIndex,
+      this.selectedCellPosition.slot,
+      tempCell
+    );
+
+    // TODO: Update on server
+
     this.poc.dismiss();
   }
 
@@ -56,9 +70,11 @@ export class SwapperComponent implements OnInit {
     roomIndex: number;
     slot: number;
   }) {
-    return this.timetable[cellPosition.day][cellPosition.roomIndex][
+    return this.viewTimetable.get(
+      cellPosition.day,
+      cellPosition.roomIndex,
       cellPosition.slot
-    ];
+    );
   }
 
   getColor(lecture: TCSEntry): string {
