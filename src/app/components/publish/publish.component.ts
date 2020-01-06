@@ -2,7 +2,12 @@ import { Component, OnInit, Input } from '@angular/core';
 import {
   PublishedTimetable,
   Cell,
-  TCSEntry
+  Lecture,
+  Course,
+  TCSEntry,
+  AtomicSection,
+  Teacher,
+  BatchCourse
 } from 'src/app/services/helper-classes';
 import { ServerService } from 'src/app/services/server.service';
 import { AlertService } from 'src/app/services/alert.service';
@@ -16,7 +21,7 @@ import { SheetsService } from 'src/app/services/sheets.service';
 })
 export class PublishComponent implements OnInit {
   // Inputs
-  @Input() timetable: Array<TCSEntry>; // To be uploaded
+  @Input() timetable: Array<Lecture>; // To be uploaded
   @Input() roomNames: Array<string>;
   @Input() department: string;
   @Input() publishedTimetable: PublishedTimetable;
@@ -164,7 +169,7 @@ export class PublishComponent implements OnInit {
       }
     });
     // Ensure in order
-    const inPlaceBatches = [];
+    const inPlaceBatches = []; // We need [2016, null, 2018, 2019]
     let freshmenYear = new Date().getFullYear();
     if (this.semesterType !== 'Fall') freshmenYear -= 1;
     for (let i = freshmenYear - 3; i <= freshmenYear; i++) {
@@ -174,6 +179,44 @@ export class PublishComponent implements OnInit {
         inPlaceBatches.unshift(null);
       }
     }
+    // Entries & Courses for each batch
+    // [[2016 batchCourses], [null], [2018 batchCourses], [2019 batchCourses]]
+    const batchesCourses: Array<Array<BatchCourse>> = [[], [], [], []];
+    this.getCoursesForDepartment(this.department).forEach(course => {
+      // Get all entries for this course
+      const courseEntries = this.entries.filter(
+        entry => entry.courseId === course.id
+      );
+      // Add course
+      const batchCourse = new BatchCourse(course);
+      let batchIndex = null;
+      // Find batch
+      if (courseEntries.length > 0) {
+        const atomicSection = this.getAtomicSectionById(
+          courseEntries[0].atomicSectionIds[0]
+        );
+        if (atomicSection && atomicSection.batch) {
+          // Where to place
+          batchIndex = inPlaceBatches.findIndex(
+            batch => batch === atomicSection.batch
+          );
+        }
+      }
+      // Add course details for each entry according to batch
+      courseEntries.forEach(entry => {
+        if (batchesCourses[batchIndex]) {
+          // Add instructor sections
+          const teacher = this.getTeacherById(entry.teacherIds[0]);
+          batchCourse.addInstructorSection(
+            teacher ? teacher.name : '',
+            entry.name
+          );
+        }
+      });
+      // Push batchCourse
+      if (batchesCourses[batchIndex])
+        batchesCourses[batchIndex].push(batchCourse);
+    });
     // Update new sheet according to generated timetable
     await this.sheetsService.createTitleSheet(
       this.department,
@@ -183,25 +226,11 @@ export class PublishComponent implements OnInit {
       this.createdSheet,
       this.templateSheet
     );
-    // Batch sheets
-    const batchesEntries: Array<Array<TCSEntry>> = [[], [], [], []];
-    this.getEntriesForDepartment(this.department).forEach(entry => {
-      const atomicSection = this.getAtomicSectionById(
-        entry.atomicSectionIds[0]
-      );
-      if (atomicSection && atomicSection.batch) {
-        const index = inPlaceBatches.findIndex(
-          batch => batch === atomicSection.batch
-        );
-        batchesEntries[index].push(entry);
-      }
-    });
     await this.sheetsService.createBatchPages(
-      this.department,
       this.semesterType,
       this.year,
-      inPlaceBatches.reverse(),
-      batchesEntries.reverse(),
+      inPlaceBatches,
+      batchesCourses,
       this.createdSheet,
       this.templateSheet
     );
@@ -225,10 +254,8 @@ export class PublishComponent implements OnInit {
   }
 
   // Getters
-  getEntriesForDepartment(department: string) {
-    return this.server.entries.filter(
-      entry => this.getCourseById(entry.id).department === department
-    );
+  getCoursesForDepartment(department: string) {
+    return this.courses.filter(course => course.department === department);
   }
 
   getCourseById(id: string) {
@@ -253,5 +280,9 @@ export class PublishComponent implements OnInit {
 
   get atomicSections() {
     return this.server.atomicSections;
+  }
+
+  get entries() {
+    return this.server.entries;
   }
 }

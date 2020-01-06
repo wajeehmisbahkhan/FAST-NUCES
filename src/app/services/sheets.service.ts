@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { AlertService } from './alert.service';
-import { TCSEntry } from './helper-classes';
+import { BatchCourse, Course } from './helper-classes';
 
 @Injectable({
   providedIn: 'root'
@@ -103,19 +103,69 @@ export class SheetsService {
     }).catch(console.log);
   }
 
-  async updateSpreadsheetValues(
+  async addSheetValues() {}
+
+  async updateSheetValues(
     spreadsheetId: string,
-    request: gapi.client.sheets.BatchUpdateValuesRequest
+    rangeValues: Array<
+      [
+        string, // Range
+        any // Value
+      ]
+    >,
+    sheetTitle?: string
   ) {
-    return new Promise(async (resolve, reject) => {
+    return new Promise<
+      gapi.client.Response<gapi.client.sheets.BatchUpdateValuesResponse>
+    >((resolve, reject) => {
+      const valueRanges: Array<gapi.client.sheets.ValueRange> = [];
+      rangeValues.forEach(rangeValue => {
+        valueRanges.push(
+          this.makeValueRange(rangeValue[0], rangeValue[1], sheetTitle)
+        );
+      });
       this.spreadsheetApi.values
         .batchUpdate({
           spreadsheetId,
-          resource: request,
+          resource: {
+            valueInputOption: 'RAW',
+            data: valueRanges
+          },
           fields: '*'
         })
         .then(resolve, reject);
     }).catch(console.log);
+  }
+
+  async appendSheetValues(
+    spreadsheetId: string,
+    rowRange: string,
+    range: string,
+    value: any,
+    sheetTitle?: string
+  ) {
+    return new Promise<
+      gapi.client.Response<gapi.client.sheets.AppendValuesResponse>
+    >((resolve, reject) => {
+      const valueRange = this.makeValueRange(range, value, sheetTitle);
+      this.spreadsheetApi.values
+        .append({
+          spreadsheetId,
+          range: valueRange.range,
+          insertDataOption: 'INSERT_ROWS',
+          valueInputOption: 'RAW',
+          resource: valueRange
+          // {
+          //   "range": "Sheet1!A1:E1",
+          //   "majorDimension": "ROWS",
+          //   "values": [
+          //     ["Door", "$15", "2", "3/15/2016"],
+          //     ["Engine", "$100", "1", "3/20/2016"],
+          //   ],
+          // }
+        })
+        .then(resolve, reject);
+    });
   }
 
   makeDeleteSheetRequest(sheetId: number) {
@@ -198,73 +248,215 @@ export class SheetsService {
     }
     effectiveDate.setDate(issuedDate.getDate() + 1 + weekends);
     // Update request
-    await this.updateSpreadsheetValues(createdSheet.spreadsheetId, {
-      valueInputOption: 'RAW',
-      data: [
-        this.makeValueRange(`H14:P14`, `Department of ${department}`, title),
-        this.makeValueRange(
-          `H16:P16`,
-          `TIMETABLE for ${semesterType} ${year} Semester`,
-          title
-        ),
-        this.makeValueRange(`K20`, `Batch ${batches[0]}`, title),
-        this.makeValueRange(`K21`, `Batch ${batches[1]}`, title),
-        this.makeValueRange(`K22`, `Batch ${batches[2]}`, title),
-        this.makeValueRange(`K23`, `Batch ${batches[3]}`, title),
-        this.makeValueRange(
-          `E26:I26`,
+    await this.updateSheetValues(
+      createdSheet.spreadsheetId,
+      [
+        ['H14:P14', `Department of ${department}`],
+        ['H16:P16', `TIMETABLE for ${semesterType} ${year} Semester`],
+        ['K20', `Batch ${batches[0]}`],
+        ['K21', `Batch ${batches[1]}`],
+        ['K22', `Batch ${batches[2]}`],
+        ['K23', `Batch ${batches[3]}`],
+        [
+          'E26:I26',
           `${issuedDate.getDate()}/${issuedDate.getMonth() +
-            1}/${issuedDate.getFullYear()}`,
-          title
-        ),
-        this.makeValueRange(
-          `E27:I27`,
+            1}/${issuedDate.getFullYear()}`
+        ],
+        [
+          'E27:I27',
           `${effectiveDate.getDate()}/${effectiveDate.getMonth() +
-            1}/${effectiveDate.getFullYear()}`,
-          title
-        )
-      ]
-    });
+            1}/${effectiveDate.getFullYear()}`
+        ]
+      ],
+      title
+    );
     // Delete batch values which do not exist
     batches.forEach((batch, index) => {
       if (!batch) {
-        this.updateSpreadsheetValues(createdSheet.spreadsheetId, {
-          valueInputOption: 'RAW',
-          data: [
-            this.makeValueRange(`K2${index}`, '-', title),
-            this.makeValueRange(`L2${index}`, '-', title)
-          ]
-        });
+        this.updateSheetValues(
+          createdSheet.spreadsheetId,
+          [
+            [`K2${index}`, '-'],
+            [`L2${index}`, '-']
+          ],
+          title
+        );
       }
     });
   }
 
   async createBatchPages(
-    department: string,
     semesterType: string,
     year: number,
     batches: Array<number>,
-    batchesEntries: Array<Array<TCSEntry>>,
-    createdSheet: gapi.client.sheets.Spreadsheet,
+    batchesCourses: Array<Array<BatchCourse>>,
+    createdSpreadsheet: gapi.client.sheets.Spreadsheet,
     templateSheet: gapi.client.sheets.Spreadsheet
   ) {
+    // Year titles
+    const yearTitles = ['Freshmen', 'Sophomores', 'Juniors', 'Seniors'];
     // For each batch - starting with freshing
     batches.forEach(async (batch, index) => {
+      if (!batch) return;
       // Should be copied in order
-      await this.copySheet(
+      const batchSheetProperties = await this.copySheet(
         templateSheet.spreadsheetId,
         templateSheet.sheets[1 + index].properties.sheetId,
-        createdSheet.spreadsheetId
+        createdSpreadsheet.spreadsheetId
       );
       // Can be filled asynchronously
-      // this.createBatchPage(
-      //   department,
-      //   semesterType,
-      //   year,
-      //   batch,
-      //   batchesEntries[index]
-      // );
+      this.updateBatchPage(
+        semesterType,
+        year,
+        batch,
+        yearTitles[index],
+        batchesCourses[index],
+        createdSpreadsheet,
+        batchSheetProperties
+      );
     });
+  }
+
+  async updateBatchPage(
+    semesterType: string,
+    year: number,
+    batch: number,
+    yearTitle: string,
+    batchCourses: Array<BatchCourse>,
+    createdSpreadsheet: gapi.client.sheets.Spreadsheet,
+    batchSheetProperties: gapi.client.sheets.SheetProperties
+  ) {
+    // First wait to update static stuff
+    // Title
+    batchSheetProperties.title = `BATCH ${batch}`;
+    await this.updateSpreadsheet(createdSpreadsheet.spreadsheetId, [
+      {
+        updateSheetProperties: {
+          properties: batchSheetProperties,
+          fields: '*'
+        }
+      }
+    ]);
+    await this.updateSheetValues(
+      createdSpreadsheet.spreadsheetId,
+      [
+        ['A3:A12', `${semesterType} SEMESTER ${year}`],
+        ['B3:I3', `Offered Courses in ${semesterType} ${year}`],
+        ['B4:I4', `Batch ${batch} (${yearTitle})`]
+      ],
+      batchSheetProperties.title
+    );
+    // Update dynamic stuff
+    let coreSerialNo = 1,
+      electiveSerialNo = 1,
+      repeatSerialNo = 1,
+      coreRows = 1,
+      electiveRows = 1;
+    batchCourses.forEach(async (batchCourse, index) => {
+      if (batchCourse.course.isCoreCourse) {
+        if (
+          this.isRepeatCourse(
+            batchCourse.course,
+            batchCourses.map(batchCourse => batchCourse.course)
+          )
+        ) {
+          // let moreRepeatCoursesAhead = false;
+          // if (batchCourses.slice(index + 1).find(batchCourse =>
+          // this.isRepeatCourse(batchCourse.course, batchCourses.map(batchCourse => batchCourse.course))))
+          //   moreRepeatCoursesAhead = true;
+          // Add to repeat course section
+          await this.addCourseRow(
+            createdSpreadsheet.spreadsheetId,
+            batchSheetProperties,
+            9 + coreRows + electiveRows,
+            repeatSerialNo++,
+            batchCourse,
+            batch
+          );
+        } else {
+          // Add to core course section
+          coreRows = await this.addCourseRow(
+            createdSpreadsheet.spreadsheetId,
+            batchSheetProperties,
+            7,
+            coreSerialNo++,
+            batchCourse,
+            batch
+          );
+        }
+      } else {
+        // Add to elective course section
+        electiveRows = await this.addCourseRow(
+          createdSpreadsheet.spreadsheetId,
+          batchSheetProperties,
+          8 + coreRows,
+          electiveSerialNo++,
+          batchCourse,
+          batch
+        );
+      }
+    });
+  }
+
+  async addCourseRow(
+    spreadsheetId: string,
+    sheetProperties: gapi.client.sheets.SheetProperties,
+    rowStart: number,
+    serialNo: number,
+    batchCourse: BatchCourse,
+    batchYear: number,
+    appendRow = serialNo > 1
+  ) {
+    let rowNumber = rowStart + serialNo - 1;
+    if (appendRow) {
+      // Append row first
+      await this.updateSpreadsheet(spreadsheetId, [
+        {
+          insertDimension: {
+            range: {
+              sheetId: sheetProperties.sheetId,
+              dimension: 'ROWS',
+              startIndex: rowNumber - 1,
+              endIndex: rowNumber
+            },
+            inheritFromBefore: true
+          }
+        }
+      ]);
+    }
+    console.log(rowNumber);
+    // Update row
+    await this.updateSheetValues(
+      spreadsheetId,
+      [
+        // Serial no
+        [`B${rowNumber}`, serialNo],
+        // Course details
+        [`C${rowNumber}`, batchCourse.course.courseCode],
+        [`D${rowNumber}`, batchCourse.course.title],
+        [`E${rowNumber}`, batchCourse.course.shortTitle],
+        [`F${rowNumber}`, batchCourse.instructorSections.length],
+        [`G${rowNumber}`, batchCourse.course.creditHours],
+        [`H${rowNumber}`, batchYear],
+        // Teachers
+        [`I${rowNumber}`, batchCourse.getInstructorSectionsText()]
+      ],
+      sheetProperties.title
+    );
+    if (appendRow) rowNumber -= 1;
+    return rowNumber;
+  }
+
+  isRepeatCourse(course: Course, currentCourses: Array<Course>) {
+    let isRepeat = false;
+    for (const currentCourse of currentCourses) {
+      // If a course is being taught which requires this course as its prerequisite
+      if (currentCourse.prerequisiteIds.includes(course.id)) {
+        isRepeat = true;
+        break;
+      }
+    }
+    return isRepeat;
   }
 
   get spreadsheetApi() {

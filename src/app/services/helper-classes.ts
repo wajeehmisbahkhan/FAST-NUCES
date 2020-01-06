@@ -445,3 +445,38 @@ export class ThreeDimensionalArray<T> {
     return this.width * this.height * this.depth;
   }
 }
+
+export class BatchCourse {
+  course: Course;
+  instructorSections: Array<{
+    teacherName: string;
+    sectionNames: string;
+  }>;
+
+  constructor(course: Course) {
+    this.course = course;
+    this.instructorSections = [];
+  }
+
+  addInstructorSection(teacherName: string, sectionName: string) {
+    const existingIS = this.instructorSections.find(
+      instructorSection => instructorSection.teacherName === teacherName
+    );
+    if (existingIS) {
+      existingIS.sectionNames += `, ${sectionName}`;
+    } else {
+      this.instructorSections.push({
+        teacherName,
+        sectionNames: sectionName
+      });
+    }
+  }
+
+  getInstructorSectionsText() {
+    let text = '';
+    this.instructorSections.forEach((instructorSection, index) => {
+      text += `${instructorSection.teacherName} (${instructorSection.sectionNames})`;
+      if (index < this.instructorSections.length - 1) text += ', ';
+    });
+  }
+}
