@@ -103,8 +103,6 @@ export class SheetsService {
     }).catch(console.log);
   }
 
-  async addSheetValues() {}
-
   async updateSheetValues(
     spreadsheetId: string,
     rangeValues: Array<
@@ -137,37 +135,6 @@ export class SheetsService {
     }).catch(console.log);
   }
 
-  async appendSheetValues(
-    spreadsheetId: string,
-    rowRange: string,
-    range: string,
-    value: any,
-    sheetTitle?: string
-  ) {
-    return new Promise<
-      gapi.client.Response<gapi.client.sheets.AppendValuesResponse>
-    >((resolve, reject) => {
-      const valueRange = this.makeValueRange(range, value, sheetTitle);
-      this.spreadsheetApi.values
-        .append({
-          spreadsheetId,
-          range: valueRange.range,
-          insertDataOption: 'INSERT_ROWS',
-          valueInputOption: 'RAW',
-          resource: valueRange
-          // {
-          //   "range": "Sheet1!A1:E1",
-          //   "majorDimension": "ROWS",
-          //   "values": [
-          //     ["Door", "$15", "2", "3/15/2016"],
-          //     ["Engine", "$100", "1", "3/20/2016"],
-          //   ],
-          // }
-        })
-        .then(resolve, reject);
-    });
-  }
-
   makeDeleteSheetRequest(sheetId: number) {
     return {
       deleteSheet: {
@@ -187,6 +154,47 @@ export class SheetsService {
     return {
       values: [[value]],
       range
+    };
+  }
+
+  makeBatchRangeValues(
+    rowNumber: number,
+    serialNumber: number,
+    batchCourse: BatchCourse,
+    batchYear: number
+  ): Array<[string, any]> {
+    // Serial no
+    return [
+      [`B${rowNumber}`, serialNumber],
+      // Course details
+      [`C${rowNumber}`, batchCourse.course.courseCode],
+      [`D${rowNumber}`, batchCourse.course.title],
+      [`E${rowNumber}`, batchCourse.course.shortTitle],
+      [`F${rowNumber}`, batchCourse.numberOfSections],
+      [`G${rowNumber}`, batchCourse.course.creditHours],
+      [`H${rowNumber}`, batchYear],
+      // Teachers
+      [`I${rowNumber}`, batchCourse.getInstructorSectionsText()]
+    ];
+  }
+
+  makeInsertRowsRequest(
+    sheetId: number,
+    rowStart: number,
+    numberOfRows: number
+  ) {
+    // Ensure positive ending index
+    const endIndex = rowStart + (numberOfRows >= 0 ? numberOfRows : 0);
+    return {
+      insertDimension: {
+        range: {
+          sheetId,
+          dimension: 'ROWS',
+          startIndex: rowStart,
+          endIndex
+        },
+        inheritFromBefore: true
+      }
     };
   }
 
@@ -347,12 +355,10 @@ export class SheetsService {
       batchSheetProperties.title
     );
     // Update dynamic stuff
-    let coreSerialNo = 1,
-      electiveSerialNo = 1,
-      repeatSerialNo = 1,
-      coreRows = 1,
-      electiveRows = 1;
-    batchCourses.forEach(async (batchCourse, index) => {
+    const coreCourses: Array<BatchCourse> = [],
+      repeatCourses: Array<BatchCourse> = [],
+      electiveCourses: Array<BatchCourse> = [];
+    batchCourses.forEach(batchCourse => {
       if (batchCourse.course.isCoreCourse) {
         if (
           this.isRepeatCourse(
@@ -360,91 +366,66 @@ export class SheetsService {
             batchCourses.map(batchCourse => batchCourse.course)
           )
         ) {
-          // let moreRepeatCoursesAhead = false;
-          // if (batchCourses.slice(index + 1).find(batchCourse =>
-          // this.isRepeatCourse(batchCourse.course, batchCourses.map(batchCourse => batchCourse.course))))
-          //   moreRepeatCoursesAhead = true;
-          // Add to repeat course section
-          await this.addCourseRow(
-            createdSpreadsheet.spreadsheetId,
-            batchSheetProperties,
-            9 + coreRows + electiveRows,
-            repeatSerialNo++,
-            batchCourse,
-            batch
-          );
+          repeatCourses.push(batchCourse);
         } else {
-          // Add to core course section
-          coreRows = await this.addCourseRow(
-            createdSpreadsheet.spreadsheetId,
-            batchSheetProperties,
-            7,
-            coreSerialNo++,
-            batchCourse,
-            batch
-          );
+          coreCourses.push(batchCourse);
         }
       } else {
-        // Add to elective course section
-        electiveRows = await this.addCourseRow(
-          createdSpreadsheet.spreadsheetId,
-          batchSheetProperties,
-          8 + coreRows,
-          electiveSerialNo++,
-          batchCourse,
-          batch
-        );
+        electiveCourses.push(batchCourse);
       }
     });
-  }
-
-  async addCourseRow(
-    spreadsheetId: string,
-    sheetProperties: gapi.client.sheets.SheetProperties,
-    rowStart: number,
-    serialNo: number,
-    batchCourse: BatchCourse,
-    batchYear: number,
-    appendRow = serialNo > 1
-  ) {
-    let rowNumber = rowStart + serialNo - 1;
-    if (appendRow) {
-      // Append row first
-      await this.updateSpreadsheet(spreadsheetId, [
-        {
-          insertDimension: {
-            range: {
-              sheetId: sheetProperties.sheetId,
-              dimension: 'ROWS',
-              startIndex: rowNumber - 1,
-              endIndex: rowNumber
-            },
-            inheritFromBefore: true
-          }
-        }
-      ]);
-    }
-    console.log(rowNumber);
-    // Update row
-    await this.updateSheetValues(
-      spreadsheetId,
-      [
-        // Serial no
-        [`B${rowNumber}`, serialNo],
-        // Course details
-        [`C${rowNumber}`, batchCourse.course.courseCode],
-        [`D${rowNumber}`, batchCourse.course.title],
-        [`E${rowNumber}`, batchCourse.course.shortTitle],
-        [`F${rowNumber}`, batchCourse.instructorSections.length],
-        [`G${rowNumber}`, batchCourse.course.creditHours],
-        [`H${rowNumber}`, batchYear],
-        // Teachers
-        [`I${rowNumber}`, batchCourse.getInstructorSectionsText()]
-      ],
-      sheetProperties.title
+    // Add rows first
+    const coreRows = coreCourses.length === 0 ? 1 : coreCourses.length,
+      electiveRows = electiveCourses.length === 0 ? 1 : electiveCourses.length;
+    await this.updateSpreadsheet(createdSpreadsheet.spreadsheetId, [
+      this.makeInsertRowsRequest(
+        batchSheetProperties.sheetId,
+        7,
+        coreCourses.length - 1
+      ),
+      this.makeInsertRowsRequest(
+        batchSheetProperties.sheetId,
+        9 + coreRows - 1,
+        electiveCourses.length - 1
+      ),
+      this.makeInsertRowsRequest(
+        batchSheetProperties.sheetId,
+        11 + coreRows + electiveRows - 2,
+        repeatCourses.length - 1
+      )
+    ]);
+    // Add values
+    const rangeValues: Array<[string, any]> = [];
+    coreCourses.forEach((coreCourse, index) =>
+      rangeValues.push(
+        ...this.makeBatchRangeValues(7 + index, index + 1, coreCourse, batch)
+      )
     );
-    if (appendRow) rowNumber -= 1;
-    return rowNumber;
+    electiveCourses.forEach((electiveCourse, index) =>
+      rangeValues.push(
+        ...this.makeBatchRangeValues(
+          9 + coreRows - 1 + index,
+          index + 1,
+          electiveCourse,
+          batch
+        )
+      )
+    );
+    repeatCourses.forEach((repeatCourse, index) =>
+      rangeValues.push(
+        ...this.makeBatchRangeValues(
+          11 + coreRows + electiveRows - 2 + index,
+          index + 1,
+          repeatCourse,
+          batch
+        )
+      )
+    );
+    await this.updateSheetValues(
+      createdSpreadsheet.spreadsheetId,
+      rangeValues,
+      batchSheetProperties.title
+    );
   }
 
   isRepeatCourse(course: Course, currentCourses: Array<Course>) {
