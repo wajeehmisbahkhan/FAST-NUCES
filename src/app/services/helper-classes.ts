@@ -448,7 +448,8 @@ export class ThreeDimensionalArray<T> {
 
 export class BatchCourse {
   course: Course;
-  instructorSections: Array<{
+  numberOfSections = 0;
+  private instructorSections: Array<{
     teacherName: string;
     sectionNames: string;
   }>;
@@ -470,6 +471,7 @@ export class BatchCourse {
         sectionNames: sectionName
       });
     }
+    this.numberOfSections++;
   }
 
   getInstructorSectionsText() {
@@ -478,5 +480,6 @@ export class BatchCourse {
       text += `${instructorSection.teacherName} (${instructorSection.sectionNames})`;
       if (index < this.instructorSections.length - 1) text += ', ';
     });
+    return text;
   }
 }
