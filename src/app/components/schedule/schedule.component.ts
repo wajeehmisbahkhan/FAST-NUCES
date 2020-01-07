@@ -21,11 +21,13 @@ export class ScheduleComponent implements OnInit {
   @Input() lectures: Array<Lecture>;
   @Input() department: string;
   // [Day][RoomId][Slot]
-  timetable: ThreeDimensionalArray<TCSEntry>;
+  viewTimetable: ThreeDimensionalArray<Lecture>;
 
   day: number;
 
   // Length collections
+  dayNumbers: Array<number>;
+  roomNumbers: Array<number>;
   slotNumbers: Array<number>;
 
   constructor(
@@ -33,19 +35,60 @@ export class ScheduleComponent implements OnInit {
     private poc: PopoverController,
     private sheetsService: SheetsService
   ) {
+    // TODO: Generate HTML when page opens
+    // [0...4]
+    this.dayNumbers = Array(5)
+      .fill(null)
+      .map((x, i) => i);
+    // [0...rooms.length - 1]
+    this.roomNumbers = Array(this.rooms.length)
+      .fill(null)
+      .map((x, i) => i);
+    // [0,1,2...7]
     this.slotNumbers = Array(8)
       .fill(null)
-      .map((x, i) => i); // [0,1,2,3,4]
+      .map((x, i) => i);
   }
 
   ngOnInit() {
     // Convert time table
-    this.timetable = new ThreeDimensionalArray(5, this.rooms.length, 8);
-    this.timetable.setArray(this.lectures, new TCSEntry());
+    this.viewTimetable = new ThreeDimensionalArray(5, this.rooms.length, 8);
+    this.convertLecturesToViewTimetable();
     // Monday by default
     this.day = 0;
+    // TODO: Remove
+    this.presentPublisher();
+  }
 
-    // this.presentPublisher();
+  convertLecturesToViewTimetable() {
+    this.lectures.forEach(lecture => {
+      lecture.assignedSlots.forEach(assignedSlot => {
+        const roomIndex = this.rooms.findIndex(
+          room => room.id === assignedSlot.roomId
+        );
+        this.viewTimetable.set(
+          assignedSlot.day,
+          roomIndex,
+          assignedSlot.time,
+          lecture
+        );
+      });
+    });
+
+    // Ensure entry for each day
+    this.dayNumbers.forEach(dayNumber =>
+      this.roomNumbers.forEach(roomNumber =>
+        this.slotNumbers.forEach(slotNumber => {
+          if (!this.viewTimetable.get(dayNumber, roomNumber, slotNumber))
+            this.viewTimetable.set(
+              dayNumber,
+              roomNumber,
+              slotNumber,
+              new Lecture()
+            );
+        })
+      )
+    );
   }
 
   async presentSwapper(
@@ -64,7 +107,7 @@ export class ScheduleComponent implements OnInit {
           roomIndex,
           slot
         },
-        timetable: this.timetable,
+        viewTimetable: this.viewTimetable,
         rooms: this.rooms
       }
     });
@@ -88,7 +131,7 @@ export class ScheduleComponent implements OnInit {
     const popover = await this.poc.create({
       component: PublishComponent,
       componentProps: {
-        timetable: this.timetable.getArray(),
+        timetable: this.viewTimetable.getArray(),
         department: this.department,
         publishedTimetable,
         roomNames

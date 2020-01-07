@@ -62,12 +62,12 @@
       size="1.33"
       *ngFor="let slotNumber of slotNumbers; trackBy: itemTracker"
       [style.backgroundColor]="
-        getColor(timetable.get(day, roomNumber, slotNumber))
+        getColor(viewTimetable.get(day, roomNumber, slotNumber))
       "
       class="lecture-cell"
       (click)="
         presentSwapper(
-          timetable.get(day, roomNumber, slotNumber),
+          viewTimetable.get(day, roomNumber, slotNumber),
           day,
           room.id,
           slotNumber
@@ -78,24 +78,27 @@
       <div class="margin-center">
         <ion-row
           *ngIf="
-            timetable.get(day, roomNumber, slotNumber).courseId &&
-            timetable.get(day, roomNumber, slotNumber).name
+            viewTimetable.get(day, roomNumber, slotNumber).courseId &&
+            viewTimetable.get(day, roomNumber, slotNumber).name
           "
         >
           <ion-label class="margin-center">
             {{
-              getCourseById(timetable.get(day, roomNumber, slotNumber).courseId)
-                .shortTitle
+              getCourseById(
+                viewTimetable.get(day, roomNumber, slotNumber).courseId
+              ).shortTitle
             }}
             -
-            {{ timetable.get(day, roomNumber, slotNumber).name }}
+            {{ viewTimetable.get(day, roomNumber, slotNumber).name }}
           </ion-label>
         </ion-row>
-        <ion-row *ngIf="timetable.get(day, roomNumber, slotNumber).teacherIds">
+        <ion-row
+          *ngIf="viewTimetable.get(day, roomNumber, slotNumber).teacherIds"
+        >
           <ion-label class="margin-center">
             <span
               *ngFor="
-                let teacherId of timetable.get(day, roomNumber, slotNumber)
+                let teacherId of viewTimetable.get(day, roomNumber, slotNumber)
                   .teacherIds
               "
             >
