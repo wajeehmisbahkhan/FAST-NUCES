@@ -89,16 +89,16 @@ export class SwapperComponent implements OnInit {
     else semester = 0;
     if (batch + semester === currentYear) {
       // Freshies
-      return '#63FD4B';
+      return '#66FF33';
     } else if (batch + semester === currentYear - 1) {
       // Sophomore
-      return '#FF60C9';
+      return '#FF66CC';
     } else if (batch + semester === currentYear - 2) {
       // Junior
-      return '#23B0EE';
+      return '#00B0F0';
     } else {
       // Senior
-      return '#F5954A';
+      return '#F79646';
     }
   }
 
