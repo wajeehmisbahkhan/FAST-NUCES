@@ -652,29 +652,44 @@ export class SheetsService {
     ]);
     // Update values
     let currentRow = 5;
+    const dayRangeValues: Array<[string, any]> = [];
     roomCells.forEach(roomCell => {
       if (this.isEmptySlotRow(roomCell.slots)) return;
-      this.updateSheetValues(
-        createdSpreadsheet.spreadsheetId,
-        this.makeDayRangeValues(
+      dayRangeValues.push(
+        ...this.makeDayRangeValues(
           currentRow++,
           roomCell.roomName,
           roomCell.slots
-        ),
-        daySheetProperties.title
+        )
       );
     });
     currentRow = 6 + roomRows;
     labCells.forEach(labCell => {
       if (this.isEmptySlotRow(labCell.slots)) return;
-      this.updateSheetValues(
-        createdSpreadsheet.spreadsheetId,
-        this.makeDayRangeValues(currentRow++, labCell.roomName, labCell.slots),
-        daySheetProperties.title
+      dayRangeValues.push(
+        ...this.makeDayRangeValues(
+          currentRow++,
+          labCell.roomName,
+          labCell.slots
+        )
       );
     });
-    // Update colors
-    // this.updateSpreadsheet(createdSpreadsheet.spreadsheetId, [{}]);
+    // Value updation
+    this.updateSheetValues(
+      createdSpreadsheet.spreadsheetId,
+      dayRangeValues,
+      daySheetProperties.title
+    );
+    // this.spreadsheetApi
+    // .batchUpdate({
+    //   spreadsheetId: '',
+    //   resource: {
+    //     requests: [
+
+    //     ]
+    //   },
+    //   fields: '*'
+    // })
   }
 
   isEmptySlotRow(slots: Cell[]): boolean {
@@ -688,6 +703,31 @@ export class SheetsService {
     }
     return isEmpty;
   }
+
+  // getColor(lecture: TCSEntry): string {
+  //   if (!lecture || !lecture.courseId) return 'white';
+  //   // Batch of any section
+  //   const batch = this.getAtomicSectionById(lecture.atomicSectionIds[0]).batch;
+  //   const currentYear = new Date().getFullYear();
+  //   const currentMonth = new Date().getMonth();
+  //   let semester: number;
+  //   // If Jan-Jun - freshies will remain freshies
+  //   if (currentMonth < 6) semester = 1;
+  //   else semester = 0;
+  //   if (batch + semester === currentYear) {
+  //     // Freshies
+  //     return '#66FF33'; // rgb(102,255,51)
+  //   } else if (batch + semester === currentYear - 1) {
+  //     // Sophomore
+  //     return '#FF66CC'; // rgb(255,102,204)
+  //   } else if (batch + semester === currentYear - 2) {
+  //     // Junior
+  //     return '#00B0F0'; // rgb(0,176,240)
+  //   } else {
+  //     // Senior
+  //     return '#F79646'; // rgb(247,150,70)
+  //   }
+  // }
 
   get spreadsheetApi() {
     return gapi.client.sheets.spreadsheets;
