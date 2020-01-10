@@ -483,3 +483,13 @@ export class BatchCourse {
     return text;
   }
 }
+
+export class RoomSlots {
+  roomName: string;
+  slots: Array<Cell>; // 8 slots
+
+  constructor(roomName: string) {
+    this.roomName = roomName;
+    this.slots = [];
+  }
+}

@@ -67,11 +67,11 @@
     #updateForm="ngForm"
     (ngSubmit)="updateTimetable()"
   >
-    <ion-item *ngIf="publishedSheet; else noSheetFound">
+    <ion-item *ngIf="publishedSpreadsheet; else noSheetFound">
       <ion-label position="floating">Published Timetable</ion-label>
       <ion-input
         disabled="true"
-        [value]="publishedSheet.properties.title"
+        [value]="publishedSpreadsheet.properties.title"
         name="publishedSheetTitle"
       ></ion-input>
     </ion-item>
@@ -84,7 +84,7 @@
       class="ion-margin-vertical"
       type="submit"
       expand="full"
-      [disabled]="!publishedSheet"
+      [disabled]="!publishedSpreadsheet"
       >Update Current Timetable</ion-button
     >
   </form>

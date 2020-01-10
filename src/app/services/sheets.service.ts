@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { AlertService } from './alert.service';
-import { BatchCourse, Course } from './helper-classes';
+import { BatchCourse, Course, Cell, RoomSlots } from './helper-classes';
 
 @Injectable({
   providedIn: 'root'
@@ -67,13 +67,15 @@ export class SheetsService {
     }
   }
 
-  async createSpreadsheet(templateSheet: gapi.client.sheets.Spreadsheet = {}) {
-    if (templateSheet && templateSheet.spreadsheetId) {
+  async createSpreadsheet(
+    templateSpreadsheet: gapi.client.sheets.Spreadsheet = {}
+  ) {
+    if (templateSpreadsheet && templateSpreadsheet.spreadsheetId) {
       // Ensure unique id
-      delete templateSheet.spreadsheetId;
+      delete templateSpreadsheet.spreadsheetId;
     }
     const spreadSheetResponse = await this.spreadsheetApi.create({
-      resource: templateSheet
+      resource: templateSpreadsheet
     });
     return spreadSheetResponse.result;
   }
@@ -178,6 +180,27 @@ export class SheetsService {
     ];
   }
 
+  makeDayRangeValues(
+    rowNumber: number,
+    roomName: string,
+    slots: Array<Cell> // 8 slots
+  ) {
+    // Room name
+    const dayRangeValues: Array<[string, any]> = [[`A${rowNumber}`, roomName]];
+    // Slots
+    let letter = 'B';
+    slots.forEach(slot => {
+      // Could be null
+      if (slot)
+        dayRangeValues.push([
+          `${letter}${rowNumber}`,
+          `${slot.courseName} - ${slot.sectionName}\n${slot.teacherNames}`
+        ]);
+      letter = String.fromCodePoint(letter.charCodeAt(0) + 1);
+    });
+    return dayRangeValues;
+  }
+
   makeInsertRowsRequest(
     sheetId: number,
     rowStart: number,
@@ -220,22 +243,23 @@ export class SheetsService {
   }
 
   // Specific functions for sheet manipulation
+  // Title Sheet
   async createTitleSheet(
     department: string,
     semesterType: string,
     year: number,
     batches: Array<number>,
-    createdSheet: gapi.client.sheets.Spreadsheet,
-    templateSheet: gapi.client.sheets.Spreadsheet
+    createdSpreadsheet: gapi.client.sheets.Spreadsheet,
+    templateSpreadsheet: gapi.client.sheets.Spreadsheet
   ) {
     const title = `${semesterType}-${year}`;
     const titleSheetProperties = await this.copySheet(
-      templateSheet.spreadsheetId,
-      templateSheet.sheets[0].properties.sheetId,
-      createdSheet.spreadsheetId
+      templateSpreadsheet.spreadsheetId,
+      templateSpreadsheet.sheets[0].properties.sheetId,
+      createdSpreadsheet.spreadsheetId
     );
     titleSheetProperties.title = title;
-    await this.updateSpreadsheet(createdSheet.spreadsheetId, [
+    await this.updateSpreadsheet(createdSpreadsheet.spreadsheetId, [
       // Title of front page
       {
         updateSheetProperties: {
@@ -244,7 +268,9 @@ export class SheetsService {
         }
       },
       // Delete default page
-      this.makeDeleteSheetRequest(createdSheet.sheets[0].properties.sheetId)
+      this.makeDeleteSheetRequest(
+        createdSpreadsheet.sheets[0].properties.sheetId
+      )
     ]);
     // Update values
     // Issued and effective dates
@@ -257,7 +283,7 @@ export class SheetsService {
     effectiveDate.setDate(issuedDate.getDate() + 1 + weekends);
     // Update request
     await this.updateSheetValues(
-      createdSheet.spreadsheetId,
+      createdSpreadsheet.spreadsheetId,
       [
         ['H14:P14', `Department of ${department}`],
         ['H16:P16', `TIMETABLE for ${semesterType} ${year} Semester`],
@@ -282,7 +308,7 @@ export class SheetsService {
     batches.forEach((batch, index) => {
       if (!batch) {
         this.updateSheetValues(
-          createdSheet.spreadsheetId,
+          createdSpreadsheet.spreadsheetId,
           [
             [`K2${index}`, '-'],
             [`L2${index}`, '-']
@@ -293,27 +319,28 @@ export class SheetsService {
     });
   }
 
-  async createBatchPages(
+  // Batch Sheets
+  async createBatchSheets(
     semesterType: string,
     year: number,
     batches: Array<number>,
     batchesCourses: Array<Array<BatchCourse>>,
     createdSpreadsheet: gapi.client.sheets.Spreadsheet,
-    templateSheet: gapi.client.sheets.Spreadsheet
+    templateSpreadsheet: gapi.client.sheets.Spreadsheet
   ) {
     // Year titles
     const yearTitles = ['Freshmen', 'Sophomores', 'Juniors', 'Seniors'];
-    // For each batch - starting with freshing
-    batches.forEach(async (batch, index) => {
+    // For each batch - starting with freshmen
+    for (const [index, batch] of batches.entries()) {
       if (!batch) return;
       // Should be copied in order
       const batchSheetProperties = await this.copySheet(
-        templateSheet.spreadsheetId,
-        templateSheet.sheets[1 + index].properties.sheetId,
+        templateSpreadsheet.spreadsheetId,
+        templateSpreadsheet.sheets[1 + index].properties.sheetId,
         createdSpreadsheet.spreadsheetId
       );
       // Can be filled asynchronously
-      this.updateBatchPage(
+      this.updateBatchSheet(
         semesterType,
         year,
         batch,
@@ -322,10 +349,10 @@ export class SheetsService {
         createdSpreadsheet,
         batchSheetProperties
       );
-    });
+    }
   }
 
-  async updateBatchPage(
+  async updateBatchSheet(
     semesterType: string,
     year: number,
     batch: number,
@@ -438,6 +465,228 @@ export class SheetsService {
       }
     }
     return isRepeat;
+  }
+
+  // Course Pairing
+  async createCoursePairingSheet(
+    batches: Array<number>,
+    coursesForBatches: Array<Array<Course>>,
+    createdSpreadsheet: gapi.client.sheets.Spreadsheet,
+    templateSpreadsheet: gapi.client.sheets.Spreadsheet
+  ) {
+    // Create and set title
+    const title = `COURSE PAIRING INFO`;
+    const coursePairingSheetProperties = await this.copySheet(
+      templateSpreadsheet.spreadsheetId,
+      templateSpreadsheet.sheets[5].properties.sheetId,
+      createdSpreadsheet.spreadsheetId
+    );
+    coursePairingSheetProperties.title = title;
+    await this.updateSpreadsheet(createdSpreadsheet.spreadsheetId, [
+      // Title of page
+      {
+        updateSheetProperties: {
+          properties: coursePairingSheetProperties,
+          fields: '*'
+        }
+      }
+    ]);
+    // Heading for each year
+    let headingIndex = 5;
+    const yearTitles = ['Freshmen', 'Sophomores', 'Juniors', 'Seniors'];
+    for (const [batchIndex, batch] of batches.entries()) {
+      // Electives text
+      const electivesText = coursesForBatches[batchIndex]
+        .filter(courseForBatch => !courseForBatch.isCoreCourse)
+        .map(course => course.title)
+        .join(' OR ');
+      await this.updateSheetValues(
+        createdSpreadsheet.spreadsheetId,
+        [
+          [
+            `C${headingIndex}:J${headingIndex + 1}`,
+            `${yearTitles[batchIndex]} (BATCH-${batch}):`
+          ],
+          [`C${headingIndex + 3}:J${headingIndex + 4}`, electivesText]
+        ],
+        coursePairingSheetProperties.title
+      );
+      headingIndex += 7;
+    }
+    // Prerequisites
+    const prerequisiteBatchesTexts: Array<Array<string>> = [[], [], [], []];
+    coursesForBatches.forEach((coursesForBatch, batchIndex) => {
+      coursesForBatch.forEach(course => {
+        const successor = this.findSuccessor(course, coursesForBatch);
+        if (successor) {
+          prerequisiteBatchesTexts[batchIndex].push(
+            `If ${course.title} is not clear, can't take ${successor.title}.`
+          );
+        }
+      });
+    });
+    // Prerequisite rows
+    let currentPrerequisiteRow = 10;
+    const prerequisiteRangeValues: Array<[string, string]> = [];
+    for (const prerequisiteTexts of prerequisiteBatchesTexts) {
+      const numberOfRows =
+        prerequisiteTexts.length > 1 ? prerequisiteTexts.length : 1;
+      if (numberOfRows > 1)
+        await this.updateSpreadsheet(createdSpreadsheet.spreadsheetId, [
+          this.makeInsertRowsRequest(
+            coursePairingSheetProperties.sheetId,
+            currentPrerequisiteRow,
+            prerequisiteTexts.length - 1
+          )
+          // {
+          //   copyPaste: {
+          //     source: {
+          //       startRowIndex: currentPrerequisiteRow,
+          //       endRowIndex: currentPrerequisiteRow + 1,
+          //       sheetId: coursePairingSheetProperties.sheetId
+          //     },
+          //     destination: {
+          //       startRowIndex: currentPrerequisiteRow + 1,
+          //       endRowIndex: currentPrerequisiteRow + 2,
+          //       sheetId: coursePairingSheetProperties.sheetId
+          //     },
+          //     pasteType: 'PASTE_FORMAT',
+          //     pasteOrientation: 'NORMAL'
+          //   }
+          // }
+        ]);
+      // Fill requests
+      let i = 0;
+      do {
+        if (prerequisiteTexts[i])
+          prerequisiteRangeValues.push([
+            `C${currentPrerequisiteRow}:J${currentPrerequisiteRow}`,
+            prerequisiteTexts[i]
+          ]);
+        currentPrerequisiteRow += 1;
+        i++;
+      } while (i < prerequisiteTexts.length);
+      // Next prerequisite box
+      currentPrerequisiteRow += 6;
+    }
+    // Update values
+    this.updateSheetValues(
+      createdSpreadsheet.spreadsheetId,
+      prerequisiteRangeValues,
+      coursePairingSheetProperties.title
+    );
+  }
+
+  findSuccessor(course: Course, currentCourses: Array<Course>): Course {
+    let successor = null;
+    for (const currentCourse of currentCourses) {
+      // If a course is being taught which requires this course as its prerequisite
+      if (currentCourse.prerequisiteIds.includes(course.id)) {
+        successor = currentCourse;
+        break;
+      }
+    }
+    return successor;
+  }
+
+  // Days
+  async createDaySheets(
+    roomCells: Array<Array<RoomSlots>>,
+    labCells: Array<Array<RoomSlots>>,
+    createdSpreadsheet: gapi.client.sheets.Spreadsheet,
+    templateSpreadsheet: gapi.client.sheets.Spreadsheet
+  ) {
+    const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+    // For each day
+    for (const [dayIndex, day] of days.entries()) {
+      // Should be copied in order
+      const daySheetProperties = await this.copySheet(
+        templateSpreadsheet.spreadsheetId,
+        templateSpreadsheet.sheets[6 + dayIndex].properties.sheetId,
+        createdSpreadsheet.spreadsheetId
+      );
+      // Can be filled asynchronously
+      this.updateDaySheet(
+        day,
+        roomCells[dayIndex],
+        labCells[dayIndex],
+        createdSpreadsheet,
+        daySheetProperties
+      );
+    }
+  }
+
+  async updateDaySheet(
+    day: string,
+    roomCells: Array<RoomSlots>,
+    labCells: Array<RoomSlots>,
+    createdSpreadsheet: gapi.client.sheets.Spreadsheet,
+    daySheetProperties: gapi.client.sheets.SheetProperties
+  ) {
+    // Update title
+    daySheetProperties.title = day;
+    await this.updateSpreadsheet(createdSpreadsheet.spreadsheetId, [
+      {
+        updateSheetProperties: {
+          properties: daySheetProperties,
+          fields: '*'
+        }
+      }
+    ]);
+    // Add room and lab rows
+    let roomRows = 0,
+      labRows = 0;
+    for (const roomSlots of roomCells)
+      if (!this.isEmptySlotRow(roomSlots.slots)) roomRows++;
+    for (const labSlots of labCells)
+      if (!this.isEmptySlotRow(labSlots.slots)) labRows++;
+    roomRows = roomRows > 1 ? roomRows : 1;
+    labRows = labRows > 1 ? labRows : 1;
+    await this.updateSpreadsheet(createdSpreadsheet.spreadsheetId, [
+      this.makeInsertRowsRequest(daySheetProperties.sheetId, 5, roomRows - 1),
+      this.makeInsertRowsRequest(
+        daySheetProperties.sheetId,
+        6 + roomRows,
+        labRows - 1
+      )
+    ]);
+    // Update values
+    let currentRow = 5;
+    roomCells.forEach(roomCell => {
+      if (this.isEmptySlotRow(roomCell.slots)) return;
+      this.updateSheetValues(
+        createdSpreadsheet.spreadsheetId,
+        this.makeDayRangeValues(
+          currentRow++,
+          roomCell.roomName,
+          roomCell.slots
+        ),
+        daySheetProperties.title
+      );
+    });
+    currentRow = 6 + roomRows;
+    labCells.forEach(labCell => {
+      if (this.isEmptySlotRow(labCell.slots)) return;
+      this.updateSheetValues(
+        createdSpreadsheet.spreadsheetId,
+        this.makeDayRangeValues(currentRow++, labCell.roomName, labCell.slots),
+        daySheetProperties.title
+      );
+    });
+    // Update colors
+    // this.updateSpreadsheet(createdSpreadsheet.spreadsheetId, [{}]);
+  }
+
+  isEmptySlotRow(slots: Cell[]): boolean {
+    let isEmpty = true;
+    for (const slot of slots) {
+      // If a slot exists
+      if (slot) {
+        isEmpty = false;
+        break;
+      }
+    }
+    return isEmpty;
   }
 
   get spreadsheetApi() {

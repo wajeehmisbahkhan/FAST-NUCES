@@ -3,11 +3,8 @@ import {
   PublishedTimetable,
   Cell,
   Lecture,
-  Course,
-  TCSEntry,
-  AtomicSection,
-  Teacher,
-  BatchCourse
+  BatchCourse,
+  RoomSlots
 } from 'src/app/services/helper-classes';
 import { ServerService } from 'src/app/services/server.service';
 import { AlertService } from 'src/app/services/alert.service';
@@ -25,20 +22,22 @@ export class PublishComponent implements OnInit {
   @Input() roomNames: Array<string>;
   @Input() department: string;
   @Input() publishedTimetable: PublishedTimetable;
+  // Generated
+  cells: Array<Cell>;
 
   // Page switcher
   creatingNew: boolean;
-  publishedSheet: gapi.client.sheets.Spreadsheet;
+  publishedSpreadsheet: gapi.client.sheets.Spreadsheet;
   // Form
   semesterType: 'Spring' | 'Summer' | 'Fall';
   year: number;
 
   // Template schedule
-  templateSheetId = '1sq55sYHHZfuLxgjxAp8if-rwMeesjMqzR_P8ffh7rdw';
-  templateSheet: gapi.client.sheets.Spreadsheet;
+  templateSpreadsheetId = '1sq55sYHHZfuLxgjxAp8if-rwMeesjMqzR_P8ffh7rdw';
+  templateSpreadsheet: gapi.client.sheets.Spreadsheet;
 
   // Created sheet - global for ease
-  createdSheet: gapi.client.sheets.Spreadsheet;
+  createdSpreadsheet: gapi.client.sheets.Spreadsheet;
 
   constructor(
     private server: ServerService,
@@ -57,14 +56,36 @@ export class PublishComponent implements OnInit {
   async ngOnInit() {
     // Load published sheet if already published
     if (this.publishedTimetable) {
-      this.publishedSheet = await this.sheetsService.getSpreadsheet(
+      this.publishedSpreadsheet = await this.sheetsService.getSpreadsheet(
         this.publishedTimetable.sheetId
       );
     }
     // Template sheet is public and can be accessed even without authorization
-    this.templateSheet = await this.sheetsService.getSpreadsheet(
-      this.templateSheetId
+    this.templateSpreadsheet = await this.sheetsService.getSpreadsheet(
+      this.templateSpreadsheetId
     );
+    // Generate cells for publishing
+    // Create cells for publishing since multidimensional arrays are not allowed in firestore
+    this.cells = [];
+    this.timetable.forEach(entry => {
+      // If defined
+      if (entry && entry.atomicSectionIds) {
+        const section = this.getAtomicSectionById(entry.atomicSectionIds[0]);
+        const course = this.getCourseById(entry.courseId);
+        const teacherNames: Array<string> = [];
+        entry.teacherIds.forEach(teacherId =>
+          teacherNames.push(this.getTeacherById(teacherId).name)
+        );
+        if (course && section) {
+          this.cells.push(
+            new Cell(section.batch, course.shortTitle, entry.name, teacherNames)
+          );
+          return;
+        }
+      }
+      // If empty cell
+      this.cells.push(null);
+    });
   }
 
   setCreation(event: any) {
@@ -91,7 +112,6 @@ export class PublishComponent implements OnInit {
       return;
     }
     // Create PublishedTimetable object
-    // Create cells for publishing since multidimensional arrays are not allowed in firestore
     const newTimetable = new PublishedTimetable(
       spreadsheetId,
       this.department,
@@ -99,28 +119,8 @@ export class PublishComponent implements OnInit {
       this.year,
       this.roomNames
     );
-    const cells: Array<Cell> = [];
-    this.timetable.forEach(entry => {
-      // If defined
-      if (entry && entry.atomicSectionIds) {
-        const section = this.getAtomicSectionById(entry.atomicSectionIds[0]);
-        const course = this.getCourseById(entry.courseId);
-        const teacherNames: Array<string> = [];
-        entry.teacherIds.forEach(teacherId =>
-          teacherNames.push(this.getTeacherById(teacherId).name)
-        );
-        if (course && section) {
-          cells.push(
-            new Cell(section.batch, course.shortTitle, entry.name, teacherNames)
-          );
-          return;
-        }
-      }
-      // If empty cell
-      cells.push(null);
-    });
     // TODO: Uncomment
-    // newTimetable.timetable = cells;
+    // newTimetable.timetable = this.cells;
     // Update published timetables
     // await this.server.addObject('published', newTimetable);
     await this.alertService.notice(
@@ -144,14 +144,14 @@ export class PublishComponent implements OnInit {
 
   async createNewTimetable() {
     // Create a new spreadsheet using the template
-    this.createdSheet = {
-      properties: this.templateSheet.properties
+    this.createdSpreadsheet = {
+      properties: this.templateSpreadsheet.properties
     };
     // Generate custom title
-    this.createdSheet.properties.title = `${this.department}-${this.semesterType}-${this.year}`;
+    this.createdSpreadsheet.properties.title = `${this.department}-${this.semesterType}-${this.year}`;
     // Make it online
-    this.createdSheet = await this.sheetsService.createSpreadsheet(
-      this.createdSheet
+    this.createdSpreadsheet = await this.sheetsService.createSpreadsheet(
+      this.createdSpreadsheet
     );
     // Data needed for new sheet
     // Freshmen-Senior Year
@@ -217,32 +217,73 @@ export class PublishComponent implements OnInit {
       if (batchesCourses[batchIndex])
         batchesCourses[batchIndex].push(batchCourse);
     });
+    // 1D cells 3D room
+    const roomCells: Array<Array<RoomSlots>> = [[], [], [], [], []]; // 5 days
+    let cellIndex = 0;
+    // Rooms
+    for (let dayIndex = 0; dayIndex < 5; dayIndex++) {
+      this.roomNames.forEach((roomName, roomIndex) => {
+        roomCells[dayIndex].push({
+          roomName,
+          slots: []
+        });
+        // Push 8 slots from the 1d array
+        for (let slotIndex = 0; slotIndex < 8; slotIndex++) {
+          roomCells[dayIndex][roomIndex].slots.push(this.cells[cellIndex++]);
+        }
+      });
+    }
+    // Remove from rooms and add to labs
+    const labCells: Array<Array<RoomSlots>> = [[], [], [], [], []]; // 5 days
+    for (let dayIndex = 0; dayIndex < 5; dayIndex++) {
+      let roomIndex = 0;
+      while (roomIndex < roomCells[dayIndex].length) {
+        const roomName = roomCells[dayIndex][roomIndex].roomName.toLowerCase();
+        if (roomName.includes('lab') || roomName.includes('llc')) {
+          // Add to labCells
+          labCells[dayIndex].push(
+            JSON.parse(JSON.stringify(roomCells[dayIndex][roomIndex]))
+          );
+          // Remove from roomCells
+          roomCells[dayIndex].splice(roomIndex, 1);
+        } else {
+          roomIndex++;
+        }
+      }
+    }
     // Update new sheet according to generated timetable
     await this.sheetsService.createTitleSheet(
       this.department,
       this.semesterType,
       this.year,
       inPlaceBatches,
-      this.createdSheet,
-      this.templateSheet
+      this.createdSpreadsheet,
+      this.templateSpreadsheet
     );
-    await this.sheetsService.createBatchPages(
+    await this.sheetsService.createBatchSheets(
       this.semesterType,
       this.year,
       inPlaceBatches,
       batchesCourses,
-      this.createdSheet,
-      this.templateSheet
+      this.createdSpreadsheet,
+      this.templateSpreadsheet
     );
-
-    // Course pairing sheet
-
-    // Day sheets
-
-    // Make the created spreadsheet online - we only need the spreadsheetId
-
+    await this.sheetsService.createCoursePairingSheet(
+      batches,
+      batchesCourses.map(batchCourse =>
+        batchCourse.map(course => course.course)
+      ),
+      this.createdSpreadsheet,
+      this.templateSpreadsheet
+    );
+    await this.sheetsService.createDaySheets(
+      roomCells,
+      labCells,
+      this.createdSpreadsheet,
+      this.templateSpreadsheet
+    );
     // Return id
-    return this.createdSheet.spreadsheetId;
+    return this.createdSpreadsheet.spreadsheetId;
   }
 
   isPublished() {
