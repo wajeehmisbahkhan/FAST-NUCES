@@ -269,7 +269,7 @@ export class PublishComponent implements OnInit {
       this.templateSpreadsheet
     );
     await this.sheetsService.createCoursePairingSheet(
-      batches,
+      inPlaceBatches,
       batchesCourses.map(batchCourse =>
         batchCourse.map(course => course.course)
       ),
@@ -277,6 +277,7 @@ export class PublishComponent implements OnInit {
       this.templateSpreadsheet
     );
     await this.sheetsService.createDaySheets(
+      inPlaceBatches,
       roomCells,
       labCells,
       this.createdSpreadsheet,

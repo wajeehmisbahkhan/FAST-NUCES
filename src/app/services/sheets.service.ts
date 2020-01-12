@@ -180,25 +180,127 @@ export class SheetsService {
     ];
   }
 
-  makeDayRangeValues(
-    rowNumber: number,
+  makeCellData(
+    value: string,
+    borders: gapi.client.sheets.Borders,
+    backgroundColor = this.makeColorObject(256, 256, 256),
+    bold = false,
+    fontSize = 10
+  ): gapi.client.sheets.CellData {
+    return {
+      userEnteredValue: {
+        stringValue: value
+      },
+      userEnteredFormat: {
+        borders,
+        backgroundColor,
+        textFormat: {
+          bold,
+          fontSize
+        },
+        verticalAlignment: 'MIDDLE',
+        horizontalAlignment: 'CENTER'
+      }
+    };
+  }
+
+  makeBorder(style = 'SOLID'): gapi.client.sheets.Border {
+    return {
+      color: this.makeColorObject(0, 0, 0),
+      style
+    };
+  }
+
+  makeBorders(
+    style = 'SOLID',
+    right = true,
+    bottom = true,
+    top = false,
+    left = false
+  ): gapi.client.sheets.Borders {
+    const borders = {
+      right: this.makeBorder(style),
+      bottom: this.makeBorder(style),
+      top: this.makeBorder(style),
+      left: this.makeBorder(style)
+    };
+    if (!right) delete borders.right;
+    if (!bottom) delete borders.bottom;
+    if (!top) delete borders.top;
+    if (!left) delete borders.left;
+    return borders;
+  }
+
+  makeColorObject(
+    red: number,
+    green: number,
+    blue: number
+  ): gapi.client.sheets.Color {
+    red = red === 0 ? red : 256 - red;
+    green = green === 0 ? green : 256 - green;
+    blue = blue === 0 ? blue : 256 - blue;
+    return {
+      red,
+      green,
+      blue,
+      alpha: 1
+    };
+  }
+
+  makeDayRow(
     roomName: string,
-    slots: Array<Cell> // 8 slots
-  ) {
-    // Room name
-    const dayRangeValues: Array<[string, any]> = [[`A${rowNumber}`, roomName]];
+    slots: Array<Cell>, // 8 slots
+    batches: Array<number>
+  ): gapi.client.sheets.RowData {
+    const dayRow: gapi.client.sheets.RowData = {
+      values: [
+        // Room name
+        this.makeCellData(
+          roomName,
+          this.makeBorders('SOLID_MEDIUM'),
+          this.makeColorObject(255, 255, 0),
+          true,
+          14
+        )
+      ]
+    };
     // Slots
-    let letter = 'B';
     slots.forEach(slot => {
       // Could be null
-      if (slot)
-        dayRangeValues.push([
-          `${letter}${rowNumber}`,
-          `${slot.courseName} - ${slot.sectionName}\n${slot.teacherNames}`
-        ]);
-      letter = String.fromCodePoint(letter.charCodeAt(0) + 1);
+      if (slot) {
+        dayRow.values.push(
+          this.makeCellData(
+            `${slot.courseName} - ${slot.sectionName}\n${slot.teacherNames}`,
+            this.makeBorders(),
+            this.getColor(slot.batch, batches)
+          )
+        );
+      } else {
+        dayRow.values.push(this.makeCellData('', this.makeBorders()));
+      }
     });
-    return dayRangeValues;
+    return dayRow;
+  }
+
+  makeUpdateCellsRequest(
+    sheetId: number,
+    rows: gapi.client.sheets.RowData[],
+    startRowIndex: number,
+    numberOfRows: number
+  ) {
+    // Ensure positive ending index
+    const endRowIndex = startRowIndex + (numberOfRows >= 0 ? numberOfRows : 0);
+    return {
+      updateCells: {
+        rows,
+        fields: '*',
+        range: {
+          sheetId,
+          startRowIndex,
+          endRowIndex
+        }
+      }
+    };
   }
 
   makeInsertRowsRequest(
@@ -217,6 +319,29 @@ export class SheetsService {
           endIndex
         },
         inheritFromBefore: true
+      }
+    };
+  }
+
+  makeMergeColumnsRequest(
+    sheetId: number,
+    rowNumber: number,
+    startColumnIndex: number,
+    numberOfColumns: number
+  ): gapi.client.sheets.Request {
+    // Ensure positive ending index
+    const endColumnIndex =
+      startColumnIndex + (numberOfColumns >= 0 ? numberOfColumns : 0);
+    return {
+      mergeCells: {
+        mergeType: 'MERGE_ROWS',
+        range: {
+          sheetId,
+          startRowIndex: rowNumber,
+          endRowIndex: rowNumber + 1,
+          startColumnIndex,
+          endColumnIndex
+        }
       }
     };
   }
@@ -528,6 +653,7 @@ export class SheetsService {
     // Prerequisite rows
     let currentPrerequisiteRow = 10;
     const prerequisiteRangeValues: Array<[string, string]> = [];
+    const styleCellsRequests: Array<gapi.client.sheets.Request> = [];
     for (const prerequisiteTexts of prerequisiteBatchesTexts) {
       const numberOfRows =
         prerequisiteTexts.length > 1 ? prerequisiteTexts.length : 1;
@@ -538,38 +664,50 @@ export class SheetsService {
             currentPrerequisiteRow,
             prerequisiteTexts.length - 1
           )
-          // {
-          //   copyPaste: {
-          //     source: {
-          //       startRowIndex: currentPrerequisiteRow,
-          //       endRowIndex: currentPrerequisiteRow + 1,
-          //       sheetId: coursePairingSheetProperties.sheetId
-          //     },
-          //     destination: {
-          //       startRowIndex: currentPrerequisiteRow + 1,
-          //       endRowIndex: currentPrerequisiteRow + 2,
-          //       sheetId: coursePairingSheetProperties.sheetId
-          //     },
-          //     pasteType: 'PASTE_FORMAT',
-          //     pasteOrientation: 'NORMAL'
-          //   }
-          // }
         ]);
       // Fill requests
       let i = 0;
       do {
-        if (prerequisiteTexts[i])
+        if (prerequisiteTexts[i]) {
           prerequisiteRangeValues.push([
             `C${currentPrerequisiteRow}:J${currentPrerequisiteRow}`,
             prerequisiteTexts[i]
           ]);
+          // Merge
+          styleCellsRequests.push(
+            this.makeMergeColumnsRequest(
+              coursePairingSheetProperties.sheetId,
+              currentPrerequisiteRow - 1,
+              2,
+              7
+            )
+          );
+          // Border
+          // styleCellsRequests.push(
+          //   this.makeUpdateCellsRequest(coursePairingSheetProperties.sheetId, [{
+          //     values: [{
+          //       userEnteredValue: {
+          //         stringValue: prerequisiteTexts[i]
+          //       },
+          //       userEnteredFormat: {
+          //         borders: this.makeBorders('SOLID_MEDIUM', true, true, true, true)
+          //       }
+          //     }]
+          //   }], currentPrerequisiteRow - 1, 1)
+          // )
+        }
         currentPrerequisiteRow += 1;
         i++;
       } while (i < prerequisiteTexts.length);
       // Next prerequisite box
       currentPrerequisiteRow += 6;
     }
-    // Update values
+    // Merge and update values
+    console.log(styleCellsRequests);
+    this.updateSpreadsheet(
+      createdSpreadsheet.spreadsheetId,
+      styleCellsRequests
+    );
     this.updateSheetValues(
       createdSpreadsheet.spreadsheetId,
       prerequisiteRangeValues,
@@ -591,6 +729,7 @@ export class SheetsService {
 
   // Days
   async createDaySheets(
+    batches: Array<number>,
     roomCells: Array<Array<RoomSlots>>,
     labCells: Array<Array<RoomSlots>>,
     createdSpreadsheet: gapi.client.sheets.Spreadsheet,
@@ -608,6 +747,7 @@ export class SheetsService {
       // Can be filled asynchronously
       this.updateDaySheet(
         day,
+        batches,
         roomCells[dayIndex],
         labCells[dayIndex],
         createdSpreadsheet,
@@ -618,6 +758,7 @@ export class SheetsService {
 
   async updateDaySheet(
     day: string,
+    batches: Array<number>,
     roomCells: Array<RoomSlots>,
     labCells: Array<RoomSlots>,
     createdSpreadsheet: gapi.client.sheets.Spreadsheet,
@@ -642,54 +783,44 @@ export class SheetsService {
       if (!this.isEmptySlotRow(labSlots.slots)) labRows++;
     roomRows = roomRows > 1 ? roomRows : 1;
     labRows = labRows > 1 ? labRows : 1;
-    await this.updateSpreadsheet(createdSpreadsheet.spreadsheetId, [
-      this.makeInsertRowsRequest(daySheetProperties.sheetId, 5, roomRows - 1),
-      this.makeInsertRowsRequest(
-        daySheetProperties.sheetId,
-        6 + roomRows,
-        labRows - 1
-      )
-    ]);
-    // Update values
+    // Values
     let currentRow = 5;
-    const dayRangeValues: Array<[string, any]> = [];
+    const roomDayRows: Array<gapi.client.sheets.RowData> = [];
+    const labDayRows: Array<gapi.client.sheets.RowData> = [];
     roomCells.forEach(roomCell => {
       if (this.isEmptySlotRow(roomCell.slots)) return;
-      dayRangeValues.push(
-        ...this.makeDayRangeValues(
-          currentRow++,
-          roomCell.roomName,
-          roomCell.slots
-        )
+      roomDayRows.push(
+        this.makeDayRow(roomCell.roomName, roomCell.slots, batches)
       );
     });
     currentRow = 6 + roomRows;
     labCells.forEach(labCell => {
       if (this.isEmptySlotRow(labCell.slots)) return;
-      dayRangeValues.push(
-        ...this.makeDayRangeValues(
-          currentRow++,
-          labCell.roomName,
-          labCell.slots
-        )
+      labDayRows.push(
+        this.makeDayRow(labCell.roomName, labCell.slots, batches)
       );
     });
-    // Value updation
-    this.updateSheetValues(
-      createdSpreadsheet.spreadsheetId,
-      dayRangeValues,
-      daySheetProperties.title
-    );
-    // this.spreadsheetApi
-    // .batchUpdate({
-    //   spreadsheetId: '',
-    //   resource: {
-    //     requests: [
-
-    //     ]
-    //   },
-    //   fields: '*'
-    // })
+    // Updation
+    this.updateSpreadsheet(createdSpreadsheet.spreadsheetId, [
+      this.makeInsertRowsRequest(daySheetProperties.sheetId, 5, roomRows - 1),
+      this.makeUpdateCellsRequest(
+        daySheetProperties.sheetId,
+        roomDayRows,
+        4,
+        roomRows
+      ),
+      this.makeInsertRowsRequest(
+        daySheetProperties.sheetId,
+        6 + roomRows,
+        labRows - 1
+      ),
+      this.makeUpdateCellsRequest(
+        daySheetProperties.sheetId,
+        labDayRows,
+        4 + roomRows + 1,
+        labRows
+      )
+    ]);
   }
 
   isEmptySlotRow(slots: Cell[]): boolean {
@@ -704,30 +835,23 @@ export class SheetsService {
     return isEmpty;
   }
 
-  // getColor(lecture: TCSEntry): string {
-  //   if (!lecture || !lecture.courseId) return 'white';
-  //   // Batch of any section
-  //   const batch = this.getAtomicSectionById(lecture.atomicSectionIds[0]).batch;
-  //   const currentYear = new Date().getFullYear();
-  //   const currentMonth = new Date().getMonth();
-  //   let semester: number;
-  //   // If Jan-Jun - freshies will remain freshies
-  //   if (currentMonth < 6) semester = 1;
-  //   else semester = 0;
-  //   if (batch + semester === currentYear) {
-  //     // Freshies
-  //     return '#66FF33'; // rgb(102,255,51)
-  //   } else if (batch + semester === currentYear - 1) {
-  //     // Sophomore
-  //     return '#FF66CC'; // rgb(255,102,204)
-  //   } else if (batch + semester === currentYear - 2) {
-  //     // Junior
-  //     return '#00B0F0'; // rgb(0,176,240)
-  //   } else {
-  //     // Senior
-  //     return '#F79646'; // rgb(247,150,70)
-  //   }
-  // }
+  getColor(batch: number, batches: Array<number>): gapi.client.sheets.Color {
+    if (batches[0] === batch) {
+      // Freshies
+      return this.makeColorObject(102, 255, 51);
+    } else if (batches[1] === batch) {
+      // Sophomore
+      return this.makeColorObject(255, 102, 204);
+    } else if (batches[2] === batch) {
+      // Junior
+      return this.makeColorObject(0, 176, 240);
+    } else if (batches[3] === batch) {
+      // Senior
+      return this.makeColorObject(247, 150, 70);
+    } else {
+      return this.makeColorObject(256, 256, 256);
+    }
+  }
 
   get spreadsheetApi() {
     return gapi.client.sheets.spreadsheets;
