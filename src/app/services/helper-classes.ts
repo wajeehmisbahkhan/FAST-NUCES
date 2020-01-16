@@ -451,7 +451,7 @@ export class BatchCourse {
   numberOfSections = 0;
   private instructorSections: Array<{
     teacherName: string;
-    sectionNames: string;
+    sectionNames: Array<string>;
   }>;
 
   constructor(course: Course) {
@@ -464,11 +464,11 @@ export class BatchCourse {
       instructorSection => instructorSection.teacherName === teacherName
     );
     if (existingIS) {
-      existingIS.sectionNames += `, ${sectionName}`;
+      existingIS.sectionNames.push(sectionName);
     } else {
       this.instructorSections.push({
         teacherName,
-        sectionNames: sectionName
+        sectionNames: [sectionName]
       });
     }
     this.numberOfSections++;
@@ -476,10 +476,21 @@ export class BatchCourse {
 
   getInstructorSectionsText() {
     let text = '';
-    this.instructorSections.forEach((instructorSection, index) => {
-      text += `${instructorSection.teacherName} (${instructorSection.sectionNames})`;
-      if (index < this.instructorSections.length - 1) text += ', ';
-    });
+    this.instructorSections
+      // Sort
+      .sort((a, b) =>
+        sortAlphaNum(
+          a.sectionNames.sort().join(', '),
+          b.sectionNames.sort().join(', ')
+        )
+      )
+      .forEach((instructorSection, index) => {
+        // Text
+        text += `${
+          instructorSection.teacherName
+        } (${instructorSection.sectionNames.sort().join(', ')})`;
+        if (index < this.instructorSections.length - 1) text += ', ';
+      });
     return text;
   }
 }
