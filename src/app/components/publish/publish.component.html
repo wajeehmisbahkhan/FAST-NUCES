@@ -47,7 +47,7 @@
       class="ion-margin-vertical"
       type="submit"
       expand="full"
-      [disabled]="createForm.invalid || isPublished()"
+      [disabled]="createForm.invalid || isPublished() || !templateSpreadsheet"
       >Create New Timetable</ion-button
     >
     <ion-button
