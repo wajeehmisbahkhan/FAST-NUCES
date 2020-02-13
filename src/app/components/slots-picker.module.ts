@@ -8,7 +8,6 @@ import { FormsModule } from '@angular/forms';
 @NgModule({
   declarations: [PreferredSlotsPickerComponent, SlotsPickerComponent],
   imports: [CommonModule, FormsModule, IonicModule],
-  exports: [PreferredSlotsPickerComponent],
-  entryComponents: [SlotsPickerComponent]
+  exports: [PreferredSlotsPickerComponent]
 })
 export class SlotsPickerModule {}

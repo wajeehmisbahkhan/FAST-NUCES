@@ -8,7 +8,6 @@ import { IonicModule } from '@ionic/angular';
 @NgModule({
   declarations: [PreferredRoomPickerComponent, RoomPickerComponent],
   imports: [CommonModule, FormsModule, IonicModule],
-  exports: [PreferredRoomPickerComponent],
-  entryComponents: [RoomPickerComponent]
+  exports: [PreferredRoomPickerComponent]
 })
 export class RoomPickerModule {}

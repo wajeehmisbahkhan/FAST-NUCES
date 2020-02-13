@@ -10,7 +10,6 @@ import { SwapperComponent } from './swapper/swapper.component';
 @NgModule({
   declarations: [ScheduleComponent, PublishComponent, SwapperComponent],
   exports: [ScheduleComponent],
-  imports: [CommonModule, IonicModule, FormsModule, AdminInputFormatModule],
-  entryComponents: [PublishComponent, SwapperComponent]
+  imports: [CommonModule, IonicModule, FormsModule, AdminInputFormatModule]
 })
 export class TimetableModule {}

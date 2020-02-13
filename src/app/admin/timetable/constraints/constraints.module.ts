@@ -24,7 +24,6 @@ const routes: Routes = [
     RouterModule.forChild(routes),
     AdminInputFormatModule
   ],
-  declarations: [ConstraintsPage, EditComponent],
-  entryComponents: [EditComponent]
+  declarations: [ConstraintsPage, EditComponent]
 })
 export class ConstraintsPageModule {}

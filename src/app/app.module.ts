@@ -20,7 +20,6 @@ import { ServiceWorkerModule } from '@angular/service-worker';
 
 @NgModule({
   declarations: [AppComponent],
-  entryComponents: [],
   imports: [
     BrowserModule,
     IonicModule.forRoot(),

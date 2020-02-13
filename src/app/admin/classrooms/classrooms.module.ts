@@ -25,7 +25,6 @@ const routes: Routes = [
     RouterModule.forChild(routes),
     SlotsPickerModule
   ],
-  declarations: [ClassroomsPage, ViewTableComponent, EditComponent],
-  entryComponents: [EditComponent]
+  declarations: [ClassroomsPage, ViewTableComponent, EditComponent]
 })
 export class ClassroomsPageModule {}

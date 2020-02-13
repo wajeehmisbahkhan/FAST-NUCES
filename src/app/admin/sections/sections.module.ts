@@ -27,7 +27,6 @@ const routes: Routes = [
     SlotsPickerModule,
     RoomPickerModule
   ],
-  declarations: [SectionsPage, ViewTableComponent, EditComponent],
-  entryComponents: [EditComponent]
+  declarations: [SectionsPage, ViewTableComponent, EditComponent]
 })
 export class SectionsPageModule {}

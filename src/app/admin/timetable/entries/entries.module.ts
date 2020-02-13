@@ -24,7 +24,6 @@ const routes: Routes = [
     RouterModule.forChild(routes),
     AdminInputFormatModule
   ],
-  declarations: [EntriesPage, EditComponent],
-  entryComponents: [EditComponent]
+  declarations: [EntriesPage, EditComponent]
 })
 export class EntriesPageModule {}
