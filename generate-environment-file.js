@@ -3,10 +3,10 @@ const fs = require('fs');
 const targetPath = './src/environments/environment.ts';
 const productionTargetPath = './src/environments/environment.prod.ts';
 // File structures
-const envConfigFile = process.env.ENVIRONMENT_CONTENT;
-const envProdConfigFile = process.env.ENVIRONMENT_PROD_CONTENT;
+const envConfigFile = process.env.secrets.ENVIRONMENT_CONTENT;
+const envProdConfigFile = process.env.secrets.ENVIRONMENT_PROD_CONTENT;
 
-console.log(envConfigFile);
+console.log(typeof envConfigFile);
 // Write
 fs.writeFile(targetPath, envConfigFile, function(err) {
   if (err) {
