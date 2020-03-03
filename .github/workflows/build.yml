@@ -24,3 +24,5 @@ jobs:
         node_modules/.bin/ng build --prod
       env:
         CI: true
+        ENVIRONMENT_CONTENT: ${{ secrets.ENVIRONMENT_CONTENT }}
+        ENVIRONMENT_PROD_CONTENT: ${{ secrets.ENVIRONMENT_PROD_CONTENT }}
