@@ -1,0 +1,31 @@
+name: Build And Deploy
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get latest commit
+        uses: actions/checkout@v2.0.0
+      - name: Install Node
+        uses: actions/setup-node@v1.1.0
+      - name: Install Dependencies
+        run: npm install
+      - name: Create environment file
+        run: node generate-environment-file.js
+        env:
+          CI: true
+          ENVIRONMENT_CONTENT: ${{ secrets.ENVIRONMENT_CONTENT }}
+          ENVIRONMENT_PROD_CONTENT: ${{ secrets.ENVIRONMENT_PROD_CONTENT }}
+      - name: Build Using npm
+        run: node_modules/.bin/ng build --prod
+      - name: Deploy to firebase hosting
+        uses: w9jds/firebase-action@master
+        with:
+          args: deploy --only hosting
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
