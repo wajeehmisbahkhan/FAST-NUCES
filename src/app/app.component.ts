@@ -52,7 +52,7 @@ export class AppComponent {
         if (res) {
           // User is logged in
           await this.as.load('Loading data...', this.server.loadObjects());
-          this.router.navigate(['admin', 'timetable', 'generate']);
+          this.router.navigate(['admin', 'courses']);
         } else {
           // TODO: Redirect to login?
           this.router.navigate(['public']);

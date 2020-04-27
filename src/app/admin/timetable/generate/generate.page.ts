@@ -20,23 +20,23 @@ export class GeneratePage implements OnInit {
 
   ngOnInit() {
     this.departments = ['CS'];
-    const csLecture = new Lecture();
-    csLecture.assignedSlots = [
-      {
-        day: 0,
-        roomId: this.server.rooms[0].id,
-        time: 0
-      }
-    ];
-    csLecture.atomicSectionIds = [this.server.atomicSections[0].id];
-    csLecture.courseId = this.courses[0].id;
-    csLecture.id = 'cs-lecture';
-    csLecture.name = 'GR1';
-    csLecture.strength = 50;
-    csLecture.teacherIds = [this.server.teachers[0].id];
+    // const csLecture = new Lecture();
+    // csLecture.assignedSlots = [
+    //   {
+    //     day: 0,
+    //     roomId: this.server.rooms[0].id,
+    //     time: 0
+    //   }
+    // ];
+    // csLecture.atomicSectionIds = [this.server.atomicSections[0].id];
+    // csLecture.courseId = this.courses[0].id;
+    // csLecture.id = 'cs-lecture';
+    // csLecture.name = 'GR1';
+    // csLecture.strength = 50;
+    // csLecture.teacherIds = [this.server.teachers[0].id];
     this.timetables = [
       // CS
-      [csLecture]
+      // [csLecture]
     ];
   }
 
