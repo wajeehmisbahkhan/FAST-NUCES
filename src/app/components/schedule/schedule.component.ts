@@ -56,8 +56,6 @@ export class ScheduleComponent implements OnInit {
     this.convertLecturesToViewTimetable();
     // Monday by default
     this.day = 0;
-    // TODO: Remove
-    this.presentPublisher();
   }
 
   convertLecturesToViewTimetable() {
