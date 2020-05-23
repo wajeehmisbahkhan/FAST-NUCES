@@ -9,10 +9,35 @@ import {
   sortAlphaNum,
   Constraint,
   AtomicSection,
-  Lecture,
-  AssignedSlot,
-  PublishedTimetable
+  PublishedTimetable,
+  Lecture
 } from './helper-classes';
+import { environment } from 'src/environments/environment';
+import { Observable } from 'rxjs';
+
+interface TimetableGenerationRequest {}
+
+interface TimetableGenerationResponse {
+  code: number;
+  message: // Server Side Messages
+  | 'unknown-message-received'
+    | 'could-not-parse-json'
+    | 'attached-is-generating-status'
+    | 'attached-are-timetables-progresses'
+    | 'generating-timetables'
+    | 'timetables-have-been-generated'
+    | 'started-generating-timetables'
+    | 'attached-are-timetables'
+    | 'no-generated-timetables-found'
+    | 'deleted-timetables'
+    // Client Side Connection Messages
+    | 'connection-established'
+    | 'connection-closed';
+  generating?: boolean;
+  timetableProgress?: number;
+  // [TimeTable][Lecture]
+  timetables?: Array<Array<Lecture>>;
+}
 
 @Injectable({
   providedIn: 'root'
@@ -29,10 +54,11 @@ export class ServerService {
   entries: Array<TCSEntry>;
   constraints: Array<Constraint>;
 
-  // From backend
-  generated: Array<Lecture>;
   // Published
   published: Array<PublishedTimetable>;
+
+  // Connection to backend
+  socket: WebSocket;
 
   constructor(private db: DatabaseService) {
     this.courses = [];
@@ -43,8 +69,6 @@ export class ServerService {
     // Combo
     this.entries = [];
     this.constraints = [];
-    // [TimeTable][Lecture]
-    this.generated = [];
     this.published = [];
   }
 
@@ -107,45 +131,6 @@ export class ServerService {
       )
     );
     return Promise.all(promises);
-  }
-
-  // Dummy data
-  generateTimeTable() {
-    let day = 0,
-      roomIndex = 0,
-      time = 0;
-    // Create lectures for each entry's credit hour / duration
-    this.entries.forEach(entry => {
-      // Get course by id
-      const duration = this.courses.find(course => course.id === entry.courseId)
-        .duration;
-      const lecture = JSON.parse(JSON.stringify(entry)) as Lecture;
-      lecture['assignedSlots'] = [];
-      for (let j = 0; j < duration; j++) {
-        lecture.assignedSlots[j] = new AssignedSlot();
-        lecture.assignedSlots[j].day = day;
-        lecture.assignedSlots[j].roomId = this.rooms[roomIndex].id;
-        lecture.assignedSlots[j].time = time++;
-        // Next room
-        if (time === 8) {
-          time = 0;
-          roomIndex++;
-          // Next day
-          if (roomIndex === this.rooms.length) {
-            roomIndex = 0;
-            day++;
-          }
-        }
-      }
-      this.generated.push(lecture);
-    });
-  }
-
-  /**
-   * Returns a random number between min (inclusive) and max (exclusive)
-   */
-  getRandomInteger(min: number, max: number) {
-    return Math.floor(Math.random() * (max - min) + min);
   }
 
   // Specific to loading primitive
@@ -239,7 +224,84 @@ export class ServerService {
     }
   }
 
+  // TIMETABLE GENERATION
+  connectToBackend() {
+    // TODO: Check if already connected to backend
+    if (this.socket) {
+      return;
+    }
+    let wsUrl = `${environment.serverBaseUrl}/connect`;
+    // Convert to websocket
+    wsUrl = wsUrl.replace(/http/gm, 'ws');
+    return new Observable<TimetableGenerationResponse>(subscriber => {
+      this.socket = new WebSocket(wsUrl);
+      this.socket.onopen = e => {
+        subscriber.next({
+          code: 200,
+          message: 'connection-established'
+        });
+      };
+
+      this.socket.onmessage = event => {
+        subscriber.next(JSON.parse(event.data));
+      };
+
+      this.socket.onclose = event => {
+        if (event.wasClean) {
+          subscriber.next({
+            code: 202,
+            message: 'connection-closed'
+          });
+          subscriber.complete();
+        } else {
+          // e.g. server process killed or network down
+          // event.code is usually 1006 in this case
+          subscriber.error({
+            code: 400,
+            message: `Connection died, code=${event.code} reason=${event.reason}`
+          });
+        }
+      };
+
+      this.socket.onerror = error => {
+        subscriber.error({
+          code: 400,
+          message: `Error: ${error}`
+        });
+      };
+    });
+  }
+
+  sendMessageToBackend(
+    message:
+      | 'get-generating'
+      | 'generate-timetables'
+      | 'get-timetables-progress'
+      | 'get-timetables'
+      | 'delete-timetables',
+    timetableRequest?: TimetableGenerationRequest
+  ) {
+    // TODO: Handle undefined / problematic socket
+    if (!this.socket || this.socket.readyState !== this.socket.OPEN) {
+      return;
+    }
+    return this.socket.send(
+      JSON.stringify({
+        message,
+        timetableRequest
+      })
+    );
+  }
+
   get collectionNames() {
     return this.db.collections;
+  }
+
+  get connecting() {
+    return this.socket && this.socket.readyState === this.socket.CONNECTING;
+  }
+
+  get connected() {
+    return this.socket && this.socket.readyState === this.socket.OPEN;
   }
 }

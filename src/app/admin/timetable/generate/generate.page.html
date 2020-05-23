@@ -10,33 +10,49 @@
   </ion-toolbar>
 </ion-header>
 <ion-content>
-  <!-- Generating -->
-  <ion-row *ngIf="generating; else timetable">
-    <ion-col class="margin-center" size="10">
-      <ion-progress-bar type="indeterminate"></ion-progress-bar>
-    </ion-col>
-    <ion-col class="ion-text-center" size="2">
-      <ion-button (click)="cancel()" color="danger">Cancel</ion-button>
-    </ion-col>
+  <!-- Connecting to Server -->
+  <ion-row *ngIf="connecting">
+    Connecting to server...
   </ion-row>
-  <ng-template #timetable>
-    <!-- Generate -->
-    <ion-row *ngIf="timetables.length === 0">
-      <ion-col class="ion-text-center" size="12">
-        <ion-button (click)="generateTimetable()"
-          >Generate Timetable</ion-button
-        >
+  <!-- Server Error -->
+  <ion-row *ngIf="!connecting && !connected">
+    Error: Could not connect to server
+  </ion-row>
+  <ng-container *ngIf="connected">
+    <!-- Generating -->
+    <ion-row *ngIf="generating">
+      <!-- Progress Bar -->
+      <ion-col class="margin-center" size="10">
+        <ng-container *ngIf="timetableProgress === null; else progressBar">
+          <ion-progress-bar type="indeterminate"></ion-progress-bar>
+        </ng-container>
+        <ng-template #progressBar>
+          <ion-progress-bar type="indeterminate"></ion-progress-bar>
+        </ng-template>
+      </ion-col>
+      <ion-col class="ion-text-center" size="2">
+        <ion-button (click)="cancel()" color="danger">Cancel</ion-button>
       </ion-col>
     </ion-row>
-    <!-- Generated -->
-    <ion-card *ngFor="let timetable of timetables; let i = index">
-      <ion-card-header>{{departments[i]}} Timetable</ion-card-header>
-      <ion-card-content>
-        <schedule
-          [lectures]="timetable"
-          [department]="departments[i]"
-        ></schedule>
-      </ion-card-content>
-    </ion-card>
-  </ng-template>
+    <ng-container *ngIf="!generating && timetables">
+      <!-- Generate -->
+      <ion-row *ngIf="timetables.length === 0">
+        <ion-col class="ion-text-center" size="12">
+          <ion-button (click)="generateTimetable()"
+            >Generate Timetable</ion-button
+          >
+        </ion-col>
+      </ion-row>
+      <!-- Generated -->
+      <ion-card *ngFor="let timetable of timetables; let i = index">
+        <ion-card-header>{{departments[i]}} Timetable</ion-card-header>
+        <ion-card-content>
+          <schedule
+            [lectures]="timetable"
+            [department]="departments[i]"
+          ></schedule>
+        </ion-card-content>
+      </ion-card>
+    </ng-container>
+  </ng-container>
 </ion-content>

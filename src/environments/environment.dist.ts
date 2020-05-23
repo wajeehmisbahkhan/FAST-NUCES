@@ -23,5 +23,6 @@ export const environment = {
     // included, separated by spaces.
     // See, edit, create, and delete your spreadsheets in Google Drive
     scope: 'https://www.googleapis.com/auth/spreadsheets'
-  }
+  },
+  serverBaseUrl: 'http://localhost:8080'
 };
