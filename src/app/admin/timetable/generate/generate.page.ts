@@ -63,6 +63,9 @@ export class GeneratePage implements OnInit, OnDestroy {
             this.timetables = [];
             this.departments = [];
           }
+        } else if (response.message === 'canceled-timetables-generation') {
+          this.generating = false;
+          this.timetablesProgresses = null;
         } else if (response.message === 'attached-are-timetables') {
           // 3b2/N. Timetable is generated
           this.timetables = response.timetables;
@@ -106,7 +109,7 @@ export class GeneratePage implements OnInit, OnDestroy {
   }
 
   cancel() {
-    // TODO: Send request to server
+    this.server.sendMessageToBackend('cancel-generation');
   }
 
   getCourseById(id: string) {

@@ -28,6 +28,8 @@ interface TimetableGenerationResponse {
     | 'timetables-have-been-generated'
     | 'started-generating-timetables'
     | 'attached-are-timetables'
+    | 'canceled-timetables-generation'
+    | 'could-not-cancel-generation'
     | 'no-generated-timetables-found'
     | 'deleted-timetables'
     // Client Side Connection Messages
@@ -277,6 +279,7 @@ export class ServerService {
       | 'get-generating'
       | 'generate-timetables'
       | 'get-timetables-progress'
+      | 'cancel-generation'
       | 'get-timetables'
       | 'delete-timetables',
     timetableRequest?: TimetableGenerationRequest
