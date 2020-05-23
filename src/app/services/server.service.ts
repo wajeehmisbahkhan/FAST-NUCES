@@ -34,7 +34,7 @@ interface TimetableGenerationResponse {
     | 'connection-established'
     | 'connection-closed';
   generating?: boolean;
-  timetableProgress?: number;
+  timetablesProgresses?: number;
   // [TimeTable][Lecture]
   timetables?: Array<Array<Lecture>>;
 }
@@ -227,7 +227,7 @@ export class ServerService {
   // TIMETABLE GENERATION
   connectToBackend() {
     // TODO: Check if already connected to backend
-    if (this.socket) {
+    if (this.connected) {
       return;
     }
     let wsUrl = `${environment.serverBaseUrl}/connect`;
@@ -282,7 +282,7 @@ export class ServerService {
     timetableRequest?: TimetableGenerationRequest
   ) {
     // TODO: Handle undefined / problematic socket
-    if (!this.socket || this.socket.readyState !== this.socket.OPEN) {
+    if (!this.connected) {
       return;
     }
     return this.socket.send(
@@ -291,6 +291,15 @@ export class ServerService {
         timetableRequest
       })
     );
+  }
+
+  disconnectFromBackend() {
+    // TODO: Handle undefined / problematic socket
+    if (!this.connected) {
+      return;
+    }
+    this.socket.close();
+    this.socket = null;
   }
 
   get collectionNames() {

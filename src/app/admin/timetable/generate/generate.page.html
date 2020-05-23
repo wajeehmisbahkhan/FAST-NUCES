@@ -23,11 +23,11 @@
     <ion-row *ngIf="generating">
       <!-- Progress Bar -->
       <ion-col class="margin-center" size="10">
-        <ng-container *ngIf="timetableProgress === null; else progressBar">
+        <ng-container *ngIf="timetablesProgresses === null; else progressBar">
           <ion-progress-bar type="indeterminate"></ion-progress-bar>
         </ng-container>
         <ng-template #progressBar>
-          <ion-progress-bar type="indeterminate"></ion-progress-bar>
+          <ion-progress-bar [value]="timetablesProgresses"></ion-progress-bar>
         </ng-template>
       </ion-col>
       <ion-col class="ion-text-center" size="2">
@@ -36,23 +36,32 @@
     </ion-row>
     <ng-container *ngIf="!generating && timetables">
       <!-- Generate -->
-      <ion-row *ngIf="timetables.length === 0">
+      <ion-row *ngIf="timetables.length === 0; else generated">
         <ion-col class="ion-text-center" size="12">
-          <ion-button (click)="generateTimetable()"
-            >Generate Timetable</ion-button
+          <ion-button (click)="generateTimetables()"
+            >Generate Timetables</ion-button
           >
         </ion-col>
       </ion-row>
       <!-- Generated -->
-      <ion-card *ngFor="let timetable of timetables; let i = index">
-        <ion-card-header>{{departments[i]}} Timetable</ion-card-header>
-        <ion-card-content>
-          <schedule
-            [lectures]="timetable"
-            [department]="departments[i]"
-          ></schedule>
-        </ion-card-content>
-      </ion-card>
+      <ng-template #generated>
+        <ion-card *ngFor="let timetable of timetables; let i = index">
+          <ion-card-header>{{departments[i]}} Timetable</ion-card-header>
+          <ion-card-content>
+            <schedule
+              [lectures]="timetable"
+              [department]="departments[i]"
+            ></schedule>
+          </ion-card-content>
+        </ion-card>
+        <ion-row>
+          <ion-col class="ion-text-center" size="12">
+            <ion-button (click)="deleteTimetables()"
+              >Delete Timetables</ion-button
+            >
+          </ion-col>
+        </ion-row>
+      </ng-template>
     </ng-container>
   </ng-container>
 </ion-content>
