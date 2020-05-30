@@ -15,7 +15,14 @@ import {
 import { environment } from 'src/environments/environment';
 import { Observable } from 'rxjs';
 
-interface TimetableGenerationRequest {}
+interface TimetableGenerationRequest {
+  courses: Array<Course>;
+  teachers: Array<Teacher>;
+  atomicSections: Array<AtomicSection>;
+  rooms: Array<Room>;
+  entries: Array<TCSEntry>;
+  constraints: Array<Constraint>;
+}
 
 interface TimetableGenerationResponse {
   code: number;

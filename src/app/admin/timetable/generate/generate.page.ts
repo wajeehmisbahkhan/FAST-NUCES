@@ -101,7 +101,14 @@ export class GeneratePage implements OnInit, OnDestroy {
   }
 
   generateTimetables() {
-    this.server.sendMessageToBackend('generate-timetables', {});
+    this.server.sendMessageToBackend('generate-timetables', {
+      atomicSections: this.server.atomicSections,
+      constraints: this.server.constraints,
+      courses: this.server.courses,
+      entries: this.server.entries,
+      rooms: this.server.rooms,
+      teachers: this.server.teachers
+    });
   }
 
   deleteTimetables() {
