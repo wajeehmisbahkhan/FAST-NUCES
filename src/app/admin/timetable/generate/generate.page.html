@@ -22,12 +22,14 @@
     <!-- Generating -->
     <ion-row *ngIf="generating">
       <!-- Progress Bar -->
-      <ion-col class="margin-center" size="10">
+      <ion-col class="margin-center ion-text-center" size="10">
         <ng-container *ngIf="timetablesProgresses === null; else progressBar">
           <ion-progress-bar type="indeterminate"></ion-progress-bar>
+          <ion-text>Initializing Population...</ion-text>
         </ng-container>
         <ng-template #progressBar>
           <ion-progress-bar [value]="timetablesProgresses"></ion-progress-bar>
+          <ion-text>{{ timetablesProgresses * 100 }}%</ion-text>
         </ng-template>
       </ion-col>
       <ion-col class="ion-text-center" size="2">
