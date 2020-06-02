@@ -267,6 +267,7 @@ export class ServerService {
       };
 
       this.socket.onmessage = event => {
+        this.preventTimeout();
         subscriber.next(JSON.parse(event.data));
       };
 
