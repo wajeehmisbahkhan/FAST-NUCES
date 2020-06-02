@@ -79,6 +79,9 @@ export class GeneratePage implements OnInit, OnDestroy {
           if (response.code === 200) {
             this.generating = false;
           }
+        } else if (response.message === 'max-generations-reached') {
+          this.timetables = response.timetables;
+          this.generating = false;
         } else if (response.message === 'deleted-timetables') {
           // User can now generate new timetables
           this.timetables = [];

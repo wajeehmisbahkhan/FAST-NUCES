@@ -32,6 +32,7 @@ interface TimetableGenerationResponse {
     | 'attached-is-generating-status'
     | 'attached-are-timetables-progresses'
     | 'generating-timetables'
+    | 'max-generations-reached'
     | 'timetables-have-been-generated'
     | 'started-generating-timetables'
     | 'attached-are-timetables'
