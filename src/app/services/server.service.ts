@@ -68,6 +68,7 @@ export class ServerService {
 
   // Connection to backend
   socket: WebSocket;
+  timeoutPreventerId: number;
 
   constructor(private db: DatabaseService) {
     this.courses = [];
@@ -234,6 +235,19 @@ export class ServerService {
   }
 
   // TIMETABLE GENERATION
+  preventTimeout() {
+    if (!this.connected) {
+      return;
+    }
+    if (this.timeoutPreventerId) {
+      clearTimeout(this.timeoutPreventerId);
+    }
+    this.timeoutPreventerId = window.setTimeout(
+      this.sendMessageToBackend.bind(this, 'prevent-timeout'),
+      50 * 1000
+    );
+  }
+
   connectToBackend() {
     // TODO: Check if already connected to backend
     if (this.connected) {
@@ -245,6 +259,7 @@ export class ServerService {
     return new Observable<TimetableGenerationResponse>(subscriber => {
       this.socket = new WebSocket(wsUrl);
       this.socket.onopen = e => {
+        this.preventTimeout();
         subscriber.next({
           code: 200,
           message: 'connection-established'
@@ -256,6 +271,7 @@ export class ServerService {
       };
 
       this.socket.onclose = event => {
+        clearTimeout(this.timeoutPreventerId);
         if (event.wasClean) {
           subscriber.next({
             code: 202,
@@ -281,6 +297,45 @@ export class ServerService {
     });
   }
 
+  memorySizeOf(obj) {
+    let bytes = 0;
+
+    function sizeOf(obj) {
+      if (obj !== null && obj !== undefined) {
+        switch (typeof obj) {
+          case 'number':
+            bytes += 8;
+            break;
+          case 'string':
+            bytes += obj.length * 2;
+            break;
+          case 'boolean':
+            bytes += 4;
+            break;
+          case 'object':
+            let objClass = Object.prototype.toString.call(obj).slice(8, -1);
+            if (objClass === 'Object' || objClass === 'Array') {
+              for (let key in obj) {
+                if (!obj.hasOwnProperty(key)) continue;
+                sizeOf(obj[key]);
+              }
+            } else bytes += obj.toString().length * 2;
+            break;
+        }
+      }
+      return bytes;
+    }
+
+    function formatByteSize(bytes) {
+      if (bytes < 1024) return bytes + ' bytes';
+      else if (bytes < 1048576) return (bytes / 1024).toFixed(3) + ' KiB';
+      else if (bytes < 1073741824) return (bytes / 1048576).toFixed(3) + ' MiB';
+      else return (bytes / 1073741824).toFixed(3) + ' GiB';
+    }
+
+    return formatByteSize(sizeOf(obj));
+  }
+
   sendMessageToBackend(
     message:
       | 'get-generating'
@@ -288,13 +343,15 @@ export class ServerService {
       | 'get-timetables-progress'
       | 'cancel-generation'
       | 'get-timetables'
-      | 'delete-timetables',
+      | 'delete-timetables'
+      | 'prevent-timeout',
     timetableRequest?: TimetableGenerationRequest
   ) {
     // TODO: Handle undefined / problematic socket
     if (!this.connected) {
       return;
     }
+    this.preventTimeout();
     return this.socket.send(
       JSON.stringify({
         message,
