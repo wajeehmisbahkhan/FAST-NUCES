@@ -58,7 +58,11 @@ export class GeneratePage implements OnInit, OnDestroy {
           this.server.sendMessageToBackend('get-timetables-progress');
         } else if (response.message === 'no-generated-timetables-found') {
           // 3b1. Timetable is not generated (message = 'get-timetable')
-          if (response.code === 404) {
+          if (
+            response.code === 404 ||
+            // Possible in max-generations-reached scenario
+            response.code === 405
+          ) {
             // User can now generate new timetables
             this.timetables = [];
             this.departments = [];
