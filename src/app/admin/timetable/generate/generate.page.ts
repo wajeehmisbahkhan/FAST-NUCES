@@ -47,7 +47,7 @@ export class GeneratePage implements OnInit, OnDestroy {
           }
         } else if (response.message === 'attached-are-timetables-progresses') {
           // 3a. Server tells the timetable progress
-          this.timetablesProgresses = response.timetablesProgresses / 100;
+          this.timetablesProgresses = response.timetablesProgresses;
         } else if (response.message === 'generating-timetables') {
           this.generating = true;
         } else if (response.message === 'timetables-have-been-generated') {
