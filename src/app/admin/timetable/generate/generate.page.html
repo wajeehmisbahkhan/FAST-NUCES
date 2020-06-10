@@ -16,54 +16,52 @@
   </ion-row>
   <!-- Server Error -->
   <ion-row *ngIf="!connecting && !connected">
-    Error: Could not connect to server
+    Connection to server lost. Application may work in unexpected ways.
   </ion-row>
-  <ng-container *ngIf="connected">
-    <!-- Generating -->
-    <ion-row *ngIf="generating">
-      <!-- Progress Bar -->
-      <ion-col class="margin-center ion-text-center" size="10">
-        <ng-container *ngIf="timetablesProgresses === null; else progressBar">
-          <ion-progress-bar type="indeterminate"></ion-progress-bar>
-          <ion-text>Initializing Population...</ion-text>
-        </ng-container>
-        <ng-template #progressBar>
-          <ion-progress-bar [value]="timetablesProgresses"></ion-progress-bar>
-          <ion-text>{{ timetablesProgresses * 100 }}%</ion-text>
-        </ng-template>
-      </ion-col>
-      <ion-col class="ion-text-center" size="2">
-        <ion-button (click)="cancel()" color="danger">Cancel</ion-button>
+  <!-- Generating -->
+  <ion-row *ngIf="connected && generating">
+    <!-- Progress Bar -->
+    <ion-col class="margin-center ion-text-center" size="10">
+      <ng-container *ngIf="timetablesProgresses === null; else progressBar">
+        <ion-progress-bar type="indeterminate"></ion-progress-bar>
+        <ion-text>Initializing Population...</ion-text>
+      </ng-container>
+      <ng-template #progressBar>
+        <ion-progress-bar [value]="timetablesProgresses"></ion-progress-bar>
+        <ion-text>{{ timetablesProgresses * 100 }}%</ion-text>
+      </ng-template>
+    </ion-col>
+    <ion-col class="ion-text-center" size="2">
+      <ion-button (click)="cancel()" color="danger">Cancel</ion-button>
+    </ion-col>
+  </ion-row>
+  <ng-container *ngIf="timetables">
+    <!-- Generate -->
+    <ion-row *ngIf="timetables.length === 0; else generated">
+      <ion-col *ngIf="!generating" class="ion-text-center" size="12">
+        <ion-button (click)="generateTimetables()"
+          >Generate Timetables</ion-button
+        >
       </ion-col>
     </ion-row>
-    <ng-container *ngIf="!generating && timetables">
-      <!-- Generate -->
-      <ion-row *ngIf="timetables.length === 0; else generated">
+    <!-- Generated -->
+    <ng-template #generated>
+      <ion-card *ngFor="let timetable of timetables; let i = index">
+        <ion-card-header>{{departments[i]}} Timetable</ion-card-header>
+        <ion-card-content>
+          <schedule
+            [lectures]="timetable"
+            [department]="departments[i]"
+          ></schedule>
+        </ion-card-content>
+      </ion-card>
+      <ion-row>
         <ion-col class="ion-text-center" size="12">
-          <ion-button (click)="generateTimetables()"
-            >Generate Timetables</ion-button
+          <ion-button (click)="deleteTimetables()"
+            >Delete Timetables</ion-button
           >
         </ion-col>
       </ion-row>
-      <!-- Generated -->
-      <ng-template #generated>
-        <ion-card *ngFor="let timetable of timetables; let i = index">
-          <ion-card-header>{{departments[i]}} Timetable</ion-card-header>
-          <ion-card-content>
-            <schedule
-              [lectures]="timetable"
-              [department]="departments[i]"
-            ></schedule>
-          </ion-card-content>
-        </ion-card>
-        <ion-row>
-          <ion-col class="ion-text-center" size="12">
-            <ion-button (click)="deleteTimetables()"
-              >Delete Timetables</ion-button
-            >
-          </ion-col>
-        </ion-row>
-      </ng-template>
-    </ng-container>
+    </ng-template>
   </ng-container>
 </ion-content>

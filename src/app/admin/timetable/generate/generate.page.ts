@@ -48,6 +48,9 @@ export class GeneratePage implements OnInit, OnDestroy {
         } else if (response.message === 'attached-are-timetables-progresses') {
           // 3a. Server tells the timetable progress
           this.timetablesProgresses = response.timetablesProgresses;
+          if (response.timetables) {
+            this.timetables = response.timetables;
+          }
         } else if (response.message === 'generating-timetables') {
           this.generating = true;
         } else if (response.message === 'timetables-have-been-generated') {
@@ -82,6 +85,7 @@ export class GeneratePage implements OnInit, OnDestroy {
         } else if (response.message === 'max-generations-reached') {
           this.timetables = response.timetables;
           this.generating = false;
+          this.alertService.notice('Max gens');
         } else if (response.message === 'deleted-timetables') {
           // User can now generate new timetables
           this.timetables = [];
